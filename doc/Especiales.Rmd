@@ -1,6 +1,8 @@
 ---
 title: "Clase Especiales"
-output: rmarkdown::html_vignette
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
 vignette: >
   %\VignetteIndexEntry{Clase Especiales}
   %\VignetteEngine{knitr::rmarkdown}
@@ -23,8 +25,32 @@ library(encuestar)
 
 La clase Especial ofrece resultados en un tipo particular de gráficos
 
-# Candidato opinión
-```{r ejemplo1, fig.width = 10, fig.height = 10, echo = TRUE}
+## Candidato opinión
+
+Esta función permite generar una gráfica compuesta la cual se forma  una gráfica de barras apiladas tipo Chicklet, junto a una gráfica de burbuja y una gráfica de barras de categoría única.
+
+La gráfica de barras apiladas corresponde a mostrar diversas categorías de varias variables dentro de la base de datos. Las variables a graficar deben tener el mismo prefijo en su nombre (llave), pero diferente nombre en su sufijo para poderlas identificar. Este grupo de sufijos serán conocidos como **aspectos**, y el prefijo único será conocido como **patrón inicial**. Para asignar los nombres de cada categoría en la gráfica se apoya del diccionario en el apartado de “tema”. La gráfica maneja tres niveles básicos, **negativo, regular, positivo**, así mismo la gráfica muestra un eje divisor en el centro de la esta. Las categorías de tipo "negativo" se graficarán en el lado izquierdo del eje divisor, así mismo las categorías de tipo "positivo" se graficarán del lado derecho del eje. En caso de existir categorías de tipo "regular", se graficarán en el centro del eje divisor.
+
+La gráfica de barras de categoría única corresponde en especificar cuando existe la no respuesta o el “No sabe/ No contesta” en las categorías de la gráfica de barras apiladas, separando esa categoría del resto que se muestran en la primera gráfica. Si bien esta gráfica se utiliza para separar la “no respuesta”, se puede separar cualquier otra categoría del resto de categorías graficadas presentes en la gráfica de barras apiladas.
+
+La gráfica de burbuja, así como la gráfica de barras, requiere de un patrón inicial llamado **llave burbuja**, pero comparte los mismos **aspectos** que el resto de las gráficas anteriores. La diferencia consiste en graficar la proporción de una categoría seleccionada de las variables que coincidan con la llave burbuja.
+
+La gráfica compuesta generada se utiliza principalmente para graficar la opinión y conocimiento de diferentes personajes dentro de la encuesta, pero **si existen otras variables con las mismas características mencionadas, también pueden graficarse sin ningún problema.** Se recomienda esta gráfica cuando entre las categorías existan respuestas que ponderen o califiquen algún elemento en niveles específicos.
+
+```{r dicc_ejemp_1,warning=FALSE,message=FALSE,echo = FALSE}
+library(dplyr)
+ejemp_dic_1 <- encuesta_demo$cuestionario$diccionario|>
+  select(tipo_pregunta,llaves,tema,respuestas)|>
+  filter(grepl('opinion_pm',llaves)|grepl('conoce_pm',llaves))|>
+  filter(!grepl('razon|lia|javier',llaves))
+
+
+
+knitr::kable(ejemp_dic_1, caption = 'Tabla 1. Llaves con prefijo "conoce_pm" y "opinion_pm"', align = 'c')
+
+```
+
+```{r ejemplo1, fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Especial$candidatoOpinion(patron_inicial = "opinion_pm",
                                                    aspectos = c("astiazaran", "delrio"),
                                                    ns_nc = "Ns/Nc",
@@ -44,8 +70,108 @@ encuesta_demo$Resultados$Especial$candidatoOpinion(patron_inicial = "opinion_pm"
 
 ```
 
-# Candidato saldo
-```{r ejemplo2, fig.width = 10, fig.height = 10, echo = TRUE}
+##### Argumentos:
+
+`patron_inicial`
+Se refiere al prefijo o patrón que deben de tener las llaves a para la gráfica de barras apiladas. Recibe un string.
+
+`aspectos`
+Corresponde a los sufijos o nombres que se desean graficar, además de identificar a cada llave de su patrón inicial. Recibe un vector de valores de tipo string. 
+
+`ns_nc`
+Indica la categoría que corresponde a la no respuesta, o simplemente la categoría única que se desea graficar en la gráfica de barras anexa. Recibe un valor de tipo string.
+
+`regular`
+Indica la categoría que corresponden al tipo regular. Recibe un valor de tipo string.
+
+`llave_burbuja`
+Se refiere al prefijo o patrón que deben de tener las llaves a para la gráfica de burbuja. Recibe un string.
+
+`size_burbuja`
+Es el tamaño máximo de las burbujas en la gráfica. Recibe un valor de tipo entero.
+
+`filtro_burbuja`
+Corresponde a la respuesta o categoría que se va seleccionar para que se grafique entre las variables que comparten la mismo patrón de **llave burbuja**. La manera de seleccionar la variable correspondiente es introduciendo el siguiente string: *‘respuesta == “[categoría]” ‘*, siendo [categoría], la categoría en cuestión que se desea comparar y graficar.
+
+`grupo_positivo`
+Recibe el grupo de categorías que serán del tipo “positivo” y graficadas en el lado derecho de la gráfica de barras apiladas. Recibe un vector de valores de tipo string. 
+
+`grupo_negativo`
+Recibe el grupo de categorías que serán del tipo “negativo” y graficadas en el lado derecho de la gráfica de barras apiladas. Recibe un vector de valores de tipo string. 
+
+`orden_resp`
+Indica el orden en el que se desea mostrar las categorías en la leyenda de la gráfica. Recibe un vector de valores de tipo string. 
+
+`colores_opinion `
+Indica los colores que se desean asignar a cada una de las categorías en la gráfica de barras apiladas. Recibe un vector con nombres con el siguiente formato *c( [categori_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`color_nsnc`
+El color de las barras de la gráfica de categoría única o de no respuesta. Recibe un valor tipo string.
+
+`color_burbuja`
+El color de las burbujas de la gráfica de burbuja. Recibe un valor tipo string.
+
+`caption_opinion`
+Corresponde al texto que describe a la gráfica de barras apiladas. Recibe un valor de tipo string.
+
+`caption_nsnc`
+Corresponde al texto que describe a la gráfica de barras de categoría única. Recibe un valor de tipo string.
+
+`caption_burbuja`
+Corresponde al texto que describe a la gráfica de burbuja. Recibe un valor de tipo string.
+
+`size_caption_opinion`
+Corresponde al tamaño del caption en la gráfica de barras apiladas. Recibe valores de tipo entero.
+
+`size_caption_nsnc`
+Corresponde al tamaño del caption en la gráfica de barras de categoría única. Recibe valores de tipo entero.
+
+`size_caption_burbuja`
+Corresponde al tamaño del caption en la gráfica de burbuja. Recibe valores de tipo entero.
+
+`size_text_cat`
+Corresponde al tamaño de las categorías en la gráfica. Recibe valores de tipo entero.
+
+`size_pct`
+Corresponde al tamaño de los porcentajes en la gráfica. Recibe valores de tipo entero.
+
+`burbuja`
+Indica si se desea mostrar la gráfica de burbuja, siendo TRUE la respuesta por defecto, y la que muestra la gráfica. Recibe valores booleanos TRUE o FALSE.
+
+`salto`
+Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
+
+`salto_respuestas`
+Corresponde al salto de línea de las categorías en la leyenda de la gráfica. Recibe valores de tipo entero.
+
+`mostrar_nsnc`
+Indica si se desea mostrar la gráfica de barras de categoría única, siendo TRUE la respuesta por defecto, y la que muestra la gráfica. Recibe valores booleanos TRUE o FALSE.
+
+`orden_cat`
+Indica el orden en el que se desea mostrar las categorías contenidas en el eje Y de la gráfica. Recibe un vector de valores de tipo string. 
+
+
+## Candidato saldo
+
+Esta función permite generar una gráfica de barras apiladas tipo Chicklet, agrupando una lista de categorías en tres niveles básicos, **negativo, regular, positivo**. Las variables a graficar deben tener el mismo prefijo en su nombre (llave), pero diferente nombre en su sufijo para poderlas identificar. Este grupo de sufijos serán conocidos como **candidatos**, y el prefijo único será conocido como ** llave opinion**. Para asignar los nombres de cada categoría en la gráfica se apoya del diccionario en el apartado de “tema”.
+
+Esta gráfica se ocupa para presentar de manera general la opinión o percepción de algún personaje, combinando todas las categorías positivas y negativas que se asignan al personaje, pero **si existen otras variables con las mismas características mencionadas, también pueden graficarse sin ningún problema. ** Se recomienda esta gráfica cuando entre las categorías existan respuestas que ponderen o califiquen algún elemento en niveles específicos y quieran visualizarse de forma resumida.
+
+
+```{r dicc_ejemp_2,warning=FALSE,message=FALSE,echo = FALSE}
+
+ejemp_dic_2 <- encuesta_demo$cuestionario$diccionario|>
+  select(tipo_pregunta,llaves,tema,respuestas)|>
+  filter(grepl('opinion_pm',llaves))|>
+  filter(!grepl('razon|lia|javier',llaves))
+
+
+
+knitr::kable(ejemp_dic_2, caption = 'Tabla 2. Llaves con prefijo "conoce_pm"', align = 'c')
+
+```
+
+```{r ejemplo2, fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Especial$candidatoSaldo(llave_opinion = "opinion_pm", 
                                                  candidatos = c("astiazaran", "delrio"), 
                                                  positivos = c("Buena", "Muy buena"), 
@@ -53,12 +179,72 @@ encuesta_demo$Resultados$Especial$candidatoSaldo(llave_opinion = "opinion_pm",
                                                  regular = "Regular", 
                                                  ns_nc = "Ns/Nc", 
                                                  color_positivo = "#52B788", 
-                                                 color_negativo = "#606299")
+                                                 color_negativo = "#606299", 
+                                                 caption_opinion = "")
 
 ```
 
-# Candidato opinion 2
-```{r ejemplo3, fig.width = 10, fig.height = 10, echo = TRUE}
+##### Argumentos:
+
+`llave_opinion`
+Se refiere al prefijo o patrón que deben de tener las llaves a para la gráfica. Recibe un string.
+
+`candidatos`
+Corresponde a los sufijos o nombres que se desean graficar, además de identificar a cada llave de su patrón inicial. Recibe un vector de valores de tipo string. 
+
+`positivos`
+Recibe el grupo de categorías que serán del tipo “positivo” y graficadas en el lado derecho de la gráfica de barras apiladas. Recibe un vector de valores de tipo string. 
+
+`negativos`
+Recibe el grupo de categorías que serán del tipo “negativo” y graficadas en el lado derecho de la gráfica de barras apiladas. Recibe un vector de valores de tipo string. 
+
+`regular`
+Indica la categoría que corresponden al tipo regular. Recibe un valor de tipo string.
+
+`ns_nc`
+Indica la categoría que corresponden al tipo regular. Recibe un valor de tipo string.
+
+`color_positivo`
+El color de la barra de la gráfica tipo positiva. Recibe un valor tipo string.
+
+`color_negativo`
+El color de la barra de la gráfica tipo negativo. Recibe un valor tipo string.
+
+`orden_cat`
+Indica el orden en el que se desea mostrar las categorías contenidas en el eje Y de la gráfica. Recibe un vector de valores de tipo string.
+
+`salto_cat`
+Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
+
+`size_text_legend`
+Corresponde al tamaño del texto de la leyenda. Recibe valores de tipo entero.
+
+`size_text_cat`
+Corresponde al tamaño del texto de las categorias. Recibe valores de tipo entero.
+
+`size_pct`
+Corresponde al tamaño del texto de los porcentajes. Recibe valores de tipo entero.
+
+`size_caption_opinion`
+Corresponde al tamaño del texto del caption. Recibe valores de tipo entero.
+
+
+
+## Candidato opinion 2
+
+Esta función genera una tabla que muestra la proporción de diversas categorías de varias variables dentro de la base de datos. Las variables a graficar deben tener el mismo prefijo en su nombre (llave), pero diferente nombre en su sufijo para poderlas identificar. Este grupo de sufijos serán conocidos como **aspectos **, y el prefijo único será conocido como **patrón opinión**. Para asignar los nombres de cada categoría en la gráfica se apoya del diccionario en el apartado de “tema”.  Las categorías referidas como **aspectos** corresponden a las filas, y los valores de las variables con el **patrón opinión** corresponde a las columnas de la tabla.
+
+ A la tabla se anexa una columna más que muestra la proporción de una categoría seleccionada de las variables que coincidan con otro patrón inicial o prefijo, el cual es conocido como **patrón conocimiento**, y comparte los mismos **aspectos** antes mencionados.
+ 
+Esta tabla se utiliza principalmente para mostrar la opinión y conocimiento de diferentes personajes dentro de la encuesta, pero **si existen otras variables con las mismas características mencionadas, también pueden graficarse sin ningún problema.** Se recomienda esta tabla cuando entre las categorías existan respuestas que ponderen o califiquen algún elemento en niveles específicos.
+
+```{r dicc_ejemp_1_1,warning=FALSE,message=FALSE,echo = FALSE}
+
+knitr::kable(ejemp_dic_1, caption = 'Tabla 1. Llaves con prefijo "conoce_pm" y "opinion_pm"', align = 'c')
+
+```
+
+```{r ejemplo3, fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Especial$candidatoOpinion2(patron_opinion = "opinion_pm",
                                                     aspectos = c("astiazaran", "delrio"),
                                                     ns_nc = "Ns/Nc",
@@ -78,15 +264,86 @@ encuesta_demo$Resultados$Especial$candidatoOpinion2(patron_opinion = "opinion_pm
                                                     color_conocimiento = "orange")
 ```
 
-# Candidato partido
-```{r ejemplo4, fig.width = 10, fig.height = 10, echo = TRUE}
+##### Argumentos:
+
+`patron_opinion`
+Se refiere al prefijo o patrón que deben de tener las llaves a para la tabla, cuyos valores serán las respectivas columnas. Recibe un string.
+
+`aspectos`
+Corresponde a los sufijos o nombres que se desean mostrar, además de identificar a cada llave de su patrón inicial. Recibe un vector de valores de tipo string. 
+
+`ns_nc`
+Indica la categoría que corresponde a la no respuesta, o simplemente la categoría única. Recibe un valor de tipo string.
+
+`regular`
+Indica la categoría que corresponden al tipo regular. Recibe un valor de tipo string.
+
+`patron_conocimiento`
+Se refiere al prefijo o patrón que deben de tener las llaves a para la columna con categoría única o filtrada. Recibe un string.
+
+`filtro_conocimiento`
+Corresponde a la respuesta o categoría que se va seleccionar para que se grafique entre las variables que comparten la mismo patrón de **patrón conocimien**. La manera de seleccionar la variable correspondiente es introduciendo el siguiente string: *‘respuesta == “[categoría]” ‘*, siendo [categoría], la categoría en cuestión que se desea comparar y mostrar.
+
+`orden_opinion`
+Indica el orden en el que se desea mostrar las categorías en las columnas correspondientes a las variables con **patron_opinion**. Recibe un vector de valores de tipo string. 
+
+`etiquetas`
+Indica el nombre que se desea agregar en los encabezados, tanto a las categorías correspondientes a los **aspectos** y las categorías correspondientes a  **patron_opinion**. Recibe un vector de valores de tipo string. 
+
+`colores_opinion `
+Indica los colores que se desean asignar a cada una de las categorías en las columnas. Recibe un vector con nombres con el siguiente formato *c( [categori_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`colores_candidato`
+Indica los colores que se desean asignar a cada una de las categorías en las filas de la tabla. Recibe un vector con nombres con el siguiente formato *c( [categori_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`color_principal`
+El color del resto de elementos de la tabla. Recibe un valor de tipo string.
+
+`color_conocimiento`
+El color de la columna correspondiente a ** patron_conocimiento **.  Recibe un valor de tipo string.
+
+` size_text_header `
+Corresponde al tamaño de los encabezados de la tabla. Recibe valores de tipo entero.
+
+` size_text_body `
+Corresponde al tamaño del texto de la tabla. Recibe valores de tipo entero.
+
+`salto`
+Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
+
+`salto_respuestas`
+Corresponde al salto de línea de las categorías en la leyenda de la gráfica. Recibe valores de tipo entero.
+
+
+## Candidato partido
+
+Esta función entrega una gráfica de barras apiladas enfocada en describir a que partidos pertenece diferentes candidatos. También se anexa una gráfica de puntos, para señalar el nivel de conocimiento sobre el personaje.
+
+Las variables a graficar para las barras apiladas deben tener el mismo prefijo en su nombre (llave), pero diferente nombre en su sufijo para poderlas identificar. Este grupo de sufijos serán conocidos como **candidatos**, y el prefijo único será conocido como **llave partido**. Para asignar los nombres de cada categoría en la gráfica se apoya del diccionario en el apartado de “tema”.  
+
+La gráfica de puntos, así como la gráfica de barras, requiere de un patrón inicial llamado **llave conocimiento**, pero comparte los mismos **aspectos** que el resto de las gráficas anteriores. La diferencia consiste en graficar la proporción de una categoría seleccionada de las variables que coincidan con la llave conocimiento.
+
+```{r dicc_ejemp_3,warning=FALSE,message=FALSE,echo = FALSE}
+
+ejemp_dic_3 <- encuesta_demo$cuestionario$diccionario|>
+  select(tipo_pregunta,llaves,tema,respuestas)|>
+  filter(grepl('opinion_pm|partido_pm',llaves))|>
+  filter(!grepl('razon',llaves))
+
+
+
+knitr::kable(ejemp_dic_3, caption = 'Tabla 3. Llaves con prefijo "conoce_pm", y "partido_pm"', align = 'c')
+
+```
+
+```{r ejemplo4, fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Especial$candidatoPartido(llave_partido = "partido_pm",
                                                    llave_conocimiento = "conoce_pm",
                                                    respuesta_conoce = "Sí",
                                                    candidatos = c("lia", "javier"),
                                                    corte_otro = 0.0,
-                                                   colores_candidatos = c("javier" = "red",
-                                                                          "lia" = "blue"),
+                                                   colores_candidatos = c("Javier López Casarín" = "red",
+                                                                          "Lía Limón García" = "blue"),
                                                    colores_partido = c("MORENA" = "#A6032F",
                                                                        "PRI" = "#038C33",
                                                                        "Ninguno" = "black",
@@ -97,5 +354,36 @@ encuesta_demo$Resultados$Especial$candidatoPartido(llave_partido = "partido_pm",
                                                                        "PT" = "#D91136",
                                                                        "PRD" = "#F2B705",
                                                                        "Otro" = "gray30"),
-                                                   cliente = "javier")
+                                                   cliente = "Javier López Casarín")
 ```
+
+##### Argumentos:
+
+`llave_partido`
+Se refiere al prefijo o patrón que deben de tener las llaves a para la gráfica de barras apiladas. Recibe un string.
+
+`llave_conocimiento`
+Se refiere al prefijo o patrón que deben de tener las llaves a para la gráfica puntos. Recibe un string.
+
+`respuesta_conoce`
+Corresponde a la respuesta o categoría que se va seleccionar para que se grafique entre las variables que comparten la mismo patrón de **llave conocimiento**. Recibe un string.
+
+`candidatos`
+Corresponde a los sufijos o nombres que se desean graficar, además de identificar a cada llave de su patrón inicial. Recibe un vector de valores de tipo string. 
+
+`corte_otro`
+Indica el valor mínimo en la que una categoría puede ser presentada en la gráfica. Todas las categorías que no alcancen el porcentaje correspondiente al valor declarado serán representadas en conjunto como la categoría “Otro” dentro de la gráfica. Recibe valores decimales.
+
+`cliente`
+Indica que aspecto (candidato) tendrá sus resultados resaltados respecto al resto de los aspectos la gráfica. Recibe un string.
+
+`colores_candidatos`
+Indica los colores que se desean asignar a cada una de los aspectos (candidatos) en la gráfica de puntos. Recibe un vector con nombres con el siguiente formato *c( [categoria_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`colores_partido`
+Indica los colores que se desean asignar a cada una de las categorías en las barras apiladas. Recibe un vector con nombres con el siguiente formato *c( [categori_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`corte_vis`
+Indica el valor mínimo en la que una categoría puede ser presentada en la gráfica. Todas las categorías que no alcancen el porcentaje correspondiente al valor declarado serán representadas en conjunto como la categoría “Otro” dentro de la gráfica. Recibe valores decimales.
+
+

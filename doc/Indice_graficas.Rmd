@@ -1,10 +1,17 @@
 ---
 title: "Índice de Gráficas"
-output: rmarkdown::html_vignette
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
 vignette: >
   %\VignetteIndexEntry{Índice de Gráficas}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+left:
+  - text: "Home"
+    href: Manual-diccionario.html
+  - text: "Descriptiva"
+    href: Descriptiva.html
 ---
 
 ```{r, include = FALSE}
@@ -14,11 +21,16 @@ knitr::opts_chunk$set(
 )
 ```
 
+<div class = "watermark">
+<img src = "./Manual-diccionario/morant.png">
+</div>
+
+
 ## Graficas por métodos
 
 Las gráficas por métodos son las gráficas que se pueden realizar directamente de la clase "Encuesta", accediendo al diseño de la muestra de manera directa. Este tipo de gráficas están concentradas en seis tipos de gráficas:
 
-- [**Descriptiva**](./Descriptiva.html): Este tipo de gráficas permite dar resultados de la encuesta de manera resumida y por lo general se enfoca en mostrar el análisis de una sola variable, o la misma diferentes variables expresadas en la encuesta en una sola pregunta. 
+- [**Descriptiva**](./Descriptiva.html): Este tipo de gráficas permite dar resultados de la encuesta de manera resumida y por lo general se enfoca en mostrar el análisis de una sola variable, o la misma pregunta expresada en diferentes variables expresadas dentro de la base de datos de la encuesta. 
 
 - [**Especial**](./Especiales.html): Este tipo de gráficas permite dar resultados de la encuesta de manera resumida y por lo general se enfoca en mostrar el análisis de una o varias variables, pero estas gráficas están compuestas por más de una sola gráfica, mostrando varios resultados.
 

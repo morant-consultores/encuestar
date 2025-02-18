@@ -87,7 +87,7 @@ Esta función grafica las categorías correspondientes a una variable contenida 
 ```{r lollipops categorica, echo = TRUE, warning=FALSE, fig.width = 14, fig.height = 7.56}
 
 encuesta_demo$Resultados$Descriptiva$lollipops_categorica(codigo = 'problema_principal',
-                                                          limits = 0.4,
+                                                          limits = c(0,0.4),
                                                           width_cats = 25,
                                                           size = 3,
                                                           size_pct = 5)
@@ -104,7 +104,7 @@ Corresponde a la variable que se desea graficar. La variable debe ser múltiple 
 Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
 	
 `limits`
-Corresponde al límite del eje X correspondiente a la escala en porcentajes. Recibe valores decimales.
+Corresponde al límite del eje X correspondiente a la escala en porcentajes. Recibe un vector de valores decimales ejemplo c(0,1).
 
 `size`
 Corresponde al tamaño de las lollipops. Recibe valores de tipo entero. 
@@ -126,7 +126,7 @@ encuestar:::analizar_frecuencias(diseno = encuesta_demo$muestra$diseno, pregunta
   group_by(respuesta) |>
   summarise(media = sum(media)) |>
   rename(pct = media) |>
-  encuestar:::graficar_lollipops(limits = 0.4,
+  encuestar:::graficar_lollipops(limits = c(0,0.4),
                                  width_cats = 25 ,
                                  size = 3,
                                  size_pct = 5)+
@@ -262,7 +262,7 @@ knitr::kable(ejemp_dic_2, caption = 'Tabla 2. Llaves con prefijo "medios_com_O" 
 ```{r lollipops_multirrespuesta, echo = TRUE, warning=FALSE, fig.width = 14, fig.height = 7.56  }
 
 encuesta_demo$Resultados$Descriptiva$lollipops_multirespuesta(patron_inicial = 'medios_com_O', 
-                                                              limits = 0.7,
+                                                              limits = c(0,0.7),
                                                               width_cats = 25,
                                                               size = 3,
                                                               size_pct = 5)
@@ -279,7 +279,7 @@ Se refiere al prefijo o patrón que deben de tener las llaves a graficar. Recibe
 Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
 	
 `limits`
-Corresponde al límite del eje X correspondiente a la escala en porcentajes. Recibe valores decimales.
+Corresponde al límite del eje X correspondiente a la escala en porcentajes.  Recibe un vector de valores decimales ejemplo c(0,1).
 
 `size`
 Corresponde al tamaño de las lollipops. Recibe valores de tipo entero. 
@@ -298,7 +298,7 @@ Indica el orden en el que se desea mostrar las categorías. Recibe un vector de 
 encuestar:::analizar_frecuencia_multirespuesta(diseno = encuesta_demo$muestra$diseno,
                                                'medios_com_O') %>%
   rename(pct = media) |>
-  encuestar:::graficar_lollipops(limits = 0.7,
+  encuestar:::graficar_lollipops(limits = c(0,0.7),
                                  width_cats = 25,
                                  size = 3,
                                  size_pct = 5)+

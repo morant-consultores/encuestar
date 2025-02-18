@@ -1,6 +1,8 @@
 ---
 title: "Tendencias de resultados"
-output: rmarkdown::html_vignette
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
 vignette: >
   %\VignetteIndexEntry{Tendencias de resultados}
   %\VignetteEngine{knitr::rmarkdown}
@@ -27,48 +29,182 @@ La clase Tendencias es capaz de generar datos cruzados entre al menos dos o más
 
 ## Intención de voto
 
-```{r ejemplo1, fig.width = 10, fig.height = 10, echo = TRUE}
+Esta función genera una gráfica de tendencia por media móvil con la principal intención de analizar la variable correspondiente a la intención de voto dentro de la encuesta. La función puede graficar la tendencia de cualquier variable de tipo categórica o multirrespuesta. La línea roja vertical mostrará la fecha en la que se obtuvo el 50 % de los datos registrados al momento.
+
+```{r ejemplo1,  fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Tendencias$intencion_voto(variable = "voto_pr_24",
                                                    valores_interes = c("Claudia Sheinbaum por MORENA-PT-Partido Verde",
                                                                        "Xóchitl Gálvez por PAN-PRI-PRD"),
                                                    colores = c("Claudia Sheinbaum por MORENA-PT-Partido Verde" = "#A6032F",
                                                                "Xóchitl Gálvez por PAN-PRI-PRD" = "#0339a6"), 
-                                                   sin_peso = FALSE)
+                                                   sin_peso = FALSE,
+                                                   linea_peso = F)
 
 ```
 
+##### Argumentos:
+
+`variable`
+Corresponde a la variable que se desea graficar. La variable debe ser múltiple o categórica. Recibe un valor de tipo string.
+
+`valores_interes`
+Filtra y muestra una o varias categorías declaradas de la variable a graficar. Recibe un vector con valores de tipo string. 
+
+`colores`
+Indica los colores que se desean asignar a cada una de las categorías en la gráfica. Recibe un vector con nombres con el siguiente formato *c( [categoria_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`sin_peso`
+Indica si se quiere aplicar peso estadístico al cálculo de la media móvil, siendo TRUE la variable que indica que no se desea utilizar el uso de pesos. Recibe valores booleanos TRUE o FALSE.
+
+`linea_peso`
+Indica si se quiere mostrar una línea vertical punteada que indica en que momento se obtuvo el 50 % de la suma total de los pesos de los datos registrados al momento. True corresponde a mostrar la línea.  Recibe valores booleanos TRUE o FALSE.
+
+`size_fech`
+Tamaño de las fechas presentes en el eje Y de la gráfica. Recibe un valor de tipo entero.
+
+`size_text_legend`
+Tamaño de las leyendas. Recibe un valor de tipo entero.
+
 ## Conocimiento de personajes
-```{r ejemplo2, fig.width = 10, fig.height = 10, echo = TRUE}
+
+Esta función genera una gráfica de tendencia por media móvil con la principal intención de analizar las variables correspondientes al conocimiento dentro de la encuesta. En este caso la función compara diferentes variables que comparten las mismas categorías. Por lo general estas variables compartirán en su nombre (llave) el mismo prefijo relacionado a la temática/pregunta de la que se hace referencia. La línea roja vertical mostrará la fecha en la que se obtuvo el 50 % de los datos registrados al momento.
+
+```{r dicc_ejemp_1,warning=FALSE,message=FALSE,echo = FALSE}
+library(dplyr)
+ejemp_dic_1 <- encuesta_demo$cuestionario$diccionario|>
+  select(tipo_pregunta,llaves,tema,respuestas)|>
+  filter(grepl('conoce_pm',llaves))|>
+  filter(!grepl('razon|lia|javier',llaves))
+
+
+
+knitr::kable(ejemp_dic_1, caption = 'Tabla 1. Llaves con prefijo "conoce_pm"', align = 'c')
+
+```
+
+```{r ejemplo2,  fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Tendencias$conocimiento(variables = c("conoce_pm_astiazaran", "conoce_pm_delrio"), 
                                                  colores = c("Antonio \"Toño\" Astiazarán" = "green", 
                                                                                      "María Dolores Del Río" = "blue"),
                                                  sin_peso = FALSE, 
-                                                 valores_interes = "Sí")
+                                                 valores_interes = "Sí",
+                                                 linea_peso = F)
 
 ```
+
+##### Argumentos:
+
+`variables`
+Corresponde a las variables que se desean graficar. Las variables deben compartir las mismas categorías. Recibe un vector con valores de tipo string. La línea roja vertical mostrará la fecha en la que se obtuvo el 50 % de los datos registrados al momento.
+
+`colores`
+`colores_candidatos`
+Indica los colores que se desean asignar a cada una de las categorías en la gráfica. Recibe un vector con nombres con el siguiente formato *c( [categoria_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`sin_peso`
+Indica si se quiere aplicar peso estadístico al cálculo de la media móvil, siendo TRUE la variable que indica que no se desea utilizar el uso de pesos. Recibe valores booleanos TRUE o FALSE.
+
+`valores_interes`
+Especifica la categoría que se va a analizar. Recibe un valor de tipo string. 
+
+`linea_peso`
+Indica si se quiere mostrar una línea vertical punteada que indica en que momento se obtuvo el 50 % de la suma total de los pesos de los datos registrados al momento. True corresponde a mostrar la línea.  Recibe valores booleanos TRUE o FALSE.
+
+`size_fech`
+Tamaño de las fechas presentes en el eje Y de la gráfica. Recibe un valor de tipo entero.
+
+`size_text_legend`
+Tamaño de las leyendas. Recibe un valor de tipo entero.
 
 # Tendencia de resultados por estrato o región
 
 ## Intención de voto
 
-```{r ejemplo3, fig.width = 10, fig.height = 10, echo = TRUE}
+Esta función genera una gráfica que cruza la tendencia por media móvil de alguna variable con respecto a otra variable categórica, con la principal intención de analizar la variable correspondiente a la intención de voto respecto a la clasificación de los clusters en la muestra. La función puede graficar la tendencia de cualquier variable de tipo categórica o multirrespuesta. La línea roja vertical mostrará la fecha en la que se obtuvo el 50 % de los datos registrados al momento.
+
+```{r ejemplo3,  fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Tendencias$intencion_voto_region(variable = "voto_pr_24",
                                                    valores_interes = c("Claudia Sheinbaum por MORENA-PT-Partido Verde",
                                                                        "Xóchitl Gálvez por PAN-PRI-PRD"),
                                                    colores = c("Claudia Sheinbaum por MORENA-PT-Partido Verde" = "#A6032F",
                                                                "Xóchitl Gálvez por PAN-PRI-PRD" = "#0339a6"), 
                                                    variable_region = "region", 
-                                                   sin_peso = FALSE)
+                                                   sin_peso = FALSE,
+                                                   linea_peso = F)
 
 ```
 
+##### Argumentos:
+
+`variable`
+Corresponde a la variable que se desea graficar. La variable debe ser múltiple o categórica. Recibe un valor de tipo string.
+
+`valores_interes`
+Filtra y muestra una o varias categorías declaradas de la variable a graficar. Recibe un vector con valores de tipo string. 
+
+`colores`
+`colores_candidatos`
+Indica los colores que se desean asignar a cada una de las categorías en la gráfica. Recibe un vector con nombres con el siguiente formato *c( [categoria_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`sin_peso`
+Indica si se quiere aplicar peso estadístico al cálculo de la media móvil, siendo TRUE la variable que indica que no se desea utilizar el uso de pesos. Recibe valores booleanos TRUE o FALSE.
+
+`variable_region`
+Corresponde a la variable que contiene la clasificación de los clusters. La variable debe ser múltiple o categórica. Recibe un valor de tipo string.
+
+`linea_peso`
+Indica si se quiere mostrar una línea vertical punteada que indica en que momento se obtuvo el 50 % de la suma total de los pesos de los datos registrados al momento. True corresponde a mostrar la línea.  Recibe valores booleanos TRUE o FALSE.
+
+`size_fech`
+Tamaño de las fechas presentes en el eje Y de la gráfica. Recibe un valor de tipo entero.
+
+`size_text_legend`
+Tamaño de las leyendas. Recibe un valor de tipo entero.
+
 ## Conocimiento de personajes
-```{r ejemplo4, fig.width = 10, fig.height = 10, echo = TRUE}
+
+Esta función genera una gráfica de tendencia por media móvil con la principal intención de analizar las variables correspondientes al conocimiento dentro de la encuesta y hacer un cruce con respecto a otra variable categórica. En este caso la función compara diferentes variables que comparten las mismas categorías. Por lo general estas variables compartirán en su nombre (llave) el mismo prefijo relacionado a la temática/pregunta de la que se hace referencia, para después mostrar los valores respecto a las clasificaciones de los clusters. La línea roja vertical mostrará la fecha en la que se obtuvo el 50 % de los datos registrados al momento.
+
+```{r dicc_ejemp_1_1,warning=FALSE,message=FALSE,echo = FALSE}
+
+knitr::kable(ejemp_dic_1, caption = 'Tabla 1. Llaves con prefijo "conoce_pm"', align = 'c')
+
+```
+
+```{r ejemplo4,  fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Tendencias$conocimiento_region(variables = c("conoce_pm_astiazaran", "conoce_pm_delrio"), 
                                                  colores = c("Antonio \"Toño\" Astiazarán" = "green", 
                                                                                      "María Dolores Del Río" = "blue"),
                                                  variable_region = "region",
                                                  sin_peso = FALSE, 
-                                                 valores_interes = "Sí")
+                                                 valores_interes = "Sí",
+                                                 linea_peso = F)
 
 ```
+
+##### Argumentos:
+
+`variables`
+Corresponde a las variables que se desean graficar. Las variables deben compartir las mismas categorías. Recibe un vector con valores de tipo string.
+
+`colores`
+`colores_candidatos`
+Indica los colores que se desean asignar a cada una de las categorías en la gráfica. Recibe un vector con nombres con el siguiente formato *c( [categoria_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`sin_peso`
+Indica si se quiere aplicar peso estadístico al cálculo de la media móvil, siendo TRUE la variable que indica que no se desea utilizar el uso de pesos. Recibe valores booleanos TRUE o FALSE.
+
+`valores_interes`
+Especifica la categoría que se va a analizar. Recibe un valor de tipo string. 
+
+`variable_region`
+Corresponde a la variable que contiene la clasificación de los clusters. La variable debe ser múltiple o categórica. Recibe un valor de tipo string.
+
+`linea_peso`
+Indica si se quiere mostrar una línea vertical punteada que indica en que momento se obtuvo el 50 % de la suma total de los pesos de los datos registrados al momento. True corresponde a mostrar la línea.  Recibe valores booleanos TRUE o FALSE.
+
+`size_fech`
+Tamaño de las fechas presentes en el eje Y de la gráfica. Recibe un valor de tipo entero.
+
+`size_text_legend`
+Tamaño de las leyendas. Recibe un valor de tipo entero.

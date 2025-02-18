@@ -90,6 +90,25 @@ Corresponde al tamaño de las categorías representadas en la leyenda de la grá
 `na_rm`
 Indica si se quieren mostrar los resultados eiminando valores NA, o conservarlo, Por defecto el valor es TRUE, para no considerar respuestas NA. Recibe valores de tipo booleano TRUE o FALSE.
 
+##### Estructura con funciones encuestar
+```{r lineas muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_cruce(diseno = encuesta_demo$muestra$diseno,
+                           variable_principal = "region",
+                           variable_secundaria = "voto_pr_24",
+                           vartype = "cv",
+                           na_rm = T) |> 
+  filter(voto_pr_24 %in% c("Claudia Sheinbaum por MORENA-PT-Partido Verde",
+                           "Xóchitl Gálvez por PAN-PRI-PRD")) |> 
+  rename(var_x = "region",
+         var_y = "voto_pr_24",
+         media = coef)|>
+  encuestar:::graficar_lineas(orden_var_x = c("Perdidas", "Competitivas", "Voto Blando", "Voto Duro"),
+                  colores = c("Claudia Sheinbaum por MORENA-PT-Partido Verde" = "#A6032F",
+                              "Xóchitl Gálvez por PAN-PRI-PRD" = "#0339a6"),
+                  limits = c(0,0.9)) +
+  encuestar::tema_morant()
+```
+
 ## Cruce bloques
 
 Esta función genera una gráfica tipo treemap en la que los datos se muestran como rectángulos anidados, permitiendo representar dos variables de tipo categórica, estas variables son conocidas como variable principal y variable secundaria. Cada rectángulo representa una categoría contenida en la variable secundaria, y su tamaño es proporcional a la magnitud o cantidad que representa. Los rectángulos se agrupan en función de las categorías de la variable principal. Es útil para visualizar grandes cantidades de datos categóricos de manera compacta.
@@ -150,6 +169,30 @@ Corresponde al color de la línea que separa a los bloques. Recibe valores de ti
 `na_rm`
 Indica si se quieren mostrar los resultados eiminando valores NA, o conservarlo, Por defecto el valor es TRUE, para no considerar respuestas NA. Recibe valores de tipo booleano TRUE o FALSE.
 
+##### Estructura con funciones encuestar
+```{r bloques muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_cruce(diseno = encuesta_demo$muestra$diseno,
+                           variable_principal = "sexo",
+                           variable_secundaria = "identificacion_partido",
+                           vartype = "cv",
+                           na_rm = T) |> 
+  filter(identificacion_partido %in% c("MORENA", "PRI") ) |> 
+  encuestar:::graficar_cruce_bloques(cruce = "sexo",
+                                     variable = "identificacion_partido",
+                                     vartype =  "cv",
+                                     colores_variable_secundaria = c("MORENA" = "#A6032F",
+                                                                     "PRI" = "#038C33",
+                                                                     "Ninguno" = "black",
+                                                                     "PAN" = "#0339a6",
+                                                                     "Ns/Nc" = "gray60",
+                                                                     "Movimiento Ciudadano (MC)" = "#F27405",
+                                                                     "Partido Verde (PVEM)" = "#98BF5E",
+                                                                     "PT" = "#D91136",
+                                                                     "PRD" = "#F2B705",
+                                                                     "Otro" = "gray30"))+
+  encuestar::tema_morant()
+```
+
 ## Sankey
 
 Esta función genera una gráfica tipo Sankey, la cual consta de un gráfico de flujo que se utiliza para visualizar cómo fluyen las proporciones entre diferentes dos categorías. Las proporciones de los flujos se representan por el grosor de las líneas o bandas que conectan los nodos Los nodos están conformados por dos variables categóricas.
@@ -189,7 +232,28 @@ Filtra y retira una o varias categorías de la variable izquierda. Recibe un vec
 
 `omitir_valores_variable2`
 Filtra y retira una o varias categorías de la variable izquierda. Recibe un vector con valores de tipo string. 
-
+##### Estructura con funciones encuestar
+```{r Sankey muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_sankey(diseno =  encuesta_demo$muestra$diseno,
+                variables = c("sexo", "identificacion_partido"),
+                filtro_var1 = NULL,
+                filtro_var2 = NULL) |> 
+  encuestar:::graficar_sankey(
+                  variables = c("sexo", "identificacion_partido"),
+                  size_text_cat = 9,
+                  colores = c("MORENA" = "#A6032F",
+                              "PRI" = "#038C33",
+                              "Ninguno" = "black",
+                              "PAN" = "#0339a6",
+                              "Ns/Nc" = "gray60",
+                              "Movimiento Ciudadano (MC)" = "#F27405",
+                              "Partido Verde (PVEM)" = "#98BF5E",
+                              "PT" = "#D91136",
+                              "PRD" = "#F2B705",
+                              "Otro" = "gray30",
+                              "F" = "pink",
+                              "M" = "blue"))
+```
 
 ## Tabla de voto cruzado
 
@@ -238,6 +302,27 @@ Corresponde al salto de línea de las categorías contenidas la tabla. Recibe va
 
 `na_rm`
 Indica si se quieren mostrar los resultados eiminando valores NA, o conservarlo, Por defecto el valor es TRUE, para no considerar respuestas NA. Recibe valores de tipo booleano TRUE o FALSE.
+
+##### Estructura con funciones encuestar
+```{r Tabla muestra, echo = TRUE, eval=FALSE}
+encuestar:::calcular_tabla_votoCruzado(diseno = encuesta_demo$muestra$diseno,
+                           var1 = "sexo",
+                           var2 = "identificacion_partido",
+                           filtro_var2 = c("MORENA", "PRI", "PAN"),
+                           na_rm = T) |> 
+  encuestar:::formatear_tabla_votoCruzado(var1 = "sexo",
+                              var2 = "identificacion_partido",
+                              filtro_var2 = c("MORENA", "PRI", "PAN"),
+                              etiquetas = c("Sexo", "Identificacion"),
+                              colores_var1 = c("F" = "pink",
+                                               "M" = "blue"),
+                              colores_var2 = c("MORENA" = "#A6032F",
+                                              "PRI" = "#038C33",
+                                              "PAN" = "#0339a6"),
+                              size_text_header = 10,
+                              size_text_body = 10)
+```
+
 
 ## Ejemplo de cruce entre múltiples variables (1 a 2)
 

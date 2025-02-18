@@ -1,54 +1,222 @@
 ---
 title: "Clase Descriptiva"
-output: rmarkdown::html_vignette
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
 vignette: >
   %\VignetteIndexEntry{Clase Descriptiva}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, echo = FALSE}
+```{r setup,message=FALSE, echo = FALSE}
 library(encuestar)
+library(dplyr)
+library(ggplot2)
 ```
+<div class = "watermark">
+<img src = "./Manual-diccionario/morant.png">
+</div>
 
-La clase Descriptiva es capaz de generar graficas con base a una variable particular.
+La clase Descriptiva es capaz de generar gráficas con base a una o varias variables. Principalmente se enfoca en responder a una misma pregunta dentro de la encuesta.
 
+### Gráfica Barras categórica
 
-#### Gráfica Barras categórica
-```{r barras categorica, echo = TRUE, warning=FALSE,fig.width = 10, fig.height = 10}
+Esta función grafica las categorías correspondientes a una variable contenida en la base de datos. Se enfoca en dar los resultados de las gráficas de tipo pregunta “multiple” correspondiente al diccionario.
+
+```{r barras categorica, echo = TRUE, warning=FALSE,fig.width = 14, fig.height = 7.56 ,eval=FALSE}
 
 encuesta_demo$Resultados$Descriptiva$barras_categorica(codigo = 'voto_pm_24',
-                                                       salto = 20,
+                                                       salto = 30,
                                                        porcentajes_fuera = T,
                                                        desplazar_porcentajes = 0.01)
 
 ```
 
-#### Gráfica Lollipops categórica
-```{r lollipops categorica, echo = TRUE, warning=FALSE, fig.width = 10, fig.height = 10}
+```{r barras categorica graf, echo = FALSE, warning=FALSE, eval=TRUE, fig.width = 14, fig.height = 7.56}
+
+desc_1 <- encuesta_demo$Resultados$Descriptiva$barras_categorica(codigo = 'voto_pm_24',
+                                                       salto = 30,
+                                                       porcentajes_fuera = T,
+                                                       desplazar_porcentajes = 0.01)+
+  theme(text = element_text(family = "Poppins"), 
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        plot.title = element_text(size = 18))
+
+desc_1
+```
+
+##### Argumentos:
+
+`codigo`
+Corresponde a la variable que se desea graficar. La variable debe ser múltiple o categórica.
+	
+`salto`
+Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
+	
+`porcentajes_fuera`
+Índica si se desea agregar el porcentaje fuera de la barra correspondiente para cada categoría. Recibe valores booleanos TRUE o FALSE.
+	
+`desplazar_porcentajes`
+Corresponde al desplazamiento del porcentaje correspondiente a cada categoría. Recibe valores decimales. 
+	
+`pct_otros`
+Indica el valor mínimo en la que una categoría puede ser presentada en la gráfica. Todas las categorías que no alcancen el porcentaje correspondiente al valor declarado serán representadas en conjunto como la categoría “Otros” dentro de la gráfica. Recibe valores decimales. 
+	
+`orden_respuestas`
+Indica el orden en el que se desea mostrar las categorías. Recibe un vector de valores de tipo string. 
+
+##### Estructura con funciones encuestar
+```{r barras categorica muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_frecuencias(diseno = encuesta_demo$muestra$diseno, pregunta = 'voto_pm_24') |>
+  mutate(respuesta = forcats::fct_lump_min(f = respuesta, min = 0.01, w = media, other_level = "Otros"),
+         respuesta = dplyr::if_else(condition = respuesta == "Otro", true = "Otros", false = respuesta)) %>%
+  group_by(respuesta) |>
+  summarise(media = sum(media)) |>
+  encuestar:::graficar_barras(salto = 30,
+                              porcentajes_fuera = T,
+                              desplazar_porcentajes = 0.01)+
+  encuestar::tema_morant()
+```
+
+### Gráfica Lollipops categórica
+
+Esta función grafica las categorías correspondientes a una variable contenida en la base de datos, con formato lollipop. Se enfoca en dar los resultados de las gráficas de tipo pregunta “multiple” correspondiente al diccionario. *Se recomienda para gráficar más de 6 categorías*.
+
+```{r lollipops categorica, echo = TRUE, warning=FALSE, fig.width = 14, fig.height = 7.56}
 
 encuesta_demo$Resultados$Descriptiva$lollipops_categorica(codigo = 'problema_principal',
-                                                          limite_graf = 0.4,
+                                                          limits = c(0,0.4),
                                                           width_cats = 25,
                                                           size = 3,
                                                           size_pct = 5)
 
 ```
 
-#### Gráfica Barras aspectos
-```{r barras aspectos, echo = TRUE, warning=FALSE,fig.width = 10, fig.height = 10}
+##### Argumentos:
+
+`codigo`
+Corresponde a la variable que se desea graficar. La variable debe ser múltiple o categórica.
+	
+
+`width_cats`
+Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
+	
+`limits`
+Corresponde al límite del eje X correspondiente a la escala en porcentajes. Recibe un vector de valores decimales ejemplo c(0,1).
+
+`size`
+Corresponde al tamaño de las lollipops. Recibe valores de tipo entero. 
+
+`size_pct`
+Corresponde al tamaño de los porcentajes fuera de las lollipops. Recibe valores de tipo entero.
+	
+`pct_otros`
+Indica el valor mínimo en la que una categoría puede ser presentada en la gráfica. Todas las categorías que no alcancen el porcentaje correspondiente al valor declarado serán representadas en conjunto como la categoría “Otros” dentro de la gráfica. Recibe valores decimales. 
+	
+`orden`
+Indica el orden en el que se desea mostrar las categorías. Recibe un vector de valores de tipo string. 
+
+##### Estructura con funciones encuestar
+```{r lollipops categorica muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_frecuencias(diseno = encuesta_demo$muestra$diseno, pregunta = 'problema_principal') |>
+  mutate(respuesta = forcats::fct_lump_min(f = respuesta, min = 0.01, w = media, other_level = "Otros"),
+         respuesta = dplyr::if_else(condition = respuesta == "Otro", true = "Otros", false = respuesta)) %>%
+  group_by(respuesta) |>
+  summarise(media = sum(media)) |>
+  rename(pct = media) |>
+  encuestar:::graficar_lollipops(limits = c(0,0.4),
+                                 width_cats = 25 ,
+                                 size = 3,
+                                 size_pct = 5)+
+  encuestar::tema_morant()
+```
+
+### Gráfica Barras aspectos
+
+Esta función grafica alguna categoría seleccionada correspondientes a varias variables contenidas en la base de datos. Las variables a graficar deben tener el mismo prefijo en su nombre (llave), pero diferente nombre en su sufijo para poderlas identificar.Este grupo de sufijos serán conocidos como **aspectos**, y el prefijo único será conocido como **patrón inicial**. Para asignar los nombres de cada categoría en la gráfica se apoya del diccionario en el apartado de "tema".
+
+```{r dicc_ejemp_1,warning=FALSE,message=FALSE,echo = FALSE}
+
+ejemp_dic_1 <- encuesta_demo$cuestionario$diccionario|>
+  select(tipo_pregunta,llaves,tema,respuestas)|>
+  filter(grepl('conoce_pm',llaves))
+
+
+
+knitr::kable(ejemp_dic_1, caption = 'Tabla 1. Llaves con prefijo "conoce_pm" ', align = 'c')
+
+```
+
+```{r barras aspectos, echo = TRUE, warning=FALSE, fig.width = 14, fig.height = 7.56 }
 
 encuesta_demo$Resultados$Descriptiva$barras_aspectos(patron_inicial = 'conoce_pm',
                                                      aspectos = c('astiazaran','delrio'), 
                                                      salto = 20,
+                                                     filtro = "respuesta == 'Sí'",
                                                      porcentajes_fuera = T,
                                                      desplazar_porcentajes = 0.02)
 
 ```
 
+##### Argumentos:
 
-#### Gráfica Barras multirrespuesta
-```{r barras multirrespuesta, echo = TRUE, warning=FALSE,fig.width = 10, fig.height = 10}
+`patron_inicial`
+Se refiere al prefijo o patrón que deben de tener las llaves a graficar. Recibe un string.
+
+`aspectos`
+Corresponde a los sufijos o nombres que se desean graficar, además de identificar a cada llave de su patrón inicial. Recibe un vector de valores de tipo string. 
+
+`filtro`
+Corresponde a la respuesta o categoría que se va seleccionar para que se compare y grafique entre las variables que comparten el mismo prefijo o patrón inicial en su nombre (llave). La manera de seleccionar la categoría correspondiente es introduciendo el siguiente string: *‘respuesta == “[categoría]” ‘*, siendo [categoría], la categoría en cuestión que se desea comparar y graficar.
+	
+`salto`
+Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
+	
+`porcentajes_fuera`
+Índica si se desea agregar el porcentaje fuera de la barra correspondiente para cada categoría. Recibe valores booleanos TRUE o FALSE.
+	
+`desplazar_porcentajes`
+Corresponde al desplazamiento del porcentaje correspondiente a cada categoría. Recibe valores decimales. 
+	
+`orden_respuestas`
+Indica el orden en el que se desea mostrar las categorías. Recibe un vector de valores de tipo string. 
+
+##### Estructura con funciones encuestar
+```{r barras aspectos muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_frecuencias_aspectos(diseno = encuesta_demo$muestra$diseno,
+                                          diccionario = encuesta_demo$cuestionario$diccionario,
+                                          patron_pregunta = 'conoce_pm',
+                                          aspectos =  c('astiazaran','delrio')) |>
+  left_join(encuesta_demo$cuestionario$diccionario|>
+              select(llaves, tema), by = c("aspecto" = "llaves")) |>
+  filter(respuesta == 'Sì') |>
+  transmute(respuesta = tema, media) |>
+  encuestar:::graficar_barras(salto = 20,
+                              porcentajes_fuera = T,
+                              desplazar_porcentajes = 0.02,
+                              orden_respuestas = NA)+
+  encuestar::tema_morant()
+```
+
+### Gráfica Barras multirrespuesta
+
+Esta función grafica las categorías correspondientes a varias variables contenidas en la base de datos. Las variables a graficar deben tener el mismo prefijo en su nombre (llave), pero diferente nombre en su sufijo, diferenciado por números enteros para poderlas identificar. Al ser variables multirrespuesta, la suma de los porcentajes de las categorías suele sumar más de 100%.
+
+```{r dicc_ejemp_2,warning=FALSE,message=FALSE,echo = FALSE}
+
+ejemp_dic_2 <- encuesta_demo$cuestionario$diccionario|>
+  select(tipo_pregunta,llaves,respuestas)|>
+  filter(grepl('medios_com_O',llaves))
+
+
+
+knitr::kable(ejemp_dic_2, caption = 'Tabla 2. Llaves con prefijo "medios_com_O" ', align = 'c')
+
+```
+
+```{r barras multirrespuesta, echo = TRUE, warning=FALSE, fig.width = 14, fig.height = 7.56  }
 
 encuesta_demo$Resultados$Descriptiva$barras_multirespuesta(patron_inicial = 'medios_com_O',
                                                            salto = 20,
@@ -57,11 +225,44 @@ encuesta_demo$Resultados$Descriptiva$barras_multirespuesta(patron_inicial = 'med
 
 ```
 
-#### Gráfica Lollipops multirrespuesta
-```{r lollipops_multirrespuesta, echo = TRUE, warning=FALSE,fig.width = 10, fig.height = 10}
+##### Argumentos:
+
+`patron_inicial`
+Se refiere al prefijo o patrón que deben de tener las llaves a graficar. Recibe un string.
+
+`salto`
+Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
+	
+`porcentajes_fuera`
+Índica si se desea agregar el porcentaje fuera de la barra correspondiente para cada categoría. Recibe valores booleanos TRUE o FALSE.
+	
+`desplazar_porcentajes`
+Corresponde al desplazamiento del porcentaje correspondiente a cada categoría. Recibe valores decimales. 
+	
+##### Estructura con funciones encuestar
+```{r barras multirrespuesta muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_frecuencia_multirespuesta(diseno = encuesta_demo$muestra$diseno,
+                                               'medios_com_O') %>%
+  encuestar:::graficar_barras(salto = 20,
+                              porcentajes_fuera = T,
+                              desplazar_porcentajes = 0.02)+
+  encuestar::tema_morant()
+```
+
+### Gráfica Lollipops multirrespuesta
+
+Esta función grafica en formato lollipop las categorías correspondientes a varias variables contenidas en la base de datos. Las variables a graficar deben tener el mismo prefijo en su nombre (llave), pero diferente nombre en su sufijo, diferenciado por números enteros para poderlas identificar. Al ser variables multirrespuesta, la suma de los porcentajes de las categorías suele sumar más de 100%, puesto que todas las variables comparten las mismas categorías.  *Se recomienda para gráficar más de 6 categorías*.
+
+```{r dicc_ejemp_2_1,warning=FALSE,message=FALSE,echo = FALSE}
+
+knitr::kable(ejemp_dic_2, caption = 'Tabla 2. Llaves con prefijo "medios_com_O" ', align = 'c')
+
+```
+
+```{r lollipops_multirrespuesta, echo = TRUE, warning=FALSE, fig.width = 14, fig.height = 7.56  }
 
 encuesta_demo$Resultados$Descriptiva$lollipops_multirespuesta(patron_inicial = 'medios_com_O', 
-                                                              limite_graf = 0.7,
+                                                              limits = c(0,0.7),
                                                               width_cats = 25,
                                                               size = 3,
                                                               size_pct = 5)
@@ -69,8 +270,46 @@ encuesta_demo$Resultados$Descriptiva$lollipops_multirespuesta(patron_inicial = '
 
 ```
 
-#### Gráfica Gauge numérica
-```{r gauge numerica, echo = TRUE, warning=FALSE,fig.width = 10, fig.height = 10}
+##### Argumentos:
+
+`patron_inicial`
+Se refiere al prefijo o patrón que deben de tener las llaves a graficar. Recibe un string.
+	
+`width_cats`
+Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
+	
+`limits`
+Corresponde al límite del eje X correspondiente a la escala en porcentajes.  Recibe un vector de valores decimales ejemplo c(0,1).
+
+`size`
+Corresponde al tamaño de las lollipops. Recibe valores de tipo entero. 
+
+`size_pct`
+Corresponde al tamaño de los porcentajes fuera de las lollipops. Recibe valores de tipo entero.
+	
+`pct_otros`
+Indica el valor mínimo en la que una categoría puede ser presentada en la gráfica. Todas las categorías que no alcancen el porcentaje correspondiente al valor declarado serán representadas en conjunto como la categoría “Otros” dentro de la gráfica. Recibe valores decimales. 
+	
+`orden`
+Indica el orden en el que se desea mostrar las categorías. Recibe un vector de valores de tipo string. 
+
+##### Estructura con funciones encuestar
+```{r lollipops multirrespuesta muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_frecuencia_multirespuesta(diseno = encuesta_demo$muestra$diseno,
+                                               'medios_com_O') %>%
+  rename(pct = media) |>
+  encuestar:::graficar_lollipops(limits = c(0,0.7),
+                                 width_cats = 25,
+                                 size = 3,
+                                 size_pct = 5)+
+  encuestar::tema_morant()
+```
+
+### Gráfica Gauge numérica
+
+Esta función genera una gráfica tipo gauge de una variable numérica, mostrando un promedio de los diferentes valores contenidos en la variable, de manera gráfica y de manera numérica.
+
+```{r gauge numerica, echo = TRUE, warning=FALSE, fig.width = 14, fig.height = 7.56  }
 
 encuesta_demo$Resultados$Descriptiva$gauge_numerica(codigo = 'si_voto_24',
                                                     color = 'green',
@@ -79,8 +318,34 @@ encuesta_demo$Resultados$Descriptiva$gauge_numerica(codigo = 'si_voto_24',
 
 ```
 
-#### Gráfica Gauge categórica
-```{r gauge categorica, echo = TRUE, warning=FALSE,fig.width = 10, fig.height = 10}
+##### Argumentos:
+
+`codigo`
+Corresponde a la variable que se desea graficar. La variable debe ser múltiple o categórica, de tipo numérica.
+	
+`color`
+El color con el que se mostrará la barra de la gráfica. Recibe un valor tipo string.
+	
+`escala`
+Es la escala en la cual se maneja la variable a graficar expresada por un vector de dos valores numéricos como se muestra a continuación *c(0,#Max)*, siendo #Max el número máximo expresado en las opciones de respuesta de la variable a graficar.
+
+`size_text_pct` 
+Corresponde al tamaño del número expresado en la gráfica. Recibe valores de tipo entero. 
+
+##### Estructura con funciones encuestar
+```{r auge numerica muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_frecuencias(diseno = encuesta_demo$muestra$diseno, pregunta = 'si_voto_24')|>
+  encuestar:::graficar_gauge(color_principal = 'green',color_secundario = "gray80",
+                             escala = c(0,10),
+                             size_text_pct = 25)
+```
+
+
+### Gráfica Gauge categórica
+
+Esta función genera una gráfica tipo gauge de una categoría seleccionada contenida en una variable, mostrando el porcentaje de respuesta de manera gráfica y de manera numérica.
+
+```{r gauge categorica, echo = TRUE, warning=FALSE, fig.width = 14, fig.height = 7.56  }
 
 encuesta_demo$Resultados$Descriptiva$gauge_categorica(codigo = 'participacion_pm_21',
                                                       filtro = "respuesta == 'Sí'",
@@ -91,14 +356,87 @@ encuesta_demo$Resultados$Descriptiva$gauge_categorica(codigo = 'participacion_pm
 
 ```
 
-#### Gráfica Intervalo numérica
-```{r intervalo numerica, echo = TRUE, warning=FALSE,fig.width = 10, fig.height = 10}
+##### Argumentos:
+`codigo`
+Corresponde a la variable que se desea graficar. La variable debe ser múltiple o categórica.
+	
+`filtro`
+Corresponde a la respuesta o categoría que se va seleccionar para que se grafique entre las variables que comparten la variable (llave) seleccionada. La manera de seleccionar la categoría correspondiente es introduciendo el siguiente string: *‘respuesta == “[categoría]” ‘*, siendo [categoría], la categoría en cuestión que se desea graficar.
+	
+`color`
+El color con el que se mostrará la barra de la gráfica. Recibe un valor tipo string.
+	
+`escala`
+Es la escala en la cual se maneja la variable a graficar expresada por un vector de dos valores numéricos como se muestra a continuación *c(0,#Pct)*, siendo #Pct el porcentaje máximo expresado como un número decimal. Recibe un vector con dos números decimales).
+
+`size_text_pct`
+Corresponde al tamaño del número expresado en la gráfica. Recibe valores de tipo entero.
+	
+##### Estructura con funciones encuestar
+```{r gauge categorica muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_frecuencias(diseno = encuesta_demo$muestra$diseno, pregunta = 'participacion_pm_21')|>
+  filter(respuesta == 'Sí')|>
+  encuestar:::graficar_gauge(color_principal = 'green',color_secundario = "gray80",
+                             escala = c(0,1),
+                             size_text_pct = 25)
+
+```
+
+### Gráfica Intervalo numérica
+
+Esta función genera una gráfica que muestra el promedio de diferentes variables con valores de tipo numérico. Las variables a graficar deben tener el mismo prefijo en su nombre (llave), pero diferente nombre en su sufijo para poderlas identificar. Este grupo de sufijos serán conocidos como **aspectos**, y el prefijo único será conocido como **patrón**. Para asignar los nombres de cada categoría en la gráfica se apoya del diccionario en el apartado de "tema".
+
+```{r dicc_ejemp_3,warning=FALSE,message=FALSE,echo = FALSE}
+
+ejemp_dic_3 <- encuesta_demo$cuestionario$diccionario|>
+  select(tipo_pregunta,tema,llaves,respuestas)|>
+  filter(grepl('afirmacion',llaves))
+
+
+
+knitr::kable(ejemp_dic_3, caption = 'Tabla 3. Llaves con prefijo "afirmacion" ', align = 'c')
+
+```
+
+```{r intervalo numerica, echo = TRUE, warning=FALSE, fig.width = 14, fig.height = 7.56  }
 
 encuesta_demo$Resultados$Descriptiva$intervalo_numerica(patron =  'afirmacion', 
                                                         aspectos = c('seguridad','economia','pais','hermosillo'), 
                                                         escala = c(0, 5), 
                                                         point_size = 1, 
                                                         text_point_size = 8)
+
+```
+
+##### Argumentos:
+
+`patron`
+Se refiere al prefijo o patrón que deben de tener las llaves a graficar. Recibe un string.
+
+`aspectos`
+Corresponde a los sufijos o nombres que se desean graficar, además de identificar a cada llave de su patrón inicial. Recibe un vector de valores de tipo string. 
+	
+`escala`
+Es la escala en la cual se maneja la variable a graficar expresada por un vector de dos valores numéricos como se muestra a continuación *c(0,#Pct)*, siendo #Pct el porcentaje máximo expresado como un número decimal. Recibe un vector con dos números decimales).
+	
+`point_size`
+Corresponde al tamaño del punto que indica la posición en la escala de la categoría en cuestión.
+	
+`text_point_size`
+Corresponde al tamaño del porcentaje que representa el porcentaje correspondiente a las categorías a graficar.
+
+##### Estructura con funciones encuestar
+```{r intervalo numerica muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_frecuencias_aspectos(diseno = encuesta_demo$muestra$diseno,
+                                          diccionario = encuesta_demo$cuestionario$diccionario,
+                                          patron_pregunta = 'afirmacion',
+                                          aspectos = c('seguridad','economia','pais','hermosillo'))|>
+  left_join(encuesta_demo$cuestionario$diccionario %>%
+              select(aspecto = llaves, tema), by = "aspecto") |>
+  encuestar:::graficar_intervalo_numerica(escala = c(0, 5), 
+                                          point_size = 1, 
+                                          text_point_size = 8)+
+  encuestar::tema_morant() 
 
 ```
 

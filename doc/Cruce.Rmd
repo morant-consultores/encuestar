@@ -1,6 +1,8 @@
 ---
 title: "Clase Cruce"
-output: rmarkdown::html_vignette
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
 vignette: >
   %\VignetteIndexEntry{Clase Cruce}
   %\VignetteEngine{knitr::rmarkdown}
@@ -20,14 +22,19 @@ knitr::opts_chunk$set(
 ```{r setup, echo = FALSE}
 library(encuestar)
 ```
-
+<div class = "watermark">
+<img src = "./Manual-diccionario/morant.png">
+</div>
 
 La clase Cruce es capaz de generar datos cruzados entre al menos dos o más variables
 
 # Ejemplo de cruce entre dos variables
 
 ## Cruce lineas
-```{r ejemplo1, fig.width = 10, fig.height = 10, echo = TRUE}
+
+Esta función genera una gráfica de líneas que compara los elementos de una variable categórica conocida como variable principal, en función de otra variable categórica llamada variable secundaria, de manera que se hace una relación entre ambas variables, y se compara la tendencia que tienen las diferentes categorías de la variable principal para cada una de las categorías en la variable secundaria. En el eje X se muestran las categorías de la variable principal, y en el eje Y se muestra sus respectivas proporciones respecto a la variable secundaria. Cada categoría de la variable secundaria queda representada como una línea en la gráfica.  Las proporciones de la variable principal serán mostradas en porcentaje, y por lo tanto la suma de los porcentajes de cada categoría del eje X tendrá un valor máximo de 100.
+
+```{r ejemplo1, fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Cruce$lineas(variable_principal = "region",
                                       variable_secundaria = "voto_pr_24",
                                       orden_variable_principal = c("Perdidas", "Competitivas", "Voto Blando", "Voto Duro"),
@@ -35,12 +42,78 @@ encuesta_demo$Resultados$Cruce$lineas(variable_principal = "region",
                                                                       "Xóchitl Gálvez por PAN-PRI-PRD"),
                                       colores_variable_secundaria = c("Claudia Sheinbaum por MORENA-PT-Partido Verde" = "#A6032F",
                                                                       "Xóchitl Gálvez por PAN-PRI-PRD" = "#0339a6"), 
-                                      limits = c(0, 0.5))
+                                      limits = c(0, 0.9))
 
 ```
 
+##### Argumentos:
+
+`variable_principal`
+Corresponde al nombre (llave) de la variable categórica cuyos valores serán mostrados en el eje X de la gráfica. Recibe un valor de tipo string.
+
+`variable_secundaria` 
+Corresponde al nombre (llave) de la variable categórica que contiene los valores que se desean comparar entre sí, representando cada categoría como una línea en la gráfica. Recibe un valor de tipo string.
+
+`orden_variable_principal` 
+Indica el orden en el que se desea mostrar las categorías de la variable principal. Recibe un vector de valores de tipo string.
+
+`valores_variable_secundaria`
+Indica el orden en el que se desea mostrar las categorías de la variable secundaria. Recibe un vector de valores de tipo string.
+
+`colores_variable_secundaria`
+Indica los colores que se desean asignar a cada una de las categorías de la variable secundaria, en este caso representadas en líneas. Recibe un vector con nombres con el siguiente formato *c( [categori_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`limits`
+Corresponde al límite del eje X correspondiente a la escala en porcentajes. Recibe un vector de dos valores numéricos como se muestra a continuación *c(0,#Pct)*, siendo #Pct el porcentaje máximo expresado como un número decimal.
+
+`wrap_x`
+Corresponde al salto de línea de las categorías contenidas en el eje X de la gráfica. Recibe valores de tipo entero.
+
+`wrap_legend`
+Corresponde al salto de línea de las categorías contenidas en la leyenda de la gráfica y por lo tanto a las categorías de la variable secundaria. Recibe valores de tipo entero.
+
+`text_nudge_y`
+Corresponde a la distancia entre los porcentajes y los puntos de la gráfica. Recibe valores de tipo decimal.
+
+`size_text`
+Corresponde al tamaño de los porcentajes en la gráfica. Recibe valores de tipo entero.
+
+`size_text_x`
+Corresponde al tamaño de las categorías del eje X en la gráfica. Recibe valores de tipo entero.
+
+`size_text_y`
+Corresponde al tamaño de los porcentajes en el eje Y. Recibe valores de tipo entero.
+
+`size_text_legend`
+Corresponde al tamaño de las categorías representadas en la leyenda de la gráfica. Recibe valores de tipo entero.
+
+`na_rm`
+Indica si se quieren mostrar los resultados eiminando valores NA, o conservarlo, Por defecto el valor es TRUE, para no considerar respuestas NA. Recibe valores de tipo booleano TRUE o FALSE.
+
+##### Estructura con funciones encuestar
+```{r lineas muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_cruce(diseno = encuesta_demo$muestra$diseno,
+                           variable_principal = "region",
+                           variable_secundaria = "voto_pr_24",
+                           vartype = "cv",
+                           na_rm = T) |> 
+  filter(voto_pr_24 %in% c("Claudia Sheinbaum por MORENA-PT-Partido Verde",
+                           "Xóchitl Gálvez por PAN-PRI-PRD")) |> 
+  rename(var_x = "region",
+         var_y = "voto_pr_24",
+         media = coef)|>
+  encuestar:::graficar_lineas(orden_var_x = c("Perdidas", "Competitivas", "Voto Blando", "Voto Duro"),
+                  colores = c("Claudia Sheinbaum por MORENA-PT-Partido Verde" = "#A6032F",
+                              "Xóchitl Gálvez por PAN-PRI-PRD" = "#0339a6"),
+                  limits = c(0,0.9)) +
+  encuestar::tema_morant()
+```
+
 ## Cruce bloques
-```{r ejemplo2, fig.width = 10, fig.height = 10, echo = TRUE}
+
+Esta función genera una gráfica tipo treemap en la que los datos se muestran como rectángulos anidados, permitiendo representar dos variables de tipo categórica, estas variables son conocidas como variable principal y variable secundaria. Cada rectángulo representa una categoría contenida en la variable secundaria, y su tamaño es proporcional a la magnitud o cantidad que representa. Los rectángulos se agrupan en función de las categorías de la variable principal. Es útil para visualizar grandes cantidades de datos categóricos de manera compacta.
+
+```{r ejemplo2, fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Cruce$bloques(variable_principal = "sexo",
                                        variable_secundaria = "identificacion_partido",
                                        colores_variable_secundaria = c("MORENA" = "#A6032F",
@@ -54,9 +127,77 @@ encuesta_demo$Resultados$Cruce$bloques(variable_principal = "sexo",
                                                                        "PRD" = "#F2B705",
                                                                        "Otro" = "gray30"))
 ```
+```{r ejemplo2.1, fig.width = 14, fig.height = 7.56, echo = TRUE}
+encuesta_demo$Resultados$Cruce$bloques(variable_principal = "sexo",
+                                       variable_secundaria = "identificacion_partido",
+                                       colores_variable_secundaria = c("MORENA" = "#A6032F",
+                                                                       "PRI" = "#038C33",
+                                                                       "Ninguno" = "black",
+                                                                       "PAN" = "#0339a6",
+                                                                       "Ns/Nc" = "gray60",
+                                                                       "Movimiento Ciudadano (MC)" = "#F27405",
+                                                                       "Partido Verde (PVEM)" = "#98BF5E",
+                                                                       "PT" = "#D91136",
+                                                                       "PRD" = "#F2B705",
+                                                                       "Otro" = "gray30"), 
+                                       filter_variable_secundaria = c("MORENA", "PRI"))
+```
+
+##### Argumentos:
+
+`variable_principal`
+Corresponde al nombre (llave) de la variable categórica cuyos valores agruparán los diferentes rectángulos, y el nombre de cada categoría aparecerá en la parte superior de cada subgrupo. Recibe un valor de tipo string.
+
+`variable_secundaria` 
+Corresponde al nombre (llave) de la variable categórica que contiene los valores que se desean mostrar en los rectángulos. Recibe un valor de tipo string.
+
+`colores_variable_secundaria`
+Indica los colores que se desean asignar a cada una de las categorías de la variable secundaria, en este caso representadas en los bloques Recibe un vector con nombres con el siguiente formato *c( [categori_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`filter `
+Filtra y retira una o varias categorías de la variable principal. Recibe un vector con valores de tipo string.
+
+`vartype`
+Informe de la variabilidad en la función surveymean en la paquetería srvyr. Sus valores pueden ser error estándar ("se", predeterminado), intervalo de confianza ("ci"), varianza ("var") o coeficiente de variación ("cv"). **No afecta los valores mostrados en la gráfica**. 
+
+`linea_grosor`
+Corresponde al grosor de la línea que separa a los distintos bloques. Recibe valores de tipo entero.
+
+`linea_color`
+Corresponde al color de la línea que separa a los bloques. Recibe valores de tipo string.
+
+`na_rm`
+Indica si se quieren mostrar los resultados eiminando valores NA, o conservarlo, Por defecto el valor es TRUE, para no considerar respuestas NA. Recibe valores de tipo booleano TRUE o FALSE.
+
+##### Estructura con funciones encuestar
+```{r bloques muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_cruce(diseno = encuesta_demo$muestra$diseno,
+                           variable_principal = "sexo",
+                           variable_secundaria = "identificacion_partido",
+                           vartype = "cv",
+                           na_rm = T) |> 
+  filter(identificacion_partido %in% c("MORENA", "PRI") ) |> 
+  encuestar:::graficar_cruce_bloques(cruce = "sexo",
+                                     variable = "identificacion_partido",
+                                     vartype =  "cv",
+                                     colores_variable_secundaria = c("MORENA" = "#A6032F",
+                                                                     "PRI" = "#038C33",
+                                                                     "Ninguno" = "black",
+                                                                     "PAN" = "#0339a6",
+                                                                     "Ns/Nc" = "gray60",
+                                                                     "Movimiento Ciudadano (MC)" = "#F27405",
+                                                                     "Partido Verde (PVEM)" = "#98BF5E",
+                                                                     "PT" = "#D91136",
+                                                                     "PRD" = "#F2B705",
+                                                                     "Otro" = "gray30"))+
+  encuestar::tema_morant()
+```
 
 ## Sankey
-```{r ejemplo3, fig.width = 10, fig.height = 10, echo = TRUE}
+
+Esta función genera una gráfica tipo Sankey, la cual consta de un gráfico de flujo que se utiliza para visualizar cómo fluyen las proporciones entre diferentes dos categorías. Las proporciones de los flujos se representan por el grosor de las líneas o bandas que conectan los nodos Los nodos están conformados por dos variables categóricas.
+
+```{r ejemplo3, fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Cruce$sankey_categorica(variables = c("sexo", "identificacion_partido"),
                                                  colores = c("MORENA" = "#A6032F",
                                                              "PRI" = "#038C33",
@@ -72,9 +213,53 @@ encuesta_demo$Resultados$Cruce$sankey_categorica(variables = c("sexo", "identifi
                                                              "M" = "blue"))
 ```
 
+##### Argumentos:
+
+`variables`
+Corresponde al nombre de las variables (llaves) que serán graficadas. Recibe un vector con el siguiente formato *c( [llave_1], [llave_2] )*, siendo llave_1 el nombre de la llave de los valores del lado izquierdo de la gráfica y llave_2 los valores del lado derecho.
+
+`colores`
+Indica los colores que se desean asignar a cada una de las categorías de la variable secundaria, en este caso representadas en líneas y nodos. Recibe un vector con nombres con el siguiente formato *c( [categori_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`size_text_cat`
+Corresponde al tamaño de las categorías en la gráfica. Recibe valores de tipo entero.
+
+`width_text`
+Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
+
+`omitir_valores_variable1`
+Filtra y retira una o varias categorías de la variable izquierda. Recibe un vector con valores de tipo string. 
+
+`omitir_valores_variable2`
+Filtra y retira una o varias categorías de la variable izquierda. Recibe un vector con valores de tipo string. 
+##### Estructura con funciones encuestar
+```{r Sankey muestra, echo = TRUE, eval=FALSE}
+encuestar:::analizar_sankey(diseno =  encuesta_demo$muestra$diseno,
+                variables = c("sexo", "identificacion_partido"),
+                filtro_var1 = NULL,
+                filtro_var2 = NULL) |> 
+  encuestar:::graficar_sankey(
+                  variables = c("sexo", "identificacion_partido"),
+                  size_text_cat = 9,
+                  colores = c("MORENA" = "#A6032F",
+                              "PRI" = "#038C33",
+                              "Ninguno" = "black",
+                              "PAN" = "#0339a6",
+                              "Ns/Nc" = "gray60",
+                              "Movimiento Ciudadano (MC)" = "#F27405",
+                              "Partido Verde (PVEM)" = "#98BF5E",
+                              "PT" = "#D91136",
+                              "PRD" = "#F2B705",
+                              "Otro" = "gray30",
+                              "F" = "pink",
+                              "M" = "blue"))
+```
+
 ## Tabla de voto cruzado
 
-```{r ejemplo4, fig.width = 10, fig.height = 10, echo = TRUE}
+Esta función permite generar una tabla que compara dos variables tipo categóricas. Siendo la variable 1 la que contiene las categorías que se presentan en las filas, y la variable 2 las categorías presentadas en columnas. Los porcentajes corresponden a la proporción de cada categoría de la variable 1 respecto a la variable 2, de manera que la suma máxima de cada fila es el 100 %.
+
+```{r ejemplo4, fig.width = 14, fig.height = 7.56, echo = TRUE}
 encuesta_demo$Resultados$Cruce$tabla_votoCruzado(var1 = "sexo",
                                                  var2 = "identificacion_partido",
                                                  filtro_var2 = c("MORENA", "PRI", "PAN"),
@@ -86,11 +271,78 @@ encuesta_demo$Resultados$Cruce$tabla_votoCruzado(var1 = "sexo",
                                                                   "PAN" = "#0339a6"))
 ```
 
-# Ejemplo de cruce entre múltiples variables (1 a 2)
+##### Argumentos:
+
+`var1`
+Corresponde al nombre (llave) de la variable categórica cuyos valores corresponden a la variable 1, el nombre de cada categoría aparecerá en las filas de la primera columna. Recibe un valor de tipo string.
+
+`var2`
+Corresponde al nombre (llave) de la variable categórica cuyos valores corresponden a la variable 2, el nombre de cada categoría aparecerá en las columnas de la tabla. Recibe un valor de tipo string.
+
+`filtro_var2`
+Filtra y conserva una o varias categorías de la variable 2 que sean mencionadas. En caso de ser nulo, se presentarán todas las categorías. Recibe un vector con valores de tipo string. 
+
+`etiquetas`
+Corresponde al nombre que se le asignará a cada variable en la tabla. Recibe un vector con el siguiente formato *c( [etiqueta_1], [etiqueta _2] )*, siendo etiqueta _1 el nombre describirá a las filas con las categorías de la variable 1; y etiqueta _2 corresponderá al nombre que describirá a las columnas con las categorías de la variable 2. Recibe un vector con valores de tipo string. 
+
+`colores_var1`
+Indica los colores que se desean asignar a cada una de las categorías de la variable 1, en este caso representadas en las filas. Recibe un vector con nombres con el siguiente formato *c( [categori_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`colores_var2`
+Indica los colores que se desean asignar a cada una de las categorías de la variable 2, en este caso representadas en columnas. Recibe un vector con nombres con el siguiente formato *c( [categori_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`size_text_header`
+Corresponde al tamaño de las categorías y etiquetas en la tabla. Recibe valores de tipo entero.
+
+`size_text_body`
+Corresponde al tamaño de los porcentajes en la tabla. Recibe valores de tipo entero.
+
+`salto`
+Corresponde al salto de línea de las categorías contenidas la tabla. Recibe valores de tipo entero.
+
+`na_rm`
+Indica si se quieren mostrar los resultados eiminando valores NA, o conservarlo, Por defecto el valor es TRUE, para no considerar respuestas NA. Recibe valores de tipo booleano TRUE o FALSE.
+
+##### Estructura con funciones encuestar
+```{r Tabla muestra, echo = TRUE, eval=FALSE}
+encuestar:::calcular_tabla_votoCruzado(diseno = encuesta_demo$muestra$diseno,
+                           var1 = "sexo",
+                           var2 = "identificacion_partido",
+                           filtro_var2 = c("MORENA", "PRI", "PAN"),
+                           na_rm = T) |> 
+  encuestar:::formatear_tabla_votoCruzado(var1 = "sexo",
+                              var2 = "identificacion_partido",
+                              filtro_var2 = c("MORENA", "PRI", "PAN"),
+                              etiquetas = c("Sexo", "Identificacion"),
+                              colores_var1 = c("F" = "pink",
+                                               "M" = "blue"),
+                              colores_var2 = c("MORENA" = "#A6032F",
+                                              "PRI" = "#038C33",
+                                              "PAN" = "#0339a6"),
+                              size_text_header = 10,
+                              size_text_body = 10)
+```
+
+
+## Ejemplo de cruce entre múltiples variables (1 a 2)
 
 ## Lolipop diferencias
 
-```{r cruce unitario, fig.width = 10, fig.height = 10, echo = TRUE}
+Esta función genera una gráfica de tipo lollipop de doble punto que compara la proporción de resultados de una única variable categórica conocida como variable principal, contra alguna categoría seleccionada correspondientes a varias variables contenidas en la base de datos, estas variables son conocidas como variables secundarias. Las variables secundarias deben tener el mismo prefijo en su nombre (llave), pero diferente nombre en su sufijo para poderlas identificar. Para asignar los nombres de cada categoría que representa las variables secundarias se apoya del diccionario en el apartado de “tema”.
+
+```{r dicc_ejemp_1,warning=FALSE,message=FALSE,echo = FALSE}
+library(dplyr)
+ejemp_dic_1 <- encuesta_demo$cuestionario$diccionario|>
+  select(tipo_pregunta,llaves,tema,respuestas)|>
+  filter(grepl('sexo',llaves)|grepl('conoce_pm',llaves))
+
+
+
+knitr::kable(ejemp_dic_1, caption = 'Tabla 1. Llaves con prefijo "conoce_pm" ', align = 'c')
+
+```
+
+```{r cruce unitario, fig.width = 14, fig.height = 7.56, echo = TRUE}
 
 encuesta_demo$Resultados$Cruce$lolipop_diferencias(variable_principal = "sexo", 
                                                    variables_secundarias = c("conoce_pm_astiazaran", "conoce_pm_delrio"),
@@ -99,14 +351,14 @@ encuesta_demo$Resultados$Cruce$lolipop_diferencias(variable_principal = "sexo",
                                                    colores_variables_secundarias = c("Antonio \"Toño\" Astiazarán" = "green", 
                                                                                      "María Dolores Del Río" = "blue"), 
                                                    caption = "Intención de voto por sexo", 
-                                                   wrap_caption = 40) +
+                                                   wrap_caption = 40,ver_diferencias = FALSE) +
   ggplot2::scale_x_discrete(labels = c("F" = "Mujeres",
                               "M" = "Hombres"))
 
 ```
 
 El mismo méotodo puede usarse para visualizar datos de dos formas diferentes
-```{r cruce unitario_reversible, fig.width = 10, fig.height = 10, echo = TRUE}
+```{r cruce unitario_reversible, fig.width = 14, fig.height = 7.56, echo = TRUE}
 
 encuesta_demo$Resultados$Cruce$lolipop_diferencias(variable_principal = "sexo", 
                                                    variables_secundarias = c("conoce_pm_astiazaran", "conoce_pm_delrio"),
@@ -119,3 +371,61 @@ encuesta_demo$Resultados$Cruce$lolipop_diferencias(variable_principal = "sexo",
                                                    invertir_variables = TRUE,
                                                    wrap_caption = 40)
 ```
+
+##### Argumentos:
+
+`variable_principal`
+Corresponde al nombre (llave) de la variable única de tipo categórica. Por defecto las categorías serán mostradas en el eje de la gráfica. Recibe un valor de tipo string.
+
+`variables_secundarias`
+Corresponde al nombre de las variables (llaves) que serán comparadas, estas variables deben poseer el mismo prefijo o patrón inicial. Por defecto estas variables serán representadas como puntos en la gráfica. Recibe un vector de valores de tipo string.
+
+`filtro_variables_secundarias`
+Corresponde a la respuesta o categoría que se va seleccionar para que se compare y grafique entre las variables que comparten el mismo prefijo o patrón inicial en su nombre (llave).  Recibe un valor de tipo string.
+
+`orden_variablePrincipal`
+Indica el orden en el que se desea mostrar las categorías de la variable principal. Recibe un vector de valores de tipo string.
+
+`colores_variables_secundarias`
+Corresponde a los colores de los puntos presentados en la gráfica. Recibe un vector con nombres con el siguiente formato *c( [categori_1] = [color_1], [categori_2] = [color_2 ] )*, siendo las categorías y los colores valores de tipo string.
+
+`caption`
+Corresponde al texto que describe a la gráfica. Recibe un valor de tipo string.
+
+`nudge_x`
+Corresponde a la separación ente los porcentajes mostrados, y los puntos de las categorías. Recibe valores de tipo decimal.
+
+`size_geom_text`
+Corresponde al tamaño de los porcentajes en la gráfica. Recibe valores de tipo entero.
+
+`invertir_variables`
+Permite intercambiar los datos mostrados de la categoría principal con los resultados de las variables secundarias. En caso de recibir un valor booleano igual  *True*, se mostrarán las categorías de la variable principal como puntos y las variables secundarías en el eje de la gráfica. Recibe valores de tipo booleano.
+
+`vartype`
+Informe de la variabilidad en la función surveymean en la paquetería srvyr. Sus valores pueden ser error estándar ("se", predeterminado), intervalo de confianza ("ci"), varianza ("var") o coeficiente de variación ("cv"). **No afecta los valores mostrados en la gráfica**. 
+
+`limits`
+Corresponde al límite del eje X correspondiente a la escala en porcentajes. Recibe un vector de dos valores numéricos como se muestra a continuación *c(0,#Pct)*, siendo #Pct el porcentaje máximo expresado como un número decimal.
+
+`wrap_y`
+Corresponde al salto de línea de las categorías contenidas en el eje Y de la gráfica. Recibe valores de tipo entero.
+
+`wrap_caption`
+Corresponde al salto de línea del caption. Recibe valores de tipo entero.
+
+`size_text_x`
+Corresponde al tamaño de las categorías en la gráfica. Recibe valores de tipo entero.
+
+`size_text_y`
+Corresponde al tamaño de los porcentajes en la gráfica. Recibe valores de tipo entero.
+
+`size_text_caption`
+Corresponde al tamaño del caption en la gráfica. Recibe valores de tipo entero.
+
+`size_text_legend`
+Corresponde al tamaño de las categorías en la leyenda de la gráfica. Recibe valores de tipo entero.
+
+`ver_diferencias`
+Indica si se desea que se vean las diferencias entre el valor máximo y mínimo. Por defecto el valor es TRUE, para mostrar las diferencias. Recibe valores de tipo booleano TRUE o FALSE.
+
+
