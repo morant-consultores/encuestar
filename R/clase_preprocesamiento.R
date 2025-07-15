@@ -196,7 +196,7 @@ Preproceso <-
 
         # eliminar por regla ---------------------------------
         }} else{
-          vec_elim_reglas <- c(000)
+          vec_elim_reglas <- character(0)
         }
 
         bd_respuestas <- self$eliminar_por_reglas(bd_respuestas,vec_elim_reglas)
