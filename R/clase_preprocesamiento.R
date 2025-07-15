@@ -184,20 +184,21 @@ Preproceso <-
         # vector de ids eliminadas auditoria --------------------------
         vec_elim <- self$obtener_ids_auditoria_telefonica(bd_respuestas)
 
-        if(!is.null(bd_eliminadas_reglas)){
-        if(nrow(bd_eliminadas_reglas)>0){
+        # Asegurar que vec_elim_reglas SIEMPRE exista
+        vec_elim_reglas <- character(0)
 
-
-        # lista de ids_con reglas -----------------------
-          lista_elim_reglas <-   self$eliminar_por_regla_list(bd_respuestas,bd_eliminadas_reglas)
+        if (!is.null(bd_eliminadas_reglas) && nrow(bd_eliminadas_reglas) > 0) {
+          # lista de ids con reglas -----------------------
+          lista_elim_reglas <- self$eliminar_por_regla_list(bd_respuestas, bd_eliminadas_reglas)
 
           # vector de ids eliminadas por regla --------------------------
-          vec_elim_reglas<- unique(c(lista_elim_reglas$vec_elim_fech,lista_elim_reglas$vec_elim_usr,lista_elim_reglas$vec_elim_usr_fech))
-
-        # eliminar por regla ---------------------------------
-        }} else{
-          vec_elim_reglas <- character(0)
+          vec_elim_reglas <- unique(c(
+            lista_elim_reglas$vec_elim_fech,
+            lista_elim_reglas$vec_elim_usr,
+            lista_elim_reglas$vec_elim_usr_fech
+          ))
         }
+
 
         bd_respuestas <- self$eliminar_por_reglas(bd_respuestas,vec_elim_reglas)
 
