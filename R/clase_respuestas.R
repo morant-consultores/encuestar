@@ -122,13 +122,14 @@ Respuestas <-
         }
 
         # Corregir cluster equivocado
-        self$correccion_cluster(self$base, shp, mantener, nivel, var_n)
+        # browser()
+        # self$correccion_cluster(self$base, shp, mantener, nivel, var_n)
 
         # Calcular distancia de la entrevista al cluster correcto
-        self$calcular_distancia(base = self$base,
-                                encuesta = encuesta,
-                                muestra = muestra_completa,
-                                var_n = var_n, nivel = nivel)
+        # self$calcular_distancia(base = self$base,
+        #                         encuesta = encuesta,
+        #                         muestra = muestra_completa,
+        #                         var_n = var_n, nivel = nivel)
 
         # Limpiar las que no tienen variables de diseno
         # self$eliminar_faltantes_diseno() # no entiendo por qué
@@ -271,7 +272,7 @@ Respuestas <-
 
         if(("SbjNum" %in% names(self$base)) &
            ("SbjNum" %in% names(auditoria_telefonica))){
-          if(is.character(auditoria_telefonica$SbjNum)) auditoria_telefonica <- auditoria_telefonica %>% mutate(SbjNum = readr::parse_double(SbjNum))
+          #if(is.character(auditoria_telefonica$SbjNum)) auditoria_telefonica <- auditoria_telefonica %>% mutate(SbjNum = readr::parse_double(SbjNum))
           # Se eliminan por no pasar la auditoria telefonica
           n <- nrow(self$base)
 
