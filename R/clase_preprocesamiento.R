@@ -271,7 +271,6 @@ Preproceso <-
         message(glue::glue(
           "Se procesarán {nrow(respuestas_con_marcas)} nuevos registros."
         ))
-
         # 4.1) Instanciar Opinómetro y traer cuestionario
         opinometro <- Opinometro_proc$new(
           bd_respuestas = respuestas_con_marcas,
@@ -304,10 +303,17 @@ Preproceso <-
         # ============================================================
         # 5) ASIGNACIÓN FINAL (append + correcciones)
         # ============================================================
-        self$nuevos_registros_snapshot <- self$Respuestas_proc$base |>
-          dplyr::rename(INT = intento_efectivo) |>
-          dplyr::select(-dplyr::contains("Pregunta")) |>
-          dplyr::mutate(distancia = as.character(distancia))
+        if ("distancia" %in% colnames(self$Respuestas_proc$base)) {
+          self$nuevos_registros_snapshot <- self$Respuestas_proc$base |>
+            dplyr::rename(INT = intento_efectivo) |>
+            dplyr::select(-dplyr::contains("Pregunta")) |>
+            dplyr::mutate(distancia = as.character(distancia))
+        } else {
+          self$nuevos_registros_snapshot <- self$Respuestas_proc$base |>
+            dplyr::rename(INT = intento_efectivo) |>
+            dplyr::select(-dplyr::contains("Pregunta")) |>
+            dplyr::mutate(distancia = 0)
+        }
 
         self$nuevos_registros_cluster <- self$Respuestas_proc$cluster_corregido
 
