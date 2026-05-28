@@ -2,8 +2,11 @@
 
 export(Encuesta)
 export(Modelo)
+export(Preproceso)
 export(Regiones)
+export(Respuestas_svy)
 export(Resultados)
+export(Survey_analisis)
 export(Tendencias)
 export(asignar_coloresCategorias)
 export(aspectos_dicc)

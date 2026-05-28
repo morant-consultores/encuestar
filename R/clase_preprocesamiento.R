@@ -322,17 +322,19 @@ Preproceso <-
       actualizar_bd = function() {
         message("Iniciando la persistencia de cambios en la base de datos...")
 
-        # --- Orquestación de métodos privados ---
-        # El orden es importante para asegurar la integridad de los datos.
+        con <- pool::poolCheckout(self$pool)
+        on.exit(pool::poolReturn(con), add = TRUE)
 
-        # 1. Añadir todas las nuevas entrevistas a la tabla.
-        private$agregar_nuevos_registros()
-
-        # 2. Marcar entrevistas que deben ser excluidas del análisis.
-        private$marcar_registros_eliminados()
-
-        # 3. Aplicar correcciones específicas, como la de clústeres.
-        private$actualizar_clusters_corregidos()
+        tryCatch({
+          DBI::dbBegin(con)
+          private$agregar_nuevos_registros(con)
+          private$marcar_registros_eliminados(con)
+          private$actualizar_clusters_corregidos(con)
+          DBI::dbCommit(con)
+        }, error = function(e) {
+          DBI::dbRollback(con)
+          stop(e)
+        })
 
         message("La base de datos ha sido actualizada exitosamente.")
         return(invisible(self))
@@ -483,6 +485,7 @@ Preproceso <-
         base |>
           filter(
             TipoRegistro == "Efectivo",
+            eliminada_proceso == 0,
             eliminada_auditoria == 0 | is.na(eliminada_auditoria),
             eliminada_regla == 0 | is.na(eliminada_regla)
           )
@@ -550,8 +553,7 @@ Preproceso <-
       #' Toma el tibble de la clase hija Respuestas_proc, le añade una columna
       #' de auditoría con la fecha y hora de la actualización, y lo anexa a la
       #' tabla snapshot correspondiente.
-      agregar_nuevos_registros = function() {
-        # Obtener los nuevos registros del objeto hijo
+      agregar_nuevos_registros = function(con) {
         nuevos_registros <- self$nuevos_registros_snapshot
 
         if (is.null(nuevos_registros) || nrow(nuevos_registros) == 0) {
@@ -559,41 +561,16 @@ Preproceso <-
           return(invisible(self))
         }
 
-        # Nombre de la tabla snapshot
         nombre_snapshot <- glue::glue("snapshot_id_{self$opinometro_id}")
+        hora_mexico <- lubridate::with_tz(Sys.time(), "America/Mexico_City")
+        registros_para_subir <- nuevos_registros %>%
+          dplyr::mutate(corte_actualizacion = hora_mexico)
 
-        tryCatch(
-          {
-            # --- INICIO DE LA MODIFICACIÓN ---
+        DBI::dbAppendTable(con, nombre_snapshot, registros_para_subir)
 
-            # 1. Obtener la hora actual en la zona horaria de la Ciudad de México.
-            #    Es recomendable usar el paquete 'lubridate' para manejar zonas horarias.
-            hora_mexico <- lubridate::with_tz(Sys.time(), "America/Mexico_City")
-
-            # 2. Añadir la nueva columna de auditoría al tibble de nuevos registros.
-            #    Todas las filas de este lote tendrán el mismo timestamp.
-            registros_para_subir <- nuevos_registros %>%
-              dplyr::mutate(corte_actualizacion = hora_mexico)
-
-            # --- FIN DE LA MODIFICACIÓN ---
-
-            # 3. Anexar el tibble modificado a la base de datos.
-            DBI::dbAppendTable(
-              self$pool,
-              nombre_snapshot,
-              registros_para_subir
-            ) # <-- Se usa el tibble con la nueva columna
-
-            message(glue::glue(
-              "- Se agregaron {nrow(registros_para_subir)} nuevos registros a '{nombre_snapshot}'."
-            ))
-          },
-          error = function(e) {
-            stop(glue::glue(
-              "Falló la inserción de nuevos registros: {e$message}"
-            ))
-          }
-        )
+        message(glue::glue(
+          "- Se agregaron {nrow(registros_para_subir)} nuevos registros a '{nombre_snapshot}'."
+        ))
 
         return(invisible(self))
       },
@@ -602,48 +579,36 @@ Preproceso <-
       #' Ejecuta sentencias UPDATE para establecer el flag de eliminación
       #' (ej. eliminada_auditoria = 1) basándose en los SbjNum identificados
       #' en el proceso de limpieza.
-      marcar_registros_eliminados = function() {
-        # Extraer SbjNum de entrevistas eliminadas (por auditoría y reglas)
-        eliminadas_auditoria <- self$sbj_eliminadas_auditoria
-        eliminadas_reglas <- self$sbj_eliminadas_regla
+      marcar_registros_eliminados = function(con) {
+        eliminadas_auditoria <- self$sbj_eliminadas_auditoria %||% numeric()
+        eliminadas_reglas    <- self$sbj_eliminadas_regla     %||% numeric()
 
-        eliminadas_auditoria <- eliminadas_auditoria %||% numeric()
-        eliminadas_reglas <- eliminadas_reglas %||% numeric()
-
-        nombre_snapshot <- glue::glue("snapshot_id_{self$opinometro_id}")
+        nombre_snapshot      <- glue::glue("snapshot_id_{self$opinometro_id}")
         filas_afectadas_total <- 0
 
-        # --- Actualizar eliminadas por auditoría ---
         if (length(eliminadas_auditoria) > 0) {
           query_auditoria <- glue::glue(
             "UPDATE {nombre_snapshot}
        SET eliminada_auditoria = 1
        WHERE SbjNum IN ({paste(eliminadas_auditoria, collapse = ', ')})"
           )
-          filas <- DBI::dbExecute(self$pool, query_auditoria)
-          message(glue::glue(
-            "- Se marcaron {filas} entrevistas como eliminadas por auditoría."
-          ))
+          filas <- DBI::dbExecute(con, query_auditoria)
+          message(glue::glue("- Se marcaron {filas} entrevistas como eliminadas por auditoría."))
           filas_afectadas_total <- filas_afectadas_total + filas
         }
 
-        # --- Actualizar eliminadas por reglas ---
         if (length(eliminadas_reglas) > 0) {
           query_reglas <- glue::glue(
             "UPDATE {nombre_snapshot}
        SET eliminada_regla = 1
        WHERE SbjNum IN ({paste(eliminadas_reglas, collapse = ', ')})"
           )
-          filas <- DBI::dbExecute(self$pool, query_reglas)
-          message(glue::glue(
-            "- Se marcaron {filas} entrevistas como eliminadas por reglas."
-          ))
+          filas <- DBI::dbExecute(con, query_reglas)
+          message(glue::glue("- Se marcaron {filas} entrevistas como eliminadas por reglas."))
           filas_afectadas_total <- filas_afectadas_total + filas
         }
 
-        if (filas_afectadas_total == 0) {
-          message("- No se marcaron registros como eliminados.")
-        }
+        if (filas_afectadas_total == 0) message("- No se marcaron registros como eliminados.")
 
         return(invisible(self))
       },
@@ -652,7 +617,7 @@ Preproceso <-
       #' Toma los datos del campo `self$nuevos_registros_cluster`, los sube
       #' a una tabla temporal y ejecuta un UPDATE masivo en la tabla snapshot
       #' para reflejar los clústeres corregidos.
-      actualizar_clusters_corregidos = function() {
+      actualizar_clusters_corregidos = function(con) {
         correcciones <- self$nuevos_registros_cluster
 
         if (is.null(correcciones) || nrow(correcciones) == 0) {
@@ -660,45 +625,41 @@ Preproceso <-
           return(invisible(self))
         }
 
-        # Nombres de tabla snapshot y tabla temporal
         nombre_snapshot <- glue::glue("snapshot_id_{self$opinometro_id}")
-        nombre_temp <- "#cluster_corregido_temp"
+        nombre_temp     <- "#cluster_corregido_temp"
 
-        tryCatch(
-          {
-            # Subir datos a la tabla temporal
-            DBI::dbWriteTable(
-              self$pool,
-              name = nombre_temp,
-              value = correcciones,
-              temporary = TRUE,
-              overwrite = TRUE
-            )
-
-            # Query para actualizar desde la tabla temporal
-            sql_update <- glue::glue(
-              "
-      UPDATE target
-      SET
-          cluster = mods.nueva,
-          corregida = 1
-      FROM {nombre_snapshot} AS target
-      INNER JOIN {nombre_temp} AS mods
-          ON target.SbjNum = mods.SbjNum
-      WHERE
-          ISNULL(target.cluster, '') <> mods.nueva;
-    "
-            )
-
-            filas <- DBI::dbExecute(self$pool, sql_update)
-            message(glue::glue(
-              "- Clústeres corregidos: {filas} filas afectadas."
-            ))
-          },
-          error = function(e) {
-            stop(glue::glue("Falló la actualización de clústeres: {e$message}"))
-          }
+        sql_add_col <- glue::glue(
+          "
+IF COL_LENGTH('{nombre_snapshot}', 'cluster_original') IS NULL
+BEGIN
+  ALTER TABLE {nombre_snapshot}
+  ADD cluster_original NVARCHAR(255) NULL;
+END
+"
         )
+
+        DBI::dbExecute(con, sql_add_col)
+
+        DBI::dbWriteTable(con, name = nombre_temp, value = correcciones,
+                          temporary = TRUE, overwrite = TRUE)
+
+        sql_update <- glue::glue(
+          "
+UPDATE target
+SET
+    cluster_corregida = target.cluster,
+    cluster = mods.nueva,
+    corregida = 1
+FROM {nombre_snapshot} AS target
+INNER JOIN {nombre_temp} AS mods
+    ON target.SbjNum = mods.SbjNum
+WHERE
+    ISNULL(CONVERT(NVARCHAR(255), target.cluster), '') <> ISNULL(CONVERT(NVARCHAR(255), mods.nueva), '');
+"
+        )
+
+        filas <- DBI::dbExecute(con, sql_update)
+        message(glue::glue("- Clústeres corregidos: {filas} filas afectadas."))
 
         return(invisible(self))
       }
