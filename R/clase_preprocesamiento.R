@@ -274,12 +274,18 @@ Preproceso <-
         # ============================================================
         # 4) Procesar SOLO NUEVOS (flujo original preservado)
         # ============================================================
-        respuestas_con_marcas <- private$marcar_eliminadas_auditoria(
-          respuestas_nuevas
-        )
-        respuestas_con_marcas <- private$marcar_eliminadas_por_regla(
-          respuestas_con_marcas
-        )
+        # Los IDs eliminados ya fueron calculados globalmente en el paso 2.
+        # Reutilizamos esos vectores con un simple %in% en lugar de volver a
+        # ejecutar la detección completa (O(n×r) bucles para reglas de fecha).
+        respuestas_con_marcas <- respuestas_nuevas |>
+          dplyr::mutate(
+            eliminada_auditoria = dplyr::if_else(
+              Id %in% self$sbj_eliminadas_auditoria, 1L, 0L
+            ),
+            eliminada_regla = dplyr::if_else(
+              Id %in% self$sbj_eliminadas_regla, 1L, 0L
+            )
+          )
 
         message(glue::glue(
           "Se procesarán {nrow(respuestas_con_marcas)} nuevos registros."
