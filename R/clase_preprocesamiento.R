@@ -210,6 +210,19 @@ Preproceso <-
           stop("Primero debes ejecutar $preparar_respuestas().")
         }
 
+        # --- Guard: snapshot_original debe ser un tibble en memoria ---
+        # Un tbl lazy hace que nrow() devuelva NA, lo que silenciosamente
+        # deshabilita el anti_join y trata todos los registros como nuevos,
+        # causando duplicados en el snapshot.
+        if (!is.null(self$snapshot_original) &&
+            inherits(self$snapshot_original, "tbl_lazy")) {
+          message(
+            "snapshot_original es una referencia lazy a la BD; ",
+            "ejecutando collect() antes del anti_join..."
+          )
+          self$snapshot_original <- dplyr::collect(self$snapshot_original)
+        }
+
         # --- Reset de vectores (evita arrastre entre corridas) ---
         self$sbj_eliminadas_auditoria <- numeric()
         self$sbj_eliminadas_regla <- numeric()
