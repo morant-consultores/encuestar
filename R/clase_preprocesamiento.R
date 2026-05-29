@@ -322,19 +322,36 @@ Preproceso <-
       actualizar_bd = function() {
         message("Iniciando la persistencia de cambios en la base de datos...")
 
+        # --- Bloque 1 (atómico): insertar nuevos registros + corregir clusters ---
+        # Ambas operaciones sólo afectan registros nuevos. Si cualquiera falla
+        # se hace rollback de ambas; el snapshot queda idéntico al estado previo.
+        error_registros <- NULL
         con <- pool::poolCheckout(self$pool)
         on.exit(pool::poolReturn(con), add = TRUE)
 
         tryCatch({
           DBI::dbBegin(con)
           private$agregar_nuevos_registros(con)
-          private$marcar_registros_eliminados(con)
           private$actualizar_clusters_corregidos(con)
           DBI::dbCommit(con)
         }, error = function(e) {
           DBI::dbRollback(con)
-          stop(e)
+          error_registros <<- e
+          message(glue::glue("- Rollback: {e$message}"))
         })
+
+        # --- Bloque 2 (idempotente): marcado de eliminaciones en todo el snapshot ---
+        # Corre siempre, independientemente del resultado del bloque 1, porque
+        # las reglas de eliminación se aplican sobre registros existentes y no
+        # deben quedar bloqueadas por un fallo en la inserción de nuevos.
+        private$marcar_registros_eliminados()
+
+        if (!is.null(error_registros)) {
+          stop(glue::glue(
+            "Eliminaciones actualizadas correctamente, pero los nuevos registros ",
+            "no pudieron insertarse: {error_registros$message}"
+          ))
+        }
 
         message("La base de datos ha sido actualizada exitosamente.")
         return(invisible(self))
@@ -579,11 +596,11 @@ Preproceso <-
       #' Ejecuta sentencias UPDATE para establecer el flag de eliminación
       #' (ej. eliminada_auditoria = 1) basándose en los SbjNum identificados
       #' en el proceso de limpieza.
-      marcar_registros_eliminados = function(con) {
+      marcar_registros_eliminados = function() {
         eliminadas_auditoria <- self$sbj_eliminadas_auditoria %||% numeric()
         eliminadas_reglas    <- self$sbj_eliminadas_regla     %||% numeric()
 
-        nombre_snapshot      <- glue::glue("snapshot_id_{self$opinometro_id}")
+        nombre_snapshot       <- glue::glue("snapshot_id_{self$opinometro_id}")
         filas_afectadas_total <- 0
 
         if (length(eliminadas_auditoria) > 0) {
@@ -592,7 +609,7 @@ Preproceso <-
        SET eliminada_auditoria = 1
        WHERE SbjNum IN ({paste(eliminadas_auditoria, collapse = ', ')})"
           )
-          filas <- DBI::dbExecute(con, query_auditoria)
+          filas <- DBI::dbExecute(self$pool, query_auditoria)
           message(glue::glue("- Se marcaron {filas} entrevistas como eliminadas por auditoría."))
           filas_afectadas_total <- filas_afectadas_total + filas
         }
@@ -603,7 +620,7 @@ Preproceso <-
        SET eliminada_regla = 1
        WHERE SbjNum IN ({paste(eliminadas_reglas, collapse = ', ')})"
           )
-          filas <- DBI::dbExecute(con, query_reglas)
+          filas <- DBI::dbExecute(self$pool, query_reglas)
           message(glue::glue("- Se marcaron {filas} entrevistas como eliminadas por reglas."))
           filas_afectadas_total <- filas_afectadas_total + filas
         }
