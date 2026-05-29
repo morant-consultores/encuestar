@@ -341,6 +341,11 @@ Preproceso <-
       actualizar_bd = function() {
         message("Iniciando la persistencia de cambios en la base de datos...")
 
+        # Validar opinometro_id antes de construir nombres de tabla con él.
+        # Un ID no-entero generaría un nombre de tabla inválido que corrompería
+        # todas las queries de esta sesión.
+        private$validar_opinometro_id()
+
         # --- Bloque 1 (atómico): insertar nuevos registros + corregir clusters ---
         # Ambas operaciones sólo afectan registros nuevos. Si cualquiera falla
         # se hace rollback de ambas; el snapshot queda idéntico al estado previo.
@@ -619,6 +624,12 @@ Preproceso <-
         eliminadas_auditoria <- self$sbj_eliminadas_auditoria %||% numeric()
         eliminadas_reglas    <- self$sbj_eliminadas_regla     %||% numeric()
 
+        # Validar que los IDs sean numéricos antes de interpolarse en SQL.
+        # Esto previene que un vector de caracteres mal tipado genere una query
+        # malformada (o peor, inyección SQL accidental).
+        private$validar_ids_sql(eliminadas_auditoria, "sbj_eliminadas_auditoria")
+        private$validar_ids_sql(eliminadas_reglas,    "sbj_eliminadas_regla")
+
         nombre_snapshot       <- glue::glue("snapshot_id_{self$opinometro_id}")
         filas_afectadas_total <- 0
 
@@ -653,6 +664,45 @@ Preproceso <-
       #' Toma los datos del campo `self$nuevos_registros_cluster`, los sube
       #' a una tabla temporal y ejecuta un UPDATE masivo en la tabla snapshot
       #' para reflejar los clústeres corregidos.
+      #' @description Valida que `opinometro_id` sea un entero positivo finito.
+      #' @details Se llama al inicio de cualquier método que construya un nombre
+      #'   de tabla con ese valor. Lanza un error descriptivo si la validación falla.
+      validar_opinometro_id = function() {
+        id <- self$opinometro_id
+        if (
+          is.null(id) ||
+          length(id) != 1 ||
+          !is.numeric(id) ||
+          !is.finite(id) ||
+          id != trunc(id) ||
+          id <= 0
+        ) {
+          stop(glue::glue(
+            "opinometro_id debe ser un entero positivo finito; ",
+            "valor recibido: {deparse(id)}"
+          ))
+        }
+        invisible(TRUE)
+      },
+      #' @description Valida que un vector de IDs sea numérico antes de interpolarlo en SQL.
+      #' @param ids Vector a validar.
+      #' @param nombre Nombre del campo (para el mensaje de error).
+      validar_ids_sql = function(ids, nombre) {
+        if (length(ids) == 0) return(invisible(TRUE))
+        if (!is.numeric(ids)) {
+          stop(glue::glue(
+            "'{nombre}' debe ser un vector numérico para poder interpolarlo ",
+            "en SQL; clase recibida: {class(ids)[1]}"
+          ))
+        }
+        if (any(!is.finite(ids))) {
+          stop(glue::glue(
+            "'{nombre}' contiene valores NA o infinitos que no pueden ",
+            "interpolarse en SQL: {paste(ids[!is.finite(ids)], collapse = ', ')}"
+          ))
+        }
+        invisible(TRUE)
+      },
       actualizar_clusters_corregidos = function(con) {
         correcciones <- self$nuevos_registros_cluster
 

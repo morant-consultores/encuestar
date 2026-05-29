@@ -36,6 +36,30 @@ PreprocesoPrueba <- R6::R6Class(
   )
 )
 
+# 
+# Subclase alternativa que hace no-op solo en los métodos de Block 1 (INSERT y
+# corrección de clusters) pero deja marcar_registros_eliminados() sin tocar.
+# Útil para testear las validaciones de SQL en actualizar_bd().
+PreprocesoPruebaMarcar <- R6::R6Class(
+  classname = "PreprocesoPruebaMarcar",
+  inherit = encuestar::Preproceso,
+  private = list(
+    agregar_nuevos_registros = function(con) invisible(NULL),
+    actualizar_clusters_corregidos = function(con) invisible(NULL)
+    # marcar_registros_eliminados() hereda la implementación real del padre
+  ),
+  public = list(
+    initialize = function(pool, opinometro_id = 99L) {
+      self$pool                      <- pool
+      self$opinometro_id             <- opinometro_id
+      self$nuevos_registros_snapshot <- NULL
+      self$nuevos_registros_cluster  <- NULL
+      self$sbj_eliminadas_auditoria  <- numeric(0)
+      self$sbj_eliminadas_regla      <- numeric(0)
+    }
+  )
+)
+
 # Crea un pool SQLite en archivo temporal con la tabla snapshot lista.
 # Devuelve list(pool, path). El llamador cierra el pool y borra el archivo.
 crear_pool_sqlite <- function(id = 99L) {
