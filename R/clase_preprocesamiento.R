@@ -70,6 +70,7 @@ Preproceso <-
       diseño_muestral = NULL,
       sbj_eliminadas_auditoria = NULL,
       sbj_eliminadas_regla = NULL,
+      marcas_eliminacion = NULL,
       #' @description Se reciben los insumos de respuestas, auditoria y otros parámetros asociados
       #'  al levantamiento de la encuesta para construir el diseño muestral y las clases posteriores
       #'  para generar resultados.
@@ -256,6 +257,18 @@ Preproceso <-
           dplyr::filter(eliminada_regla == 1) |>
           dplyr::pull(Id) |>
           unique()
+
+        # Estado completo (0 y 1) de cada registro evaluado en esta corrida.
+        # actualizar_bd() lo usa para sincronizar el snapshot en ambas
+        # direcciones: al borrar una regla o corregir una auditoría, los
+        # registros afectados se restauran en la siguiente actualización.
+        self$marcas_eliminacion <- marcadas_todas |>
+          dplyr::distinct(Id, eliminada_auditoria, eliminada_regla) |>
+          dplyr::transmute(
+            SbjNum = Id,
+            eliminada_auditoria = as.integer(eliminada_auditoria),
+            eliminada_regla = as.integer(eliminada_regla)
+          )
 
         # ============================================================
         # 3) Si no hay nuevos registros, no procesar pesado,
@@ -603,6 +616,31 @@ Preproceso <-
         }
 
         nombre_snapshot <- glue::glue("snapshot_id_{self$opinometro_id}")
+
+        # Defensa final contra duplicados: el anti_join de
+        # procesar_nuevas_entradas() se hizo contra una lectura del snapshot
+        # que pudo quedar desactualizada si otra instancia de la aplicación
+        # insertó registros mientras esta corrida procesaba. Se re-verifica
+        # dentro de la transacción, justo antes de insertar.
+        ids_existentes <- DBI::dbGetQuery(
+          con,
+          glue::glue("SELECT SbjNum FROM {nombre_snapshot}")
+        )$SbjNum
+
+        duplicados <- nuevos_registros$SbjNum %in% ids_existentes
+        if (any(duplicados)) {
+          message(glue::glue(
+            "- Se omiten {sum(duplicados)} registros que ya existen en el snapshot ",
+            "(insertados por otra corrida concurrente)."
+          ))
+          nuevos_registros <- nuevos_registros[!duplicados, ]
+        }
+
+        if (nrow(nuevos_registros) == 0) {
+          message("- No quedaron registros nuevos por agregar.")
+          return(invisible(self))
+        }
+
         hora_mexico <- lubridate::with_tz(Sys.time(), "America/Mexico_City")
         registros_para_subir <- nuevos_registros %>%
           dplyr::mutate(corte_actualizacion = hora_mexico)
@@ -621,41 +659,64 @@ Preproceso <-
       #' (ej. eliminada_auditoria = 1) basándose en los SbjNum identificados
       #' en el proceso de limpieza.
       marcar_registros_eliminados = function() {
-        eliminadas_auditoria <- self$sbj_eliminadas_auditoria %||% numeric()
-        eliminadas_reglas    <- self$sbj_eliminadas_regla     %||% numeric()
+        marcas <- self$marcas_eliminacion
 
-        # Validar que los IDs sean numéricos antes de interpolarse en SQL.
-        # Esto previene que un vector de caracteres mal tipado genere una query
-        # malformada (o peor, inyección SQL accidental).
-        private$validar_ids_sql(eliminadas_auditoria, "sbj_eliminadas_auditoria")
-        private$validar_ids_sql(eliminadas_reglas,    "sbj_eliminadas_regla")
-
-        nombre_snapshot       <- glue::glue("snapshot_id_{self$opinometro_id}")
-        filas_afectadas_total <- 0
-
-        if (length(eliminadas_auditoria) > 0) {
-          query_auditoria <- glue::glue(
-            "UPDATE {nombre_snapshot}
-       SET eliminada_auditoria = 1
-       WHERE SbjNum IN ({paste(eliminadas_auditoria, collapse = ', ')})"
-          )
-          filas <- DBI::dbExecute(self$pool, query_auditoria)
-          message(glue::glue("- Se marcaron {filas} entrevistas como eliminadas por auditoría."))
-          filas_afectadas_total <- filas_afectadas_total + filas
+        if (is.null(marcas) || nrow(marcas) == 0) {
+          message("- No hay registros evaluados para sincronizar eliminaciones.")
+          return(invisible(self))
         }
 
-        if (length(eliminadas_reglas) > 0) {
-          query_reglas <- glue::glue(
-            "UPDATE {nombre_snapshot}
-       SET eliminada_regla = 1
-       WHERE SbjNum IN ({paste(eliminadas_reglas, collapse = ', ')})"
-          )
-          filas <- DBI::dbExecute(self$pool, query_reglas)
-          message(glue::glue("- Se marcaron {filas} entrevistas como eliminadas por reglas."))
-          filas_afectadas_total <- filas_afectadas_total + filas
-        }
+        # Validar que los IDs sean numéricos y finitos antes de usarlos en el join.
+        private$validar_ids_sql(marcas$SbjNum, "marcas_eliminacion$SbjNum")
 
-        if (filas_afectadas_total == 0) message("- No se marcaron registros como eliminados.")
+        nombre_snapshot <- glue::glue("snapshot_id_{self$opinometro_id}")
+        nombre_temp     <- "#marcas_eliminacion_temp"
+
+        con <- pool::poolCheckout(self$pool)
+        on.exit(pool::poolReturn(con), add = TRUE)
+
+        DBI::dbWriteTable(con, name = nombre_temp, value = marcas,
+                          temporary = TRUE, overwrite = TRUE)
+
+        # Sincronización en ambas direcciones (0 -> 1 y 1 -> 0), acotada a los
+        # SbjNum evaluados en esta corrida. Marcar sólo con SET = 1 dejaba las
+        # eliminaciones como irreversibles: borrar una regla equivocada no
+        # restauraba las entrevistas ya marcadas.
+        sql_sync <- glue::glue(
+          "
+UPDATE target
+SET
+    eliminada_auditoria = mods.eliminada_auditoria,
+    eliminada_regla     = mods.eliminada_regla
+FROM {nombre_snapshot} AS target
+INNER JOIN {nombre_temp} AS mods
+    ON target.SbjNum = mods.SbjNum
+WHERE
+    ISNULL(target.eliminada_auditoria, -1) <> mods.eliminada_auditoria
+    OR ISNULL(target.eliminada_regla, -1) <> mods.eliminada_regla;
+"
+        )
+
+        filas <- DBI::dbExecute(con, sql_sync)
+        message(glue::glue(
+          "- Flags de eliminación sincronizados: {filas} filas actualizadas ",
+          "({length(self$sbj_eliminadas_auditoria)} por auditoría, ",
+          "{length(self$sbj_eliminadas_regla)} por regla)."
+        ))
+
+        # Los registros que entraron al snapshot por la vía de eliminadas no
+        # pasan por el cálculo de eliminada_proceso y quedan en NULL; en SQL,
+        # filtros como `eliminada_proceso != 1` descartan NULL silenciosamente.
+        filas_proceso <- DBI::dbExecute(con, glue::glue(
+          "UPDATE {nombre_snapshot}
+           SET eliminada_proceso = 0
+           WHERE eliminada_proceso IS NULL"
+        ))
+        if (filas_proceso > 0) {
+          message(glue::glue(
+            "- Se normalizó eliminada_proceso NULL -> 0 en {filas_proceso} filas."
+          ))
+        }
 
         return(invisible(self))
       },

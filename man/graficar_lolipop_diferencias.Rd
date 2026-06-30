@@ -13,7 +13,10 @@ graficar_lolipop_diferencias(
   caption = "",
   wrap_y = 25,
   wrap_caption = 25,
-  limits = c(0, 0.75)
+  limits = c(0, 0.75),
+  traslape = F,
+  limite_dif_pct = 0.02,
+  ajuste_pos = 0.02
 )
 }
 \arguments{
@@ -34,6 +37,12 @@ graficar_lolipop_diferencias(
 \item{wrap_caption}{Valor entero usato como parametro en \code{\link[stringr:str_wrap]{stringr::str_wrap()}} aplicado al \link{caption} del grafico}
 
 \item{limits}{Vector numerico que indica los limites en escala porcentual natural del eje y}
+
+\item{traslape}{Valor bopoleano. En caso de ser TRUE, realiza un factor de ajuste para los porcentajes presentados por \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}. Solo afecta a los valores cuya diferencia máxima y mínima se menor que el factor de tolerancia \link{limite_dif_pct}.  Por defecto tiene valor FALSE.}
+
+\item{limite_dif_pct}{Valor de tipo decimal. Es el factor o nivel de tolerencia para la diferencia entre dos puntos que al graficar sus porcentajes tienen un nivel de traslape. Solo se efectua si \link{traslape} es TRUE. Por defecto su valor es 0.02.}
+
+\item{ajuste_pos}{Valor de tipo decimal. Es el factor de ajuste de posición que los porcentajes graficados tomarán en caso de traslaparse. El porcentaje menor se despalzará la izquierda, y el mayor a la derecha. Solo se efectua si \link{traslape} es TRUE. Por defecto su valor es 0.02.}
 }
 \value{
 Objeto tipo \link{ggplot}

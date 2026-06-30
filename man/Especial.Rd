@@ -98,6 +98,7 @@ está considerado en el procesamiento de los resultados.
   caption_opinion = "",
   caption_nsnc = "Ns/Nc",
   caption_burbuja = "Conocimiento",
+  size_text_legend = 12,
   size_caption_opinion = 12,
   size_caption_nsnc = 14,
   size_caption_burbuja = 14,
@@ -298,7 +299,9 @@ se 'rellena'la columna de la tabla relacionada con los resultados de conocimient
   cliente,
   colores_candidatos,
   colores_partido,
-  corte_vis = 0
+  corte_vis = 0,
+  size_text = 6,
+  size_text_conocimiento = 6
 )}\if{html}{\out{</div>}}
 }
 
