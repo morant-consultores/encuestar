@@ -9,7 +9,7 @@ graficar_lollipops(
   orden = NULL,
   limits = c(0, 1),
   width_cats = 15,
-  size = 3,
+  size = 2,
   size_pct = 6
 )
 }

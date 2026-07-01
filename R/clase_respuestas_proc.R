@@ -58,7 +58,10 @@ Respuestas_proc <-
         mantener <- Preproceso$mantener
         diccionario <- Preproceso$cuestionario$diccionario
 
-        if(!identical(names(Preproceso$auditoria_telefonica), c("SbjNum","razon"))) stop("Los nombres de las columnas de la base de datos de auditoría telefónica deben ser: 'SbjNum' y 'razon'")
+        if (!is.null(Preproceso$auditoria_telefonica) &&
+            !identical(names(Preproceso$auditoria_telefonica), c("SbjNum", "razon"))) {
+          stop("Los nombres de las columnas de la base de datos de auditoría telefónica deben ser: 'SbjNum' y 'razon'")
+        }
 
         if(!is.null(Preproceso$bd_correcciones)){
           if(!identical(names(Preproceso$bd_correcciones), c("SbjNum", "llave", "capturada", "correccion"))) stop("Los nombres de las columnas de la base de datos de correcciones deben ser: 'SbjNum, llave, capturada, correccion'")

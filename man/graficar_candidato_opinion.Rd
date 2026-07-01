@@ -18,6 +18,7 @@ graficar_candidato_opinion(
   caption_opinion = "",
   caption_nsnc = "Ns/Nc",
   caption_burbuja,
+  size_text_legend = 12,
   size_caption_opinion = 12,
   size_caption_nsnc = 14,
   size_caption_burbuja,

@@ -86,7 +86,8 @@ gráfica de barras ordenadas de mayor a menor de forma vertical de acuerdo a las
   porcentajes_fuera = F,
   desplazar_porcentajes = 0,
   pct_otros = 0.01,
-  orden_respuestas = NA
+  orden_respuestas = NA,
+  text_size = 8
 )}\if{html}{\out{</div>}}
 }
 
@@ -109,7 +110,8 @@ sólo si \code{porcentajes_fuera} es \code{TRUE}.}
 o igual que \code{pct_otros} las agrupa, las suma y las muestra en \code{Otros}.}
 
 \item{\code{orden_respuestas}}{Vector tipo caracter que contiene, de manera ordenada, los valores únicos
-de la variable de interés y reordena las barras de la gráfica de barras de acuerdo a ese orden.}
+de la variable de interés y reordena las barras de la gráfica de barras de acuerdo a ese orden.
+@param text_size Valor tipo entero. Corresponde al tamaño de los porcentajes contenidos en la gráfica de barras.}
 }
 \if{html}{\out{</div>}}
 }
@@ -129,7 +131,8 @@ patron_inicial_aspecto3 etc.
   salto = 20,
   filtro = "respuesta == 'Sí'",
   porcentajes_fuera = F,
-  desplazar_porcentajes = 0
+  desplazar_porcentajes = 0,
+  text_size = 8
 )}\if{html}{\out{</div>}}
 }
 
@@ -155,6 +158,8 @@ o fuera de la barra. Útil para cuando hay muchas categorías.}
 
 \item{\code{desplazar_porcentajes}}{Valor real. Parámetro \link{nudge_y} de la función \link{geom_text}. Aplica
 sólo si \code{porcentajes_fuera} es \code{TRUE}.}
+
+\item{\code{text_size}}{Valor tipo entero. Corresponde al tamaño de los porcentajes contenidos en la gráfica de barras.}
 }
 \if{html}{\out{</div>}}
 }
@@ -171,7 +176,8 @@ Muestra los resultados en un gráfico tipo gráfica de barras.
   patron_inicial,
   salto = 20,
   porcentajes_fuera = F,
-  desplazar_porcentajes = 0
+  desplazar_porcentajes = 0,
+  text_size = 8
 )}\if{html}{\out{</div>}}
 }
 
@@ -189,6 +195,8 @@ o fuera de la barra. Útil para cuando hay muchas categorías.}
 
 \item{\code{desplazar_porcentajes}}{Valor real. Parámetro \link{nudge_y} de la función \link{geom_text}. Aplica
 sólo si \code{porcentajes_fuera} es \code{TRUE}.}
+
+\item{\code{text_size}}{Valor tipo entero. Corresponde al tamaño de los porcentajes contenidos en la gráfica de barras.}
 }
 \if{html}{\out{</div>}}
 }

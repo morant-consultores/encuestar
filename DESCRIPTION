@@ -1,6 +1,6 @@
 Package: encuestar
 Title: Calculo de resultados de encuestas
-Version: 2.0.0
+Version: 2.0.1
 Authors@R: c(
     person(given = "Emilio", family = "Morones", email = "emorones@morant.com.mx", role = c("cre", "aut"), comment = c(ORCID = "YOUR-ORCID-ID")),
     person(given = "Allan", family = "Meza", email = "al.josue93@gmail.com", role = c("aut"), comment = c(ORCID = "YOUR-ORCID-ID")),
@@ -51,11 +51,12 @@ Imports:
     treemapify,
     utils,
     yesno
-Suggests: 
+Suggests:
     knitr,
     odbc,
     pool,
     rmarkdown,
+    RSQLite,
     testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr
@@ -65,5 +66,5 @@ Remotes:
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Config/testthat/edition: 3

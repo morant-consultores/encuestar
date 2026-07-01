@@ -12,3 +12,4 @@ inst/doc
 data-raw/desarrollo.R
 data-raw/exploratorio_opinometro.R
 data-raw/pruebas.R
+tests/testthat/testthat-problems.rds

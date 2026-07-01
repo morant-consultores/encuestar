@@ -213,7 +213,10 @@ relativas a la primera en una gráfica tipo lolipop.
   size_text_y = 16,
   size_text_caption = 16,
   size_text_legend = 16,
-  ver_diferencias = TRUE
+  ver_diferencias = TRUE,
+  traslape = F,
+  limite_dif_pct = 0.02,
+  ajuste_pos = 0.02
 )}\if{html}{\out{</div>}}
 }
 
@@ -269,6 +272,15 @@ el caption.}
 
 \item{\code{ver_diferencias}}{\code{LOGICAL}. Determina si se muestran las diferencias en puntos porcentuales
 dentro del gráfico.}
+
+\item{\code{traslape}}{Valor bopoleano. En caso de ser TRUE, realiza un factor de ajuste para los porcentajes presentados por \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.
+Solo afecta a los valores cuya diferencia máxima y mínima se menor que el factor de tolerancia \link{limite_dif_pct}.  Por defecto tiene valor FALSE.}
+
+\item{\code{limite_dif_pct}}{Valor de tipo decimal. Es el factor o nivel de tolerencia para la diferencia entre dos puntos
+que al graficar sus porcentajes tienen un nivel de traslape. Solo se efectua si \link{traslape} es TRUE. Por defecto su valor es 0.02.}
+
+\item{\code{ajuste_pos}}{Valor de tipo decimal. Es el factor de ajuste de posición que los porcentajes
+graficados tomarán en caso de traslaparse. El porcentaje menor se despalzará la izquierda, y el mayor a la derecha. Solo se efectua si \link{traslape} es TRUE. Por defecto su valor es 0.02.}
 }
 \if{html}{\out{</div>}}
 }

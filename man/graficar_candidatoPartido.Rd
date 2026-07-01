@@ -12,7 +12,9 @@ graficar_candidatoPartido(
   solo_respondidos = T,
   colores_partido,
   tema,
-  corte_vis = 0
+  corte_vis = 0,
+  size_text = 6,
+  size_text_conocimiento = 6
 )
 }
 \arguments{
@@ -29,6 +31,8 @@ graficar_candidatoPartido(
 \item{colores_partido}{Vector que asigna un color a cada partido de acuerdo al nombre largo (tema)}
 
 \item{tema}{Tema de la gráfica asociado a la paquetería 'encuestar'}
+
+\item{size_text_conocimiento}{Valor de tipo entero. Tamaño de los porcentajes en la grafica de conocimiento.}
 }
 \description{
 Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica tipo barras horizontales

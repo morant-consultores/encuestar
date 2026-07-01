@@ -14,10 +14,10 @@ graficar_barras_saldo(
   salto_respuestas,
   salto_tema,
   caption_opinion,
-  size_text_cat = 10,
+  size_text_cat = 12,
   size_pct,
   size_caption_opinion,
-  size_text_legend = 10,
+  size_text_legend = 12,
   tema = encuestar::tema_morant()
 )
 }
