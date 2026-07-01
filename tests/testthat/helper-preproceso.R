@@ -11,7 +11,7 @@ PreprocesoPrueba <- R6::R6Class(
     agregar_nuevos_registros = function(con) {
       if (!is.null(private$fn_agregar)) private$fn_agregar(con)
     },
-    marcar_registros_eliminados = function() {
+    marcar_registros_eliminados = function(con) {
       if (!is.null(private$fn_marcar)) private$fn_marcar()
     },
     actualizar_clusters_corregidos = function(con) {

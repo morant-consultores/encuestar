@@ -409,7 +409,9 @@ Preproceso <-
         # Corre siempre, independientemente del resultado del bloque 1, porque
         # las reglas de eliminación se aplican sobre registros existentes y no
         # deben quedar bloqueadas por un fallo en la inserción de nuevos.
-        private$marcar_registros_eliminados()
+        # Se pasa `con` para reusar la conexión del bloque 1 y evitar un segundo
+        # poolCheckout simultáneo que puede causar deadlock si maxSize = 1.
+        private$marcar_registros_eliminados(con)
 
         if (!is.null(error_registros)) {
           stop(glue::glue(
@@ -686,7 +688,7 @@ Preproceso <-
       #' Ejecuta sentencias UPDATE para establecer el flag de eliminación
       #' (ej. eliminada_auditoria = 1) basándose en los SbjNum identificados
       #' en el proceso de limpieza.
-      marcar_registros_eliminados = function() {
+      marcar_registros_eliminados = function(con) {
         marcas <- self$marcas_eliminacion
 
         if (is.null(marcas) || nrow(marcas) == 0) {
@@ -699,9 +701,6 @@ Preproceso <-
 
         nombre_snapshot <- glue::glue("snapshot_id_{self$opinometro_id}")
         nombre_temp     <- "#marcas_eliminacion_temp"
-
-        con <- pool::poolCheckout(self$pool)
-        on.exit(pool::poolReturn(con), add = TRUE)
 
         DBI::dbWriteTable(con, name = nombre_temp, value = marcas,
                           temporary = TRUE, overwrite = TRUE)
