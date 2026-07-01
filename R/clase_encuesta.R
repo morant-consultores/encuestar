@@ -241,6 +241,8 @@ Encuesta <-
           opinometro <- Opinometro$new(id_cuestionarioOpinometro = self$opinometro_id,
                                        pool = self$pool,
                                        diccionario = self$cuestionario$diccionario)
+          opinometro$definir_contenido()
+          opinometro$construir_respuestas()
 
           respuestas <- opinometro$bd_respuestas_cuestionario
 

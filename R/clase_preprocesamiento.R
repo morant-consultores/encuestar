@@ -116,6 +116,7 @@ Preproceso <-
         mantener = "",
         auditoria_telefonica = NULL,
         bd_eliminadas_regla = NULL,
+        bd_eliminadas_reglas = NULL,
         shp = NULL,
         tipo_encuesta = NULL,
         patron = NULL
@@ -131,28 +132,37 @@ Preproceso <-
         self$shp <- shp
         self$tipo_encuesta <- tipo_encuesta
         self$patron <- patron
+        self$bd_categorias <- bd_categorias
 
-        un <- self$muestra_diseno$niveles %>%
-          filter(nivel == self$muestra_diseno$ultimo_nivel)
-        nivel <- un |>
-          unite(nivel, tipo, nivel) |>
-          pull(nivel)
-        var_n <- un |> pull(variable)
+        # Backward compat: accept the old plural parameter name
+        if (!is.null(bd_eliminadas_reglas) && is.null(self$bd_eliminadas_regla)) {
+          warning("El parámetro 'bd_eliminadas_reglas' está obsoleto; usa 'bd_eliminadas_regla' (singular).")
+          self$bd_eliminadas_regla <- bd_eliminadas_reglas
+        }
 
-        self$shp_completo <- shp
+        if (!is.null(muestra) && !is.null(shp)) {
+          un <- self$muestra_diseno$niveles %>%
+            filter(nivel == self$muestra_diseno$ultimo_nivel)
+          nivel <- un |>
+            unite(nivel, tipo, nivel) |>
+            pull(nivel)
+          var_n <- un |> pull(variable)
 
-        self$shp <-
-          shp$shp %>%
-          purrr::pluck(var_n) %>%
-          inner_join(
-            muestra$muestra %>%
-              purrr::pluck(var_n) %>%
-              unnest(data) %>%
-              distinct(
-                !!rlang::sym(var_n) := !!rlang::sym(var_n),
-                !!rlang::sym(nivel)
-              )
-          )
+          self$shp_completo <- shp
+
+          self$shp <-
+            shp$shp %>%
+            purrr::pluck(var_n) %>%
+            inner_join(
+              muestra$muestra %>%
+                purrr::pluck(var_n) %>%
+                unnest(data) %>%
+                distinct(
+                  !!rlang::sym(var_n) := !!rlang::sym(var_n),
+                  !!rlang::sym(nivel)
+                )
+            )
+        }
         self$mantener <- mantener
 
         message("Objeto Preproceso inicializado.")
@@ -177,12 +187,14 @@ Preproceso <-
                 group_by(Id) |>
                 mutate(INT = row_number()) |>
                 ungroup() |>
-                filter(INT == max(INT), .by = Id)
+                filter(INT == max(INT), .by = Id) |>
+                select(Id, gps)
+            } else if ("gps" %in% names(.)) {
+              select(., Id, gps)
             } else {
-              .
+              tibble(Id = integer(0), gps = character(0))
             }
-          } |>
-          select(Id, gps)
+          }
 
         self$bd_respuestas_preparadas <- self$bd_respuestas |>
           select(
@@ -263,12 +275,13 @@ Preproceso <-
         # direcciones: al borrar una regla o corregir una auditoría, los
         # registros afectados se restauran en la siguiente actualización.
         self$marcas_eliminacion <- marcadas_todas |>
-          dplyr::distinct(Id, eliminada_auditoria, eliminada_regla) |>
-          dplyr::transmute(
-            SbjNum = Id,
-            eliminada_auditoria = as.integer(eliminada_auditoria),
-            eliminada_regla = as.integer(eliminada_regla)
-          )
+          dplyr::group_by(Id) |>
+          dplyr::summarize(
+            eliminada_auditoria = as.integer(max(eliminada_auditoria, na.rm = TRUE)),
+            eliminada_regla     = as.integer(max(eliminada_regla,     na.rm = TRUE)),
+            .groups = "drop"
+          ) |>
+          dplyr::rename(SbjNum = Id)
 
         # ============================================================
         # 3) Si no hay nuevos registros, no procesar pesado,
@@ -322,11 +335,26 @@ Preproceso <-
         var_n <- un |> dplyr::pull(variable)
 
         # 4.3) Aplicar transformaciones complejas
+        catalogo_para_respuestas <- catalogo_variables |>
+          dplyr::bind_rows(
+            self$cuestionario$diccionario |>
+              dplyr::select(variable = llaves) |>
+              dplyr::mutate(
+                plataforma   = "cuestionario",
+                primer_nivel = "cuestionario",
+                segundo_nivel = dplyr::if_else(
+                  variable %in% c("cluster", "edad", "sexo"),
+                  "sistema",
+                  "cuestionario"
+                )
+              )
+          )
+
         self$Respuestas_proc <- Respuestas_proc$new(
           base = opinometro$bd_respuestas_cuestionario |>
             dplyr::mutate(cluster_0 = SbjNum),
           Preproceso = self,
-          catalogo = self$catalogo,
+          catalogo = catalogo_para_respuestas,
           muestra_completa = self$muestra_diseno,
           nivel = nivel,
           var_n = var_n
@@ -539,7 +567,7 @@ Preproceso <-
         base |>
           filter(
             TipoRegistro == "Efectivo",
-            eliminada_proceso == 0,
+            eliminada_proceso == 0 | is.na(eliminada_proceso),
             eliminada_auditoria == 0 | is.na(eliminada_auditoria),
             eliminada_regla == 0 | is.na(eliminada_regla)
           )
@@ -562,7 +590,7 @@ Preproceso <-
           inner_join(muestra_obj$base %>% select(all_of(vars_join)))
 
         # --- 2. Creación de variables demográficas según tipo de encuesta ---
-        if (self$tipo_encuesta == "inegi") {
+        if (isTRUE(self$tipo_encuesta == "inegi")) {
           snap <- snap %>%
             mutate(
               rango_edad = as.character(cut(
@@ -574,7 +602,7 @@ Preproceso <-
             )
         }
 
-        if (self$tipo_encuesta == "ine") {
+        if (isTRUE(self$tipo_encuesta == "ine")) {
           snap <- snap %>%
             mutate(
               rango_edad = cut(
