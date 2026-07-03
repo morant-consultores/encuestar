@@ -58,6 +58,38 @@ resultados_bailey_turnout <- function() {
   )
 }
 
+# Construye un survey::svydesign sintético con el contrato de columnas del
+# snapshot DR-MNAR: instrumento `drmnar_z`, respuesta por pregunta y la
+# pregunta categórica ("Sí"/"No", NA para quien no respondió el ítem).
+crear_diseno_sintetico <- function(n = 8000, gamma_y = 0, g_z = 1.5,
+                                   semilla = 20260702, w = NULL,
+                                   n_clusters = NULL, ...) {
+  sim <- simular_drmnar(n = n, gamma_y = gamma_y, g_z = g_z,
+                        semilla = semilla, ...)
+  datos <- sim$d
+  datos$drmnar_z <- datos$z
+  datos$conoce_cand <- ifelse(
+    datos$r == 1,
+    ifelse(sim$y_verdadera == 1, "Sí lo conoce", "No lo conoce"),
+    NA_character_
+  )
+  datos$peso <- if (is.null(w)) rep(1, n) else w
+  datos$upm <- if (is.null(n_clusters)) {
+    seq_len(n)
+  } else {
+    rep_len(seq_len(n_clusters), n)
+  }
+  diseno <- survey::svydesign(
+    ids = ~upm, weights = ~peso, data = datos
+  )
+  list(
+    diseno = diseno,
+    media_verdadera = sim$media_verdadera,
+    y_verdadera = sim$y_verdadera,
+    datos = datos
+  )
+}
+
 # Generador de datos sintéticos con mecanismo de respuesta conocido.
 #   P(Z=1|X) = expit(a_z + b_z * x)
 #   P(Y=1|X) = expit(a_y + b_y * x)
