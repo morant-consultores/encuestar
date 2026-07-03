@@ -68,6 +68,12 @@ crear_diseno_sintetico <- function(n = 8000, gamma_y = 0, g_z = 1.5,
                         semilla = semilla, ...)
   datos <- sim$d
   datos$drmnar_z <- datos$z
+  datos$drmnar_r <- datos$r
+  datos$drmnar_tema <- ifelse(
+    datos$z == 0,
+    NA_character_,
+    ifelse(datos$r == 1, "Política", "Deportes")
+  )
   datos$conoce_cand <- ifelse(
     datos$r == 1,
     ifelse(sim$y_verdadera == 1, "Sí lo conoce", "No lo conoce"),
