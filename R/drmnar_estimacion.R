@@ -47,8 +47,14 @@ extraer_insumos_drmnar <- function(diseno, pregunta, covariables,
     y <- as.numeric(y_cruda %in% categoria)
   }
 
-  # indicador de respuesta por ítem: si no se especifica columna, no
-  # respondió el ítem = NA en la pregunta
+  # indicador de respuesta por ítem: si no se especifica columna se usa
+  # drmnar_r (respuesta por PROTOCOLO, ver preparar_variables_drmnar) si
+  # existe — indispensable cuando el campo no interrumpió el cuestionario
+  # de los desertores (caso Chihuahua: la pregunta no tiene NA pero los
+  # desertores son no respuesta) — y en su defecto los NA de la pregunta
+  if (is.null(respuesta_ind) && "drmnar_r" %in% names(vars)) {
+    respuesta_ind <- "drmnar_r"
+  }
   if (is.null(respuesta_ind)) {
     r <- as.numeric(!is.na(y_cruda))
   } else {

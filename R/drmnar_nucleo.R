@@ -362,7 +362,14 @@ ajustar_nucleo_drmnar <- function(z, r, y, X, w = NULL,
     quiet = TRUE,
     control = list(noimp = 240, maxit = 2000)
   )
-  conv_ipw <- ans_ipw$convergence == 0
+  # la convergencia se juzga por el residuo de las ecuaciones de momento
+  # (por observación), no por el código interno de BBsolve: con pesos de
+  # diseño dispersos BBsolve encuentra la raíz (residuo ~1e-6) pero puede
+  # reportar códigos != 0 por su criterio de norma escalada
+  residuo_ipw <- max(abs(
+    ec_ipw(ans_ipw$par, r = r, ZXY = ZXY, pz_fit = pz_fit, w = w)
+  ))
+  conv_ipw <- ans_ipw$convergence == 0 || (residuo_ipw / n) < 1e-6
   par_ipw <- unname(ans_ipw$par)
   gamma_ipw <- par_ipw[length(par_ipw)]
   pr_r_ipw <- as.numeric(expit(ZXY %*% par_ipw))

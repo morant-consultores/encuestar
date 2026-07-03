@@ -161,6 +161,32 @@ test_that("doble robustez: DR consistente si falla el modelo de propensión", {
   )
 })
 
+test_that("usa drmnar_r automáticamente cuando la pregunta no tiene NA (caso Chihuahua)", {
+  # en Chihuahua el campo NO interrumpió el cuestionario: los desertores
+  # del filtro tienen respuesta observada (sin NA) pero drmnar_r = 0.
+  # Derivar r de los NA daría r = 1 para todos (gamma no estimable); el
+  # estimador debe preferir drmnar_r cuando existe.
+  sint <- crear_diseno_sintetico(n = 12000, gamma_y = 2, semilla = 71)
+  vars <- sint$diseno$variables
+  # respuesta completa (verdad conocida incluso para r = 0)
+  vars$conoce_cand <- ifelse(
+    sint$y_verdadera == 1, "Sí lo conoce", "No lo conoce"
+  )
+  diseno <- survey::svydesign(ids = ~upm, weights = ~peso, data = vars)
+
+  res <- estimar_drmnar(
+    diseno = diseno, pregunta = "conoce_cand", covariables = "x",
+    categoria = "Sí lo conoce", instrumento = "drmnar_z"
+  )
+  # gamma se estimó (r vino de drmnar_r, no de los NA)
+  expect_false(is.na(res$gamma_y[res$modelo == "DR-MNAR"]))
+  expect_gt(res$gamma_y[res$modelo == "DR-MNAR"], 1)
+  # y el DR corrige hacia la media verdadera
+  expect_lt(
+    abs(res$est[res$modelo == "DR-MNAR"] - sint$media_verdadera), 0.05
+  )
+})
+
 test_that("estimar_drmnar valida instrumento y categoría", {
   sint <- crear_diseno_sintetico(n = 2000, gamma_y = 0, semilla = 5)
   # instrumento inexistente

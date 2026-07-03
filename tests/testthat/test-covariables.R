@@ -126,6 +126,17 @@ test_that("unir_covariables_individuo une por sección normalizando la llave", {
   expect_equal(unido$pct_conectividad[3], 0.8)
 })
 
+test_that("la llave normaliza también SECCION character numérica (snapshot real)", {
+  # en el snapshot de Chihuahua SECCION llega como character "64", "1224"
+  cov <- construir_covariables_seccion(censo_seccion = censo_fixture())
+  respuestas <- tibble::tibble(SECCION = c("1", "2", "0003"))
+  unido <- unir_covariables_individuo(
+    respuestas, cov,
+    entidad = "08", estandarizar = FALSE
+  )
+  expect_equal(unido$escolaridad_prom, c(9.5, 11.2, 6.1))
+})
+
 test_that("unir_covariables_individuo estandariza las covariables continuas", {
   cov <- construir_covariables_seccion(censo_seccion = censo_fixture())
   respuestas <- tibble::tibble(SECCION = c("08_0001", "08_0002", "08_0003"))

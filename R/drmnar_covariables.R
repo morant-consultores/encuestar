@@ -187,20 +187,29 @@ construir_covariables_seccion <- function(censo_seccion,
 }
 
 #' Normaliza llaves de sección al formato "EE_SSSS"
+#'
+#' Acepta secciones numéricas (64) o character numéricas ("64", "0064"),
+#' como llegan en los snapshots reales, y las convierte al formato
+#' "EE_SSSS" de las covariables cuando se especifica la entidad. Las
+#' llaves que ya traen el formato "EE_SSSS" pasan intactas.
 #' @keywords internal
 #' @noRd
 normalizar_seccion <- function(x, entidad = NULL) {
-  if (is.numeric(x)) {
+  x_chr <- as.character(x)
+  ya_formateada <- grepl("_", x_chr, fixed = TRUE)
+  numerica <- !ya_formateada & grepl("^\\s*\\d+\\s*$", x_chr)
+  if (any(numerica, na.rm = TRUE)) {
     if (is.null(entidad)) {
       stop(
         "La llave de sección es numérica: especifica `entidad` (p. ej. ",
         '"08") para normalizarla al formato "EE_SSSS" de las covariables.'
       )
     }
-    sprintf("%s_%04d", entidad, as.integer(x))
-  } else {
-    as.character(x)
+    x_chr[numerica] <- sprintf(
+      "%s_%04d", entidad, as.integer(x_chr[numerica])
+    )
   }
+  x_chr
 }
 
 #' Une las covariables seccionales a la base individual

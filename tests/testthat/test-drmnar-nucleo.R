@@ -153,6 +153,20 @@ test_that("ajustar_nucleo_drmnar exige el instrumento z con variación", {
   )
 })
 
+test_that("converge con pesos de diseño muy dispersos (residuo, no código BBsolve)", {
+  # con pesos reales tipo PPS (ratio ~50x) BBsolve encuentra la raíz
+  # (residuo ~1e-6 por observación) pero puede reportar códigos != 0 por
+  # su criterio interno de norma; la convergencia debe juzgarse por el
+  # residuo de las ecuaciones (caso observado en Chihuahua Ene-2026)
+  sim <- simular_drmnar(n = 8000, gamma_y = 1, g_z = 1.5, semilla = 61)
+  d <- sim$d
+  set.seed(61)
+  w <- exp(rnorm(nrow(d), sd = 1)) # pesos lognormales (muy dispersos)
+  res <- ajustar_nucleo_drmnar(z = d$z, r = d$r, y = d$y, X = sim$X, w = w)
+  expect_true(res$convergencia)
+  expect_lt(abs(res$dr$gamma_y - 1), 0.8)
+})
+
 test_that("los pesos de diseño mueven la estimación hacia la media ponderada", {
   # dos estratos con medias distintas; el peso sobre-representa al estrato 2.
   # n grande porque gamma se estima con mucha varianza y su error se
