@@ -1,6 +1,6 @@
 Package: encuestar
 Title: Calculo de resultados de encuestas
-Version: 2.0.1
+Version: 2.1.0
 Authors@R: c(
     person(given = "Emilio", family = "Morones", email = "emorones@morant.com.mx", role = c("cre", "aut"), comment = c(ORCID = "YOUR-ORCID-ID")),
     person(given = "Allan", family = "Meza", email = "al.josue93@gmail.com", role = c("aut"), comment = c(ORCID = "YOUR-ORCID-ID")),

@@ -1,0 +1,107 @@
+---
+title: "DR-MNAR 5: Integración con morantviz y el factory"
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
+vignette: >
+  %\VignetteIndexEntry{DR-MNAR 5: Integración con morantviz y el factory}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, message=FALSE, echo=FALSE}
+library(encuestar)
+```
+<div class = "watermark">
+<img src = "./Manual-diccionario/morant.png">
+</div>
+
+Después del preprocesamiento, los cálculos y gráficas del entregable viven
+en **morantviz** (que consume un `svydesign` con `svymean`). El DR-MNAR se
+integra por dos vías complementarias, gobernadas por el **bundle**.
+
+## El bundle `diseno_drmnar` (segundo tipo de diseño)
+
+`generar_diseno.R` del proyecto produce, además del diseño rakeado normal,
+el bundle con la decisión automática por pregunta:
+
+```{r, eval=FALSE}
+bundle <- generar_diseno_drmnar(
+  diseno = diseno,                       # el svydesign del flujo
+  preguntas = list(
+    "conoce_cruz" = "Sí lo conoce",
+    "candidato_votaria_1" = "Cruz Pérez Cuéllar de MORENA"
+  ),
+  covariables = c("sexo", "rango_edad"),
+  # override manual del analista (el diagnóstico se conserva):
+  override = tibble::tibble(pregunta = "conoce_cruz", decision = "Raking",
+                            motivo = "decisión de la ola")
+)
+print(bundle) # decisión Raking vs DR-MNAR por pregunta
+saveRDS(bundle, "encuesta/bd/proyecto_drmnar.rds")
+```
+
+## Vía 1: weight-swap (automática, morantviz sin cambios)
+
+`diseno_para_pregunta()` aplica el árbol de decisión: si la pregunta quedó
+en Raking devuelve el diseño original **intacto**; si quedó en DR-MNAR
+devuelve un `svydesign` repesado (peso base × $1/\hat\pi$) que entra a
+morantviz como cualquier diseño:
+
+```{r, eval=FALSE}
+dis_pregunta <- diseno_para_pregunta(bundle, "candidato_votaria_1",
+                                     categoria = "Cruz Pérez Cuéllar de MORENA")
+g <- morantviz::Graficar$new(diseno = dis_pregunta, diccionario = dicc,
+                             colores = colores, color_principal = "#A6032F",
+                             tema = tema)
+g$contar_variables("candidato_votaria_1") # reproduce el IPW-MNAR
+```
+
+*Nota:* los EE que salgan de `svymean` sobre el diseño repesado **no**
+incluyen la incertidumbre de $\hat\pi$; para reportar intervalos usa
+`estimar_drmnar()` (sándwich completo).
+
+## Vía 2: inyección de resultados (DR completo)
+
+Para reportar el estimador doblemente robusto con su inferencia completa,
+se exporta al esquema de morantviz y se inyecta:
+
+```{r, eval=FALSE}
+res <- estimar_drmnar(bundle$diseno, "candidato_votaria_1",
+                      categoria = "Cruz Pérez Cuéllar de MORENA",
+                      covariables = bundle$covariables)
+tbl <- exportar_resultado_morantviz(res, modelo = "DR-MNAR")
+g$inyectar_resultado(tbl)$pegar_diccionario()$pegar_color()
+# ... y las gráficas de morantviz siguen igual
+```
+
+`Graficar$inyectar_resultado()` es el mini-adaptador agregado a morantviz
+(rama `feat/doubly_robust`): valida el esquema y salta `svymean`.
+
+## El factory: sección "Análisis de No Respuesta" en el PPTX
+
+MorantViz-Factory (rama `feat/doubly_robust`) registra tres tipos de
+gráfica que consumen el bundle vía `path_bundle_drmnar` (definido en
+`R/manifest_graficas.R` del proyecto):
+
+| `tipo_grafica` | Slide | `codigo` de la fila |
+|---|---|---|
+| `nr_flujo` | Flujo por brazo (Figure 2) | libre, p. ej. `nr_flujo_general` |
+| `nr_caterpillar` | $\gamma_Y$ por pregunta/subgrupo | libre, p. ej. `nr_diagnostico` |
+| `nr_comparacion` | 7 estimadores de una pregunta | **`nr_<pregunta>`**, p. ej. `nr_conoce_cruz` |
+
+Filas de ejemplo para `diccionario_slides.xlsx`:
+
+```
+bloque         | codigo            | tipo_grafica   | layout   | nomenclatura
+No Respuesta   | nr_flujo_general  | nr_flujo       | una_graf | S1
+No Respuesta   | nr_diagnostico    | nr_caterpillar | una_graf | S1
+No Respuesta   | nr_conoce_cruz    | nr_comparacion | una_graf | S1
+```
+
+Como `manifest_graficas.R` se regenera con `02_procesamiento.R`, vuelve a
+agregar la línea `path_bundle_drmnar <- "bd/<...>_drmnar_<ts>.rds"` después
+de regenerarlo (o define `bundle_drmnar` en el entorno antes de correr las
+gráficas).
+
+Continúa en **DR-MNAR 6: Caso Chihuahua Ene-2026**.

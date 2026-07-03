@@ -1,0 +1,83 @@
+---
+title: "DR-MNAR 2: Covariables por sección electoral"
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
+vignette: >
+  %\VignetteIndexEntry{DR-MNAR 2: Covariables por sección electoral}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, message=FALSE, echo=FALSE}
+library(encuestar)
+library(dplyr)
+```
+<div class = "watermark">
+<img src = "./Manual-diccionario/morant.png">
+</div>
+
+Los modelos de propensión e imputación del DR-MNAR usan, además de los
+demográficos individuales del rescate mínimo, **covariables contextuales de
+la sección electoral** (Sección 4 del Anexo Técnico): censo INEGI 2020 e
+histórico electoral.
+
+## Censo INEGI por sección
+
+El insumo es el censo 2020 agregado por sección electoral (llave
+`seccion = "EE_SSSS"`, p. ej. `"08_0064"`). Es un archivo pesado (~119 MB)
+que **no** se versiona: el script `data-raw/preparar_covariables_seccion.R`
+deriva tablas delgadas por entidad hacia `inst/extdata/`
+(`covariables_seccion_chih.rds`, `covariables_seccion_mex.rds`).
+
+```{r, eval=FALSE}
+censo <- readRDS("inegi/seccion_2020.rda") # guardado con saveRDS
+covariables <- construir_covariables_seccion(
+  censo_seccion = dplyr::filter(censo, entidad == "08")
+)
+```
+
+Variables censales: `escolaridad_prom` (graproes — el predictor contextual
+más fuerte de la propensión a responder), `pct_conectividad`
+(`vph_inter / vivpar_hab`, proxy de ingreso) y `tipo_seccion`
+(urbano/rural/mixto según el marco).
+
+## Histórico electoral: Margen de Victoria Neto
+
+Con el objeto electoral de la entidad (formato `aelectoral`, p. ej.
+`mex.rda$info$bd`) se agregan:
+
+* `participacion_prom`: participación promedio de la sección
+  (`total / lista nominal` por elección).
+* `margen_victoria_neto`: bloque oficialista (MORENA + PVEM + PT, con sus
+  coaliciones) menos bloque opositor (PAN + PRI + PRD + MC), normalizado
+  por la votación total y promediado sobre elecciones. Reemplaza los
+  porcentajes por partido para evitar multicolinealidad severa.
+
+```{r, eval=FALSE}
+tablero <- readRDS("mex.rda") # objeto Tablero de aelectoral
+covariables <- construir_covariables_seccion(
+  censo_seccion = dplyr::filter(censo, entidad == "15"),
+  electoral_bd = tablero$info$bd,
+  elecciones = c("pr_24", "gb_23", "dl_21", "pr_18"),
+  # opcional: índice de marginación de CONAPO como tabla externa
+  marginacion = NULL
+)
+```
+
+## Unir al individuo
+
+```{r, eval=FALSE}
+snapshot <- unir_covariables_individuo(
+  snapshot, covariables,
+  llave = "SECCION",
+  entidad = "08",      # normaliza SECCION numérica o "64" -> "08_0064"
+  estandarizar = TRUE  # media 0, sd 1 (estabilidad de los logits)
+)
+```
+
+La normalización de llaves acepta secciones numéricas (`64`), character
+numéricas (`"0064"`) o ya formateadas (`"08_0064"`). Los registros sin
+match quedan en NA con un aviso — revisa la cobertura antes de estimar.
+
+Continúa en **DR-MNAR 3: Diagnóstico de no ignorabilidad**.
