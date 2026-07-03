@@ -470,6 +470,93 @@ Preproceso <-
 
         message("¡Diseño muestral ponderado generado exitosamente!")
         invisible(self)
+      },
+      #' @description Prepara las variables DR-MNAR (instrumento `drmnar_z`,
+      #'  respuesta por protocolo `drmnar_r` y dicotómicas por pregunta)
+      #'  sobre los registros nuevos del snapshot. Llamar DESPUÉS de
+      #'  `procesar_nuevas_entradas()` y ANTES de `actualizar_bd()` para que
+      #'  las variables queden persistidas en el snapshot (flujo AppAuditoria).
+      #' @param instrumento_campo Pregunta aleatoria del filtro temático en
+      #'  campo (NA = brazo control), p. ej. "gustos_aleatorio_50".
+      #' @param opcion_politica Valor del filtro que continúa el módulo
+      #'  político.
+      #' @param preguntas Lista nombrada `list(pregunta = categoria(s))` de
+      #'  dicotómicas a reservar para los cálculos por pregunta.
+      preparar_variables_dicotomicas_drmnar = function(instrumento_campo,
+                                                       opcion_politica = "Política",
+                                                       preguntas = NULL) {
+        if (is.null(self$nuevos_registros_snapshot)) {
+          stop(
+            "No hay registros nuevos procesados: corre ",
+            "procesar_nuevas_entradas() antes de preparar las variables ",
+            "DR-MNAR."
+          )
+        }
+        self$nuevos_registros_snapshot <- preparar_variables_drmnar(
+          bd = self$nuevos_registros_snapshot,
+          instrumento_campo = instrumento_campo,
+          opcion_politica = opcion_politica,
+          preguntas = preguntas
+        )
+        message("Variables DR-MNAR preparadas en los registros nuevos.")
+        invisible(self)
+      },
+      #' @description Genera el segundo tipo de diseño (bundle `diseno_drmnar`)
+      #'  a partir del diseño muestral ponderado del flujo normal: corre el
+      #'  diagnóstico de no respuesta no ignorable por pregunta y aplica la
+      #'  regla de decisión DR-MNAR vs Raking (con override manual opcional).
+      #'  Requiere haber corrido `generar_diseno()` (o lo ejecuta).
+      #' @param preguntas Lista nombrada `list(pregunta = categoria(s))`.
+      #' @param covariables Covariables de los modelos (individuales y/o
+      #'  seccionales ya unidas a las variables del diseño).
+      #' @param instrumento_campo Pregunta aleatoria del filtro en campo.
+      #' @param opcion_politica Valor del filtro que continúa el módulo.
+      #' @param covariables_seccion Tibble opcional de
+      #'  `construir_covariables_seccion()` a unir por sección.
+      #' @param entidad Clave "EE" para normalizar la llave de sección.
+      #' @param subconjuntos Lista nombrada de vectores lógicos.
+      #' @param override Tibble `pregunta`, `decision` para forzar decisiones.
+      #' @param ... Argumentos adicionales para `diagnosticar_norespuesta()`.
+      generar_diseno_drmnar = function(preguntas,
+                                       covariables = NULL,
+                                       instrumento_campo = "gustos_aleatorio_50",
+                                       opcion_politica = "Política",
+                                       covariables_seccion = NULL,
+                                       entidad = NULL,
+                                       subconjuntos = NULL,
+                                       override = NULL,
+                                       ...) {
+        if (is.null(self$diseño_muestral)) {
+          self$generar_diseno()
+        }
+        diseno <- self$diseño_muestral$diseno
+        vars <- diseno$variables
+        if (!"drmnar_z" %in% names(vars)) {
+          vars <- preparar_variables_drmnar(
+            bd = vars,
+            instrumento_campo = instrumento_campo,
+            opcion_politica = opcion_politica,
+            preguntas = preguntas
+          )
+        }
+        if (!is.null(covariables_seccion)) {
+          vars <- unir_covariables_individuo(
+            respuestas = vars,
+            covariables_seccion = covariables_seccion,
+            entidad = entidad
+          )
+        }
+        diseno$variables <- vars
+
+        # función exportada del paquete (no este método)
+        generar_diseno_drmnar(
+          diseno = diseno,
+          preguntas = preguntas,
+          covariables = covariables,
+          subconjuntos = subconjuntos,
+          override = override,
+          ...
+        )
       }
     ),
     private = list(
