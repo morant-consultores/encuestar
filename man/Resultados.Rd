@@ -11,105 +11,108 @@ de clasificadoras de métodos. De esta forma, la clase \code{Resultados} escenci
 procesat y visualizar.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{encuesta}}{Clase de jerarquía superior. Campo heredado por la clase \code{Encuesta}.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{encuesta}}{Clase de jerarquía superior. Campo heredado por la clase \code{Encuesta}.}
 
-\item{\code{diseno}}{Diseno muestral actual. Aunque el diseno esté contenido en la clase \code{Encuesta},
+    \item{\code{diseno}}{Diseno muestral actual. Aunque el diseno esté contenido en la clase \code{Encuesta},
 el modo de procesamiento de encuesta que no se levantó en campo requiere de alimentar la clase
 \code{Resultados} con un diseno muestral independiente a la clase \code{Muestra}.}
 
-\item{\code{diccionario}}{Diccionario de procesamiento. Aunque el diccionario esté contendio en la
+    \item{\code{diccionario}}{Diccionario de procesamiento. Aunque el diccionario esté contendio en la
 clase \code{Cuestionario} que a su vez está dentro de la clase \code{Encuesta} el modo de procesamiento de
 encuesta que no se levantói en campo requiere de alimentar la clase con un diccionario que no
 haya sido procesado por la clase \code{Cuestionario}.}
 
-\item{\code{Descriptiva}}{Clase de jerarquía menor. Contiene los métodos que visualizan resultados de
+    \item{\code{Descriptiva}}{Clase de jerarquía menor. Contiene los métodos que visualizan resultados de
 forma más simple como gráficas de barras de resultados de una sola variable.}
 
-\item{\code{Regiones}}{Clase de jerarquía menor, Contiene los métodos que visualizan resultados basados
+    \item{\code{Regiones}}{Clase de jerarquía menor, Contiene los métodos que visualizan resultados basados
 en la estratificación de la encuesta.}
 
-\item{\code{Modelo}}{Clase de jerarquía menor. Contiene métodos de análisis estadísitico como PCA.}
+    \item{\code{Modelo}}{Clase de jerarquía menor. Contiene métodos de análisis estadísitico como PCA.}
 
-\item{\code{Cruce}}{Clase de jerarquía menor. Contiene métodos enfocados en presentar resultados
+    \item{\code{Cruce}}{Clase de jerarquía menor. Contiene métodos enfocados en presentar resultados
 cruzando dos o más variables.}
 
-\item{\code{Especial}}{Clase de jerarquía menor. Contiene métodos para visualizar resultados construidos
+    \item{\code{Especial}}{Clase de jerarquía menor. Contiene métodos para visualizar resultados construidos
 de forma personalizada.}
 
-\item{\code{Tendencias}}{Clase de jerarquía menor. Contiene los metodos de estimacions usando la media móvil}
+    \item{\code{Tendencias}}{Clase de jerarquía menor. Contiene los metodos de estimacions usando la media móvil}
 
-\item{\code{tema}}{Objeto \link{theme} de la paquetería \link{ggplot2} que contiene el formato e identidad gráfica
+    \item{\code{tema}}{Objeto \link[ggplot2:theme]{theme} de la paquetería \link[ggplot2:ggplot2]{ggplot2} que contiene el formato e identidad gráfica
 de Morant Consultores}
 
-\item{\code{graficadas}}{En desuso. Contiene un \link{ tibble} que indica qué variables ya han sido procesadas
+    \item{\code{graficadas}}{En desuso. Contiene un \link{ tibble} que indica qué variables ya han sido procesadas
 durante la producción.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-Resultados-new}{\code{Resultados$new()}}
-\item \href{#method-Resultados-faltantes}{\code{Resultados$faltantes()}}
-\item \href{#method-Resultados-clone}{\code{Resultados$clone()}}
-}
+  \itemize{
+    \item \href{#method-Resultados-initialize}{\code{Resultados$new()}}
+    \item \href{#method-Resultados-faltantes}{\code{Resultados$faltantes()}}
+    \item \href{#method-Resultados-clone}{\code{Resultados$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Resultados-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Resultados-new}{}}}
-\subsection{Method \code{new()}}{
-Carga los insumos necesarios para producir resultados en
-forma de visualizaciones con objetos tipo \link{ggplot2} o \link{flextable}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Resultados$new(encuesta, diseno, diccionario, tema = tema_morant())}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{encuesta}}{Clase de jerarquía superior que se carga de forma
+\if{html}{\out{<a id="method-Resultados-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-Resultados-initialize}{}}}
+\subsection{\code{Resultados$new()}}{
+  Carga los insumos necesarios para producir resultados en
+forma de visualizaciones con objetos tipo \link[ggplot2:ggplot2]{ggplot2} o \link{flextable}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Resultados$new(encuesta, diseno, diccionario, tema = tema_morant())}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{encuesta}}{Clase de jerarquía superior que se carga de forma
 implítica.}
-
-\item{\code{diseno}}{Objeto tipo \link{desing} de la paquetería \link{survey}. Si el
+      \item{\code{diseno}}{Objeto tipo \link{desing} de la paquetería \link{survey}. Si el
 parámetro es no nullo, el objeto \code{diseno} es el usado para calcular
 las estimaciones. No se espera que ambos parámetros \code{encuesta} y
 \code{diseno} sean no nulos al mismo tiempo.}
+      \item{\code{diccionario}}{Diccionario de procesamiento de la encuesta.}
+      \item{\code{tema}}{Objetio tipo \link[ggplot2:theme]{theme} de la paquetería \link[ggplot2:ggplot2]{ggplot2}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{diccionario}}{Diccionario de procesamiento de la encuesta.}
-
-\item{\code{tema}}{Objetio tipo \link{theme} de la paquetería \link{ggplot2}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Resultados-faltantes"></a>}}
 \if{latex}{\out{\hypertarget{method-Resultados-faltantes}{}}}
-\subsection{Method \code{faltantes()}}{
-Visualiza las variables que aún no han sido producidas
+\subsection{\code{Resultados$faltantes()}}{
+  Visualiza las variables que aún no han sido producidas
 por la paqutería durante la producción.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Resultados$faltantes()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Resultados$faltantes()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Resultados-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-Resultados-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Resultados$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{Resultados$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Resultados$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

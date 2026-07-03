@@ -14,7 +14,7 @@ calcular_mediaMovil_region(
 )
 }
 \arguments{
-\item{bd_resultados}{\code{\link[=tibble]{tibble()}} que contien la variable de interes y los pesos necesarios para el calculo}
+\item{bd_resultados}{\code{\link[tibble:tibble]{tibble()}} que contien la variable de interes y los pesos necesarios para el calculo}
 
 \item{variable}{Nombre de la variable de interes}
 
@@ -25,7 +25,7 @@ calcular_mediaMovil_region(
 \item{sin_peso}{Logical. Se usa para calcular resultados con o sin pesos}
 }
 \value{
-\code{\link[=tibble]{tibble()}} con las variables: hora, variable_interes, movil_variable_nteres
+\code{\link[tibble:tibble]{tibble()}} con las variables: hora, variable_interes, movil_variable_nteres
 }
 \description{
 Calcular media movil de una variable agrupado por region

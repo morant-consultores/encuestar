@@ -30,7 +30,7 @@ analizar_candidatoPartido(
 \item{corte_otro}{Parámetro 'prop' de la función 'fct_lump' de la paquetería 'forcats' usado para agrupar valores pequeños de partidos políticos}
 }
 \value{
-Lista de donde cada elemento es un \code{\link[=tibble]{tibble()}} asociado al conocimiento y asociacion partidista
+Lista de donde cada elemento es un \code{\link[tibble:tibble]{tibble()}} asociado al conocimiento y asociacion partidista
 }
 \description{
 Calcula las estimaciones de asociacion partidista de un personaje en particular

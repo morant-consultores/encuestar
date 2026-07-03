@@ -13,9 +13,6 @@ analisis_correspondencia(
   colores = NULL
 )
 }
-\arguments{
-\item{colores}{}
-}
 \description{
 Title
 }

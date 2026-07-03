@@ -32,17 +32,17 @@ graficar_heatmap(
 
 \item{salto_y}{Valor entero usato como parametro en \code{\link[stringr:str_wrap]{stringr::str_wrap()}} aplicado a las filas del eje y}
 
-\item{size_text_x}{Parametro \link{size} de la funcion \code{\link[ggplot2:element]{ggplot2::element_text()}} usado en el parametro \link{axis.text.x} en el tema particular del grafico}
+\item{size_text_x}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggplot2:element_text]{ggplot2::element_text()}} usado en el parametro \link{axis.text.x} en el tema particular del grafico}
 
-\item{size_text_y}{Parametro \link{size} de la funcion \code{\link[ggplot2:element]{ggplot2::element_text()}} usado en el parametro \link{axis.text.y} en el tema particular del grafico}
+\item{size_text_y}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggplot2:element_text]{ggplot2::element_text()}} usado en el parametro \link{axis.text.y} en el tema particular del grafico}
 
-\item{size_text_caption}{Parametro \link{size} de la funcion \code{\link[ggplot2:element]{ggplot2::element_text()}} usado en el parametro \link{plot.caption} en el tema particular del grafico}
+\item{size_text_caption}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggplot2:element_text]{ggplot2::element_text()}} usado en el parametro \link{plot.caption} en el tema particular del grafico}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica tipo heatmap de
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica tipo heatmap de
 \code{\link[ggplot2:geom_tile]{ggplot2::geom_tile()}}
 }
 \examples{

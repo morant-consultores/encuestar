@@ -6,9 +6,6 @@
 \usage{
 consultar_respuestas(pool, codigos, encuesta_id)
 }
-\arguments{
-\item{encuesta_id}{}
-}
 \description{
 Title
 }

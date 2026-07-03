@@ -9,102 +9,111 @@ acuerdo a las necesidades de la paquetería, el diccionario usado en procesamien
 de resultados de la encuesta.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{documento}}{Actualmente contiene el diccionario usado en procesamiento y producción de
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{documento}}{Actualmente contiene el diccionario usado en procesamiento y producción de
 resultados}
 
-\item{\code{aprobado}}{Campo en desuso.}
+    \item{\code{aprobado}}{Campo en desuso.}
 
-\item{\code{diccionario}}{Anteriormente el diccionario era producido al procesar el campo  \code{documento}.
+    \item{\code{diccionario}}{Anteriormente el diccionario era producido al procesar el campo  \code{documento}.
 Este proceso ya no es necesario.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-Cuestionario-new}{\code{Cuestionario$new()}}
-\item \href{#method-Cuestionario-aprobar}{\code{Cuestionario$aprobar()}}
-\item \href{#method-Cuestionario-checar_pregunta}{\code{Cuestionario$checar_pregunta()}}
-\item \href{#method-Cuestionario-resumen}{\code{Cuestionario$resumen()}}
-\item \href{#method-Cuestionario-clone}{\code{Cuestionario$clone()}}
-}
+  \itemize{
+    \item \href{#method-Cuestionario-initialize}{\code{Cuestionario$new()}}
+    \item \href{#method-Cuestionario-aprobar}{\code{Cuestionario$aprobar()}}
+    \item \href{#method-Cuestionario-checar_pregunta}{\code{Cuestionario$checar_pregunta()}}
+    \item \href{#method-Cuestionario-resumen}{\code{Cuestionario$resumen()}}
+    \item \href{#method-Cuestionario-clone}{\code{Cuestionario$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Cuestionario-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Cuestionario-new}{}}}
-\subsection{Method \code{new()}}{
-Recibe y establece el diccionario de procesamiento
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cuestionario$new(documento, patron)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{documento}}{\code{\link[=tibble]{tibble()}} qque contiene el diccionario (codebook) del cuestionario
+\if{html}{\out{<a id="method-Cuestionario-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-Cuestionario-initialize}{}}}
+\subsection{\code{Cuestionario$new()}}{
+  Recibe y establece el diccionario de procesamiento
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cuestionario$new(documento, patron)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{documento}}{\code{\link[tibble:tibble]{tibble()}} qque contiene el diccionario (codebook) del cuestionario
 aplicado en la encuesta.}
-
-\item{\code{patron}}{Valor tipo caracter que se omitirán de las preguntas.
+      \item{\code{patron}}{Valor tipo caracter que se omitirán de las preguntas.
 Por ejmplo "Rotar respuestas".}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Cuestionario-aprobar"></a>}}
 \if{latex}{\out{\hypertarget{method-Cuestionario-aprobar}{}}}
-\subsection{Method \code{aprobar()}}{
-En desuso.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cuestionario$aprobar()}\if{html}{\out{</div>}}
+\subsection{\code{Cuestionario$aprobar()}}{
+  En desuso.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cuestionario$aprobar()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Cuestionario-checar_pregunta"></a>}}
 \if{latex}{\out{\hypertarget{method-Cuestionario-checar_pregunta}{}}}
-\subsection{Method \code{checar_pregunta()}}{
-En desuso.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cuestionario$checar_pregunta(pregunta)}\if{html}{\out{</div>}}
+\subsection{\code{Cuestionario$checar_pregunta()}}{
+  En desuso.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cuestionario$checar_pregunta(pregunta)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{pregunta}}{En desuso}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{pregunta}}{En desuso}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Cuestionario-resumen"></a>}}
 \if{latex}{\out{\hypertarget{method-Cuestionario-resumen}{}}}
-\subsection{Method \code{resumen()}}{
-Visualiza el diccionario para mostrar extensión de cada bloque y sus
+\subsection{\code{Cuestionario$resumen()}}{
+  Visualiza el diccionario para mostrar extensión de cada bloque y sus
 posibles respuestas a cada pregunta
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cuestionario$resumen()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cuestionario$resumen()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Cuestionario-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-Cuestionario-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cuestionario$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{Cuestionario$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cuestionario$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

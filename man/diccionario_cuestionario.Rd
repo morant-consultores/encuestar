@@ -6,9 +6,6 @@
 \usage{
 diccionario_cuestionario(doc, patron)
 }
-\arguments{
-\item{doc}{}
-}
 \description{
 Title
 }

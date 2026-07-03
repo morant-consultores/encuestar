@@ -12,7 +12,7 @@ consultar_respuestas_existentes(pool, id_cuestionario)
 \item{id_cuestionario}{Entero. Identificador del cuestionario en Opinómetro.}
 }
 \value{
-Un \code{\link[=tibble]{tibble()}} con una fila por registro y una columna por pregunta.
+Un \code{\link[tibble:tibble]{tibble()}} con una fila por registro y una columna por pregunta.
 }
 \description{
 Obtiene todos los registros del cuestionario indicado desde la

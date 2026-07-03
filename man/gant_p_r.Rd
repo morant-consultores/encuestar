@@ -6,9 +6,6 @@
 \usage{
 gant_p_r(dicc)
 }
-\arguments{
-\item{dicc}{}
-}
 \description{
 Title
 }

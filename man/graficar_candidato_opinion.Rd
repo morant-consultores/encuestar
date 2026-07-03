@@ -46,7 +46,7 @@ graficar_candidato_opinion(
 
 \item{colores}{Vector ordenado de colores asociados al grupo negativo, regular y positivo.}
 
-\item{color_nsnc}{Color para usar en parametro \link{fill} en el grafico de barras asociado a la cateogira No sabe o No contesta}
+\item{color_nsnc}{Color para usar en parametro \link[tidyr:fill]{fill} en el grafico de barras asociado a la cateogira No sabe o No contesta}
 
 \item{burbuja}{Base de datos con estructura producida por analizar_frecuencias_aspectos filtrada por un valor de interés. Disponible en el enviroment.}
 
@@ -68,7 +68,7 @@ graficar_candidato_opinion(
 
 \item{size_text_cat}{Tamaño del texto de las categorías diferentes categorías de la variable 'tema' de la base de datos 'bd'}
 
-\item{size_pct}{Parametro \link{size} de la funcion \code{\link[ggfittext:geom_fit_text]{ggfittext::geom_fit_text()}} que controla el tamano del texto que muestra el porcentaje dentro de las barras}
+\item{size_pct}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggfittext:geom_fit_text]{ggfittext::geom_fit_text()}} que controla el tamano del texto que muestra el porcentaje dentro de las barras}
 
 \item{orden_resp}{Vector ordenado de los posibles valores de la variable 'respuesta'}
 
@@ -85,10 +85,10 @@ graficar_candidato_opinion(
 \item{patron_inicial}{PENDIENTE}
 }
 \value{
-Objeto tipo \link{ggplot} compuesto por la union de al menos dos
+Objeto tipo \link[ggplot2:ggplot]{ggplot} compuesto por la union de al menos dos
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica tipo barras horizontales
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica tipo barras horizontales
 con el grafico tipo burbuja y el grafico tipo  barras para los porcentajes de No sabe No contesta
 }
 \examples{
