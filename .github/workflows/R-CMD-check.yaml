@@ -51,3 +51,6 @@ jobs:
         with:
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+          # el paquete arrastra WARNINGs/NOTEs previos al módulo DR-MNAR;
+          # el CI falla solo en ERRORs mientras se saldan esas deudas
+          error-on: '"error"'
