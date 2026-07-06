@@ -90,8 +90,14 @@ Muestra <-
       #'  estándar (~25% medido en Chihuahua Ene-2026). Usa `TRUE` solo como
       #'  decisión consciente del analista; se emite un warning y el diseño se
       #'  construye estratificado sin conglomerados.
+      #' @param umbral_rake Vector `c(inferior, superior)` con el rango aceptable
+      #'  de los factores de ajuste del rake (default `c(0.5, 2)`). Sin cuotas en
+      #'  campo, el rake absorbe TODA la corrección de composición demográfica:
+      #'  factores fuera del umbral señalan un campo desbalanceado (revisar pases
+      #'  de horario) y disparan la varianza de las estimaciones.
       extraer_diseno = function(respuestas, marco_muestral, tipo_encuesta, sin_peso, rake,
-                                permitir_sin_conglomerados = FALSE){
+                                permitir_sin_conglomerados = FALSE,
+                                umbral_rake = c(0.5, 2)){
         if(sin_peso){
           self$diseno <- survey::svydesign(
             ids=~1,
@@ -167,6 +173,33 @@ Muestra <-
             pobG <- pob %>% count(rango_edad, wt = value, name = "Freq")
             pobS<- pob %>% count(sexo, wt = value, name = "Freq")
             self$diseno <- survey::rake(diseno, list(~rango_edad, ~sexo), list(pobG, pobS))
+
+            # Monitoreo de los factores de ajuste del rake: sin cuotas en
+            # campo, el rake carga toda la corrección de composición y su
+            # costo es varianza (deff ~ 1 + CV^2 de los pesos). Se normaliza
+            # por la mediana para aislar la COMPOSICIÓN: el reescalado
+            # uniforme de nivel (suma de pesos -> total poblacional del
+            # marco) no es señal de desbalance
+            factor_rake <- as.numeric(stats::weights(self$diseno)) /
+              as.numeric(stats::weights(diseno))
+            factor_rake <- factor_rake / stats::median(factor_rake)
+            message(sprintf(
+              "Factores de ajuste del rake: min %.2f | mediana %.2f | max %.2f.",
+              min(factor_rake), stats::median(factor_rake), max(factor_rake)
+            ))
+            if(min(factor_rake) < umbral_rake[1] || max(factor_rake) > umbral_rake[2]){
+              warning(sprintf(
+                paste0(
+                  "Factores de rake fuera del umbral [%.2f, %.2f] ",
+                  "(min %.2f, max %.2f): la composición del campo se desvía ",
+                  "mucho de los márgenes poblacionales. Sin cuotas, esta es la ",
+                  "señal para revisar los pases de horario/cobertura del ",
+                  "levantamiento; los pesos extremos inflan la varianza de ",
+                  "todas las estimaciones."
+                ),
+                umbral_rake[1], umbral_rake[2], min(factor_rake), max(factor_rake)
+              ), call. = FALSE)
+            }
           } else{
             self$diseno <- diseno
           }

@@ -5,14 +5,7 @@
 # sección/manzana. Debe ser un ERROR informativo, no un message; el
 # analista puede optar conscientemente con permitir_sin_conglomerados.
 
-# Subclase que evita el constructor pesado (mismo patrón que PreprocesoPrueba)
-MuestraPrueba <- R6::R6Class(
-  classname = "MuestraPrueba",
-  inherit = encuestar:::Muestra,
-  public = list(
-    initialize = function() invisible(self)
-  )
-)
+# MuestraPrueba (subclase sin constructor pesado) vive en helper-muestra.R
 
 respuestas_validas <- function() {
   set.seed(1)
