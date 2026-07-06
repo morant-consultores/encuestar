@@ -6,9 +6,6 @@
 \usage{
 analizar_blackbox_1d(bd, vars, stimuli)
 }
-\arguments{
-\item{stimuli}{}
-}
 \description{
 Title
 }

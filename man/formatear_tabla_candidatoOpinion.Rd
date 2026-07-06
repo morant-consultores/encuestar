@@ -17,9 +17,6 @@ formatear_tabla_candidatoOpinion(
   color_conocimiento
 )
 }
-\arguments{
-\item{orden_opinion}{}
-}
 \description{
 Title
 }

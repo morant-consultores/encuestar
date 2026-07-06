@@ -10,10 +10,10 @@ tema_morant(base_family = "Poppins")
 \item{base_family}{Parametro de \code{\link[ggthemes:theme_foundation]{ggthemes::theme_foundation()}} usado como fuente tipografica}
 }
 \value{
-Tema de \link{ggplot2}
+Tema de \link[ggplot2:ggplot2]{ggplot2}
 }
 \description{
-Tema de \link{ggplot2} que contiene el formato de entregables para objetos \link{ggplot2}
+Tema de \link[ggplot2:ggplot2]{ggplot2} que contiene el formato de entregables para objetos \link[ggplot2:ggplot2]{ggplot2}
 }
 \examples{
 encuesta_demo$muestra$diseno$variables |> dplyr::count(voto_pr_24) |> na.omit() |>  ggplot2::ggplot(ggplot2::aes(x = reorder(voto_pr_24, n), y = n, fill = voto_pr_24)) + ggplot2::geom_col() + ggplot2::coord_flip()

@@ -24,7 +24,7 @@ graficar_candidatoSaldo(
 \item{color_negativo}{Color asociado al grupo negativo.}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
 Graficar saldo de opinión por personaje

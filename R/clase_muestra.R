@@ -83,7 +83,15 @@ Muestra <-
       #'  se asume equiprobable.
       #' @param rake `LOGICAL` Parámetro heredado de la clase encuesta. Determina la postestratificacion
       #'  por edad y sexo.
-      extraer_diseno = function(respuestas, marco_muestral, tipo_encuesta, sin_peso, rake){
+      #' @param permitir_sin_conglomerados `LOGICAL`. Si el diseño con conglomerados
+      #'  no puede construirse, el default (`FALSE`) detiene con un error informativo:
+      #'  un diseño sin conglomerados ignora la correlación intraclase de las
+      #'  entrevistas de una misma sección/manzana y subestima los errores
+      #'  estándar (~25% medido en Chihuahua Ene-2026). Usa `TRUE` solo como
+      #'  decisión consciente del analista; se emite un warning y el diseño se
+      #'  construye estratificado sin conglomerados.
+      extraer_diseno = function(respuestas, marco_muestral, tipo_encuesta, sin_peso, rake,
+                                permitir_sin_conglomerados = FALSE){
         if(sin_peso){
           self$diseno <- survey::svydesign(
             ids=~1,
@@ -101,7 +109,27 @@ Muestra <-
             ,T)
 
           diseno <- if("try-error" %in% class(r)){
-            message("Se intenta muestreo estratificado por estrato. Faltan unidades a muestrear.")
+            if(!permitir_sin_conglomerados){
+              stop(
+                "No se pudo construir el diseño muestral CON conglomerados (",
+                trimws(conditionMessage(attr(r, "condition"))),
+                "). Un diseño sin conglomerados (ids = ~1) ignora la ",
+                "correlación intraclase por sección/manzana y subestima los ",
+                "errores estándar de todo el estudio. Revisa las columnas ",
+                "cluster_*/fpc_*/strata_* del snapshot (NAs en fpc suelen ",
+                "venir de joins vacíos contra el plan muestral); si decides ",
+                "degradar el diseño a propósito, usa ",
+                "permitir_sin_conglomerados = TRUE.",
+                call. = FALSE
+              )
+            }
+            warning(
+              "Diseño construido SIN conglomerados por decisión explícita ",
+              "(permitir_sin_conglomerados = TRUE): los errores estándar ",
+              "quedarán subestimados al ignorar la correlación intraclase ",
+              "por sección/manzana.",
+              call. = FALSE
+            )
             out <- survey::svydesign(
               pps="brewer",
               ids = ~1,

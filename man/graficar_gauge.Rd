@@ -24,10 +24,10 @@ graficar_gauge(
 \item{size_text_pct}{Tamaño del texto dentro del gauge}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica de gauge (donita)
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica de gauge (donita)
 que se rellena acuerdo al valor contenido en la escala indicada
 }
 \examples{

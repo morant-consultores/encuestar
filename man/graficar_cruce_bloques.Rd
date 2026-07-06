@@ -25,15 +25,15 @@ graficar_cruce_bloques(
 
 \item{vartype}{Parametro de \code{\link[srvyr:survey_mean]{srvyr::survey_mean()}} que reporta la variabilidad de la estimacion}
 
-\item{linea_grosor}{Parametro \link{size} de la funcion \code{\link[treemapify:geom_treemap_subgroup_border]{treemapify::geom_treemap_subgroup_border()}} que modifica el grosor de las lineas que dividen los subgrupos de un bloque}
+\item{linea_grosor}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[treemapify:geom_treemap_subgroup_border]{treemapify::geom_treemap_subgroup_border()}} que modifica el grosor de las lineas que dividen los subgrupos de un bloque}
 
-\item{linea_color}{Parametro \link{color} de la funcion \code{\link[treemapify:geom_treemap_subgroup_border]{treemapify::geom_treemap_subgroup_border()}} que modifica el color de las lineas que dividen los subgrupos de un bloque}
+\item{linea_color}{Parametro \link[ggplot2:color]{color} de la funcion \code{\link[treemapify:geom_treemap_subgroup_border]{treemapify::geom_treemap_subgroup_border()}} que modifica el color de las lineas que dividen los subgrupos de un bloque}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica bloques usando
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica bloques usando
 \code{\link[treemapify:geom_treemap]{treemapify::geom_treemap()}}. Este tipo de grafico es util para cruces cuya variable principal
 es de pocos valores como el sexo.
 }

@@ -5,35 +5,36 @@
 \title{Esta es la clase de Tendencias}
 \description{
 Esta es la clase de Tendencias
-
-Esta es la clase de Tendencias
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-Tendencias-new}{\code{Tendencias$new()}}
-\item \href{#method-Tendencias-intencion_voto}{\code{Tendencias$intencion_voto()}}
-\item \href{#method-Tendencias-conocimiento}{\code{Tendencias$conocimiento()}}
-\item \href{#method-Tendencias-intencion_voto_region}{\code{Tendencias$intencion_voto_region()}}
-\item \href{#method-Tendencias-conocimiento_region}{\code{Tendencias$conocimiento_region()}}
-\item \href{#method-Tendencias-clone}{\code{Tendencias$clone()}}
-}
+  \itemize{
+    \item \href{#method-Tendencias-initialize}{\code{Tendencias$new()}}
+    \item \href{#method-Tendencias-intencion_voto}{\code{Tendencias$intencion_voto()}}
+    \item \href{#method-Tendencias-conocimiento}{\code{Tendencias$conocimiento()}}
+    \item \href{#method-Tendencias-intencion_voto_region}{\code{Tendencias$intencion_voto_region()}}
+    \item \href{#method-Tendencias-conocimiento_region}{\code{Tendencias$conocimiento_region()}}
+    \item \href{#method-Tendencias-clone}{\code{Tendencias$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Tendencias-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Tendencias-new}{}}}
-\subsection{Method \code{new()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Tendencias$new(encuesta = NULL, diseno = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-Tendencias-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-Tendencias-initialize}{}}}
+\subsection{\code{Tendencias$new()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Tendencias$new(encuesta = NULL, diseno = NULL)}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Tendencias-intencion_voto"></a>}}
 \if{latex}{\out{\hypertarget{method-Tendencias-intencion_voto}{}}}
-\subsection{Method \code{intencion_voto()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Tendencias$intencion_voto(
+\subsection{\code{Tendencias$intencion_voto()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Tendencias$intencion_voto(
   variable,
   valores_interes,
   colores,
@@ -41,16 +42,18 @@ Esta es la clase de Tendencias
   linea_peso = F,
   size_fech = 8,
   size_text_legend = 12
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Tendencias-conocimiento"></a>}}
 \if{latex}{\out{\hypertarget{method-Tendencias-conocimiento}{}}}
-\subsection{Method \code{conocimiento()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Tendencias$conocimiento(
+\subsection{\code{Tendencias$conocimiento()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Tendencias$conocimiento(
   variables,
   colores,
   sin_peso = T,
@@ -58,16 +61,18 @@ Esta es la clase de Tendencias
   linea_peso = F,
   size_fech = 8,
   size_text_legend = 12
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Tendencias-intencion_voto_region"></a>}}
 \if{latex}{\out{\hypertarget{method-Tendencias-intencion_voto_region}{}}}
-\subsection{Method \code{intencion_voto_region()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Tendencias$intencion_voto_region(
+\subsection{\code{Tendencias$intencion_voto_region()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Tendencias$intencion_voto_region(
   variable,
   valores_interes,
   colores,
@@ -76,16 +81,18 @@ Esta es la clase de Tendencias
   linea_peso = F,
   size_fech = 8,
   size_text_legend = 12
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Tendencias-conocimiento_region"></a>}}
 \if{latex}{\out{\hypertarget{method-Tendencias-conocimiento_region}{}}}
-\subsection{Method \code{conocimiento_region()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Tendencias$conocimiento_region(
+\subsection{\code{Tendencias$conocimiento_region()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Tendencias$conocimiento_region(
   variables,
   colores,
   sin_peso = T,
@@ -94,25 +101,28 @@ Esta es la clase de Tendencias
   linea_peso = F,
   size_fech = 8,
   size_text_legend = 12
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Tendencias-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-Tendencias-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Tendencias$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{Tendencias$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Tendencias$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

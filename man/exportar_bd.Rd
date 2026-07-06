@@ -6,9 +6,6 @@
 \usage{
 exportar_bd(self, carpeta, agregar, quitar)
 }
-\arguments{
-\item{quitar}{}
-}
 \description{
 Title
 }

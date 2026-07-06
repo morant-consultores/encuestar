@@ -12,9 +12,6 @@ asignar_coloresCategorias(
   colores = c("#6a104d", "#ff8cf2")
 )
 }
-\arguments{
-\item{bd_proporcionesCategorias}{}
-}
 \description{
 Title
 }

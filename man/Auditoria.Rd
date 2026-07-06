@@ -8,62 +8,63 @@ A short description...
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-Auditoria-new}{\code{Auditoria$new()}}
-\item \href{#method-Auditoria-run_app}{\code{Auditoria$run_app()}}
-\item \href{#method-Auditoria-subir_app}{\code{Auditoria$subir_app()}}
-\item \href{#method-Auditoria-clone}{\code{Auditoria$clone()}}
-}
+  \itemize{
+    \item \href{#method-Auditoria-initialize}{\code{Auditoria$new()}}
+    \item \href{#method-Auditoria-run_app}{\code{Auditoria$run_app()}}
+    \item \href{#method-Auditoria-subir_app}{\code{Auditoria$subir_app()}}
+    \item \href{#method-Auditoria-clone}{\code{Auditoria$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Auditoria-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Auditoria-new}{}}}
-\subsection{Method \code{new()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Auditoria$new(encuesta, tipo_encuesta, dir = "auditoria")}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-Auditoria-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-Auditoria-initialize}{}}}
+\subsection{\code{Auditoria$new()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Auditoria$new(encuesta, tipo_encuesta, dir = "auditoria")}
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{dir}}{}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Auditoria-run_app"></a>}}
 \if{latex}{\out{\hypertarget{method-Auditoria-run_app}{}}}
-\subsection{Method \code{run_app()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Auditoria$run_app()}\if{html}{\out{</div>}}
+\subsection{\code{Auditoria$run_app()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Auditoria$run_app()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Auditoria-subir_app"></a>}}
 \if{latex}{\out{\hypertarget{method-Auditoria-subir_app}{}}}
-\subsection{Method \code{subir_app()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Auditoria$subir_app(...)}\if{html}{\out{</div>}}
+\subsection{\code{Auditoria$subir_app()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Auditoria$subir_app(...)}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Auditoria-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-Auditoria-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Auditoria$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{Auditoria$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Auditoria$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

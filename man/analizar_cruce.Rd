@@ -25,7 +25,7 @@ analizar_cruce(
 \item{na_rm}{na_rm=FALSE Variable booleana que indica si se desea filtrar NAs (TRUE) o no (FALSE)}
 }
 \value{
-\code{\link[=tibble]{tibble()}} con las estimaciones de frecuencia para cada valor unico entre las variables
+\code{\link[tibble:tibble]{tibble()}} con las estimaciones de frecuencia para cada valor unico entre las variables
 }
 \description{
 Analizar cruce entre dos variables

@@ -25,7 +25,7 @@ analizar_cruce_aspectos(
 \item{vartype}{Parametro de \code{\link[srvyr:survey_mean]{srvyr::survey_mean()}} que reporta la variabilidad de la estimacion}
 }
 \value{
-\code{\link[=tibble]{tibble()}} con las estimaciones de frecuencia para cada valor unico entre las variables
+\code{\link[tibble:tibble]{tibble()}} con las estimaciones de frecuencia para cada valor unico entre las variables
 }
 \description{
 Analizar cruce entre multiples variables cuyos nombres compartan valores unicos
