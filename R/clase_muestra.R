@@ -172,6 +172,31 @@ Muestra <-
 
             pobG <- pob %>% count(rango_edad, wt = value, name = "Freq")
             pobS<- pob %>% count(sexo, wt = value, name = "Freq")
+
+            # margen degenerado (categoria con respondientes pero Freq 0/NA
+            # en el marco, tipico de una columna del marco toda NA):
+            # survey::rake fallaria con "Strata in sample absent from
+            # population. This Can't Happen" — se valida antes con un
+            # error accionable
+            for (margen in list(list(bd = pobG, var = "rango_edad"),
+                                list(bd = pobS, var = "sexo"))) {
+              en_muestra <- unique(stats::na.omit(respuestas[[margen$var]]))
+              con_freq <- margen$bd[[margen$var]][
+                !is.na(margen$bd$Freq) & margen$bd$Freq > 0
+              ]
+              faltantes <- setdiff(en_muestra, con_freq)
+              if (length(faltantes) > 0) {
+                stop(
+                  "El margen poblacional de `", margen$var, "` esta en 0 o NA ",
+                  "para categoria(s) presentes en la muestra: ",
+                  paste(faltantes, collapse = ", "),
+                  ". Revisa las columnas correspondientes del marco muestral ",
+                  "antes de rakear.",
+                  call. = FALSE
+                )
+              }
+            }
+
             self$diseno <- survey::rake(diseno, list(~rango_edad, ~sexo), list(pobG, pobS))
 
             # Monitoreo de los factores de ajuste del rake: sin cuotas en
@@ -182,7 +207,18 @@ Muestra <-
             # marco) no es señal de desbalance
             factor_rake <- as.numeric(stats::weights(self$diseno)) /
               as.numeric(stats::weights(diseno))
-            factor_rake <- factor_rake / stats::median(factor_rake)
+            mediana_rake <- stats::median(factor_rake, na.rm = TRUE)
+            if(!is.finite(mediana_rake) || mediana_rake <= 0 ||
+                 any(!is.finite(factor_rake))){
+              warning(
+                "No se pudo evaluar la calidad del rake: hay factores no ",
+                "finitos o mediana <= 0. Revisa si algun margen poblacional ",
+                "del marco es 0/NA para una categoria con respondientes.",
+                call. = FALSE
+              )
+              return(invisible(NULL))
+            }
+            factor_rake <- factor_rake / mediana_rake
             message(sprintf(
               "Factores de ajuste del rake: min %.2f | mediana %.2f | max %.2f.",
               min(factor_rake), stats::median(factor_rake), max(factor_rake)

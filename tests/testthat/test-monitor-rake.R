@@ -71,3 +71,26 @@ test_that("el umbral de alerta es configurable", {
     )
   )
 })
+
+test_that("margen poblacional degenerado (0/NA) no produce error críptico", {
+  # si una categoría del margen viene en 0 (columna del marco toda NA:
+  # sum(na.rm=TRUE) da 0), rake fuerza esos pesos a 0, la mediana de los
+  # factores puede ser 0 y la normalización produciría NaN/Inf y un
+  # "missing value where TRUE/FALSE needed". Debe ser un warning claro.
+  m <- MuestraPrueba$new()
+  marco_degenerado <- marco_fixture()
+  marco_degenerado$LN22_18A24_F <- 0
+  marco_degenerado$LN22_18A24_M <- 0
+
+  # sin la validación previa, survey::rake moriría con el error críptico
+  # "Strata in sample absent from population. This Can't Happen"; ahora
+  # debe ser un error accionable que nombra el margen y las categorías
+  expect_error(
+    m$extraer_diseno(
+      respuestas = respuestas_rake(prop_f = 0.5),
+      marco_muestral = marco_degenerado,
+      tipo_encuesta = "ine", sin_peso = FALSE, rake = TRUE
+    ),
+    regexp = "margen poblacional.*rango_edad.*18A24"
+  )
+})
