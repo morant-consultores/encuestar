@@ -89,6 +89,123 @@ ajustar_pesos_drmnar <- function(diseno, pregunta, covariables = NULL,
   )
 }
 
+#' Diseño de réplicas DR-MNAR con varianza correcta (weight-swap riguroso)
+#'
+#' Versión de [ajustar_pesos_drmnar()] cuyo `survey::svymean`/`svyby`
+#' **sí** incorpora la incertidumbre de la propensión estimada `pi_hat`.
+#'
+#' El weight-swap ingenuo de [ajustar_pesos_drmnar()] entrega un
+#' `svydesign` cuyos pesos (diseño x `1/pi_hat`) `survey` trata como
+#' **fijos**: los errores estándar de `svymean` salen demasiado angostos
+#' porque ignoran que `pi_hat` es estimado. Aquí, en cambio, se construye
+#' un `survey::svrepdesign` con réplicas de bootstrap por conglomerado: en
+#' cada réplica se remuestrean las UPM dentro de estrato y se **re-estima
+#' `pi_hat`** sobre ese remuestreo, de modo que la dispersión entre
+#' réplicas captura toda la varianza (incluida la de la propensión).
+#' `survey::svymean` sobre el resultado propaga esa varianza
+#' automáticamente, así que morantviz reporta intervalos correctos sin
+#' cambios.
+#'
+#' Es la vía recomendada cuando la decisión de la pregunta es DR-MNAR y se
+#' quieren **intervalos publicables** con el flujo de morantviz. El costo
+#' es tiempo de cómputo (una estimación de propensión por réplica).
+#'
+#' @inheritParams ajustar_pesos_drmnar
+#' @param n_replicas Número de réplicas de bootstrap (default 200; más
+#'   réplicas = EE más estable, más cómputo).
+#' @param semilla Semilla para el remuestreo (reproducibilidad).
+#' @return Objeto `survey::svrepdesign` (tipo bootstrap) con los pesos
+#'   DR-MNAR en la réplica base y `n_replicas` columnas de réplica.
+#' @examples
+#' \dontrun{
+#' rep <- disenar_replicas_drmnar(
+#'   diseno, pregunta = "conoce_cruz", categoria = "Sí lo conoce",
+#'   covariables = c("sexo", "rango_edad")
+#' )
+#' g <- morantviz::Graficar$new(diseno = rep, ...)  # EE correctos
+#' }
+#' @export
+disenar_replicas_drmnar <- function(diseno, pregunta, covariables = NULL,
+                                    instrumento = "drmnar_z",
+                                    respuesta_ind = NULL,
+                                    categoria = NULL,
+                                    n_replicas = 200,
+                                    gamma_inicial = 1.1,
+                                    intervalo_gamma = c(-5, 8),
+                                    semilla = 1) {
+  ins <- extraer_insumos_drmnar(
+    diseno = diseno, pregunta = pregunta, covariables = covariables,
+    instrumento = instrumento, respuesta_ind = respuesta_ind,
+    categoria = categoria, subconjunto = NULL
+  )
+  n <- length(ins$z)
+  w_base <- as.numeric(stats::weights(diseno))
+  y <- ifelse(ins$r == 1, ins$y, 0)
+  cluster <- if (!is.null(ins$cluster)) as.character(ins$cluster) else as.character(seq_len(n))
+  estrato <- if (!is.null(ins$estrato)) as.character(ins$estrato) else rep("1", n)
+
+  # propensión MNAR sobre un subconjunto de filas (una réplica)
+  pesos_mnar_en <- function(filas) {
+    w_sub <- ins$w[filas]
+    w_sub <- w_sub * length(filas) / sum(w_sub)
+    nuc <- tryCatch(
+      ajustar_nucleo_drmnar(
+        z = ins$z[filas], r = ins$r[filas], y = y[filas],
+        X = ins$X[filas, , drop = FALSE], w = w_sub,
+        cluster = NULL, estrato = NULL,
+        gamma_inicial = gamma_inicial, intervalo_gamma = intervalo_gamma
+      ),
+      error = function(e) NULL
+    )
+    if (is.null(nuc)) {
+      return(rep(1, length(filas))) # fallback: sin corrección esa réplica
+    }
+    ifelse(ins$r[filas] == 1, as.numeric(nuc$ipw$pesos_mnar), 1)
+  }
+
+  # réplica base (todas las filas)
+  factor_base <- pesos_mnar_en(seq_len(n))
+  peso_base <- w_base * factor_base
+
+  # bootstrap por conglomerado dentro de estrato (Rao-Wu-Yue): en cada
+  # réplica se remuestrean nh-1 UPM por estrato con reescalado nh/(nh-1)
+  set.seed(semilla)
+  filas_por_upm <- split(seq_len(n), cluster)
+  upm_de_estrato <- tapply(cluster, estrato, function(x) unique(x))
+  estratos_u <- names(upm_de_estrato)
+
+  rep_weights <- matrix(0, nrow = n, ncol = n_replicas)
+  for (b in seq_len(n_replicas)) {
+    mult <- numeric(n) # multiplicador de bootstrap por fila (0 = fuera)
+    for (h in estratos_u) {
+      upms <- upm_de_estrato[[h]]
+      nh <- length(upms)
+      if (nh <= 1) {
+        for (u in upms) mult[filas_por_upm[[u]]] <- 1
+      } else {
+        draws <- sample(upms, nh - 1, replace = TRUE)
+        tab <- table(factor(draws, levels = upms)) * nh / (nh - 1)
+        for (u in upms) mult[filas_por_upm[[u]]] <- tab[[u]]
+      }
+    }
+    filas_b <- which(mult > 0)
+    factor_b <- numeric(n)
+    factor_b[filas_b] <- pesos_mnar_en(filas_b)
+    rep_weights[, b] <- w_base * factor_b * mult
+  }
+
+  vars <- diseno$variables
+  vars$peso_drmnar <- peso_base
+
+  survey::svrepdesign(
+    data = vars,
+    weights = ~peso_drmnar,
+    repweights = rep_weights,
+    type = "bootstrap",
+    combined.weights = TRUE
+  )
+}
+
 #' Exporta una estimación DR-MNAR al esquema de salida de morantviz
 #'
 #' Convierte el tibble de [estimar_drmnar()] al formato que producen los

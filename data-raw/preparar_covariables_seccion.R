@@ -1,83 +1,46 @@
-# Prepara las tablas delgadas de covariables seccionales para DR-MNAR ----
+# Referencia: derivar covariables seccionales para DR-MNAR (POR PROYECTO)
+# ---------------------------------------------------------------------
 #
-# Este script NO se ejecuta al instalar el paquete: deriva tablas ligeras
-# (una fila por sección, ~6 columnas) desde los insumos pesados que viven
-# FUERA del repositorio (el censo INEGI por sección pesa ~119 MB y no se
-# versiona), y las guarda en inst/extdata/ para usarlas como fixture y
-# como insumo directo en proyectos.
+# IMPORTANTE (arquitectura): `encuestar` y `muestreaR` son paqueterías
+# GENERALES. El censo INEGI y el histórico electoral son INSUMOS DE
+# PROYECTO, no del paquete: cambian por entidad y por ola. Por eso el
+# derivado `covariables_seccion.rds` se guarda en el REPO DE LA OLA
+# (p. ej. `encuesta/insumos/`), NO dentro del paquete.
 #
-# Insumos esperados (ajusta las rutas si tu carpeta difiere):
-#   - Censo 2020 por sección (INEGI):
-#       ../doubly robust estimator/inegi/seccion_2020.rda   [saveRDS]
-#   - Histórico electoral por entidad (objeto Tablero de aelectoral):
-#       ../Encuestas-edomex-2025/Enero/data/mex.rda         [saveRDS]
+# El paquete solo aporta la FUNCIÓN construir_covariables_seccion(); este
+# archivo es una plantilla de referencia para copiar al proyecto.
 #
-# Uso: source("data-raw/preparar_covariables_seccion.R") desde la raíz
-# del paquete encuestar.
+# Insumos (rutas relativas al workspace `encuestas-morant/`):
+#   - Censo 2020 por sección (NACIONAL, se filtra por entidad):
+#       doubly robust estimator/inegi/seccion_2020.rda      (saveRDS)
+#   - Histórico electoral de la entidad (objeto Tablero de aelectoral,
+#     vive en el repo de alguna ola de esa entidad), p. ej.:
+#       enc_chihuahua_nov2024/Insumos/chih.rda
+#
+# El índice de marginación NO se baja de CONAPO: se DERIVA de los
+# indicadores del censo con la fórmula estándar; el objeto aelectoral ya
+# expone el rezago social por sección vía su método calcular_irs().
 
-devtools::load_all(".")
+library(encuestar)
 
-raiz <- normalizePath("..")
-path_censo <- file.path(raiz, "doubly robust estimator", "inegi", "seccion_2020.rda")
-path_electoral_mex <- file.path(raiz, "Encuestas-edomex-2025", "Enero", "data", "mex.rda")
+# --- ajusta estas 3 rutas a tu proyecto ---
+entidad <- "08" # Chihuahua
+path_censo <- "../doubly robust estimator/inegi/seccion_2020.rda"
+path_electoral <- "../enc_chihuahua_nov2024/Insumos/chih.rda"
+salida <- "insumos/covariables_seccion.rds" # DENTRO del repo de la ola
+# ------------------------------------------
 
-stopifnot(file.exists(path_censo))
-# pese a la extensión .rda, ambos archivos se guardaron con saveRDS()
-censo <- readRDS(path_censo)
+censo <- readRDS(path_censo) # pese a la extensión .rda es saveRDS
+tablero <- readRDS(path_electoral) # objeto aelectoral (R6 Tablero)
+electoral_bd <- tablero$info$bd # base electoral por sección
 
-dir.create("inst/extdata", recursive = TRUE, showWarnings = FALSE)
-
-# ---- Estado de México: censo + histórico electoral (ejemplo completo) ----
-if (file.exists(path_electoral_mex)) {
-  tablero_mex <- readRDS(path_electoral_mex)
-  electoral_mex <- tablero_mex$info$bd
-  # tres últimos procesos concurrentes con cobertura estatal (Sección 4
-  # del Anexo Técnico: 2018, 2021 y 2024)
-  covariables_seccion_mex <- construir_covariables_seccion(
-    censo_seccion = dplyr::filter(censo, entidad == "15"),
-    electoral_bd = electoral_mex,
-    elecciones = c("pr_24", "gb_23", "dl_21", "pr_18")
-  )
-  saveRDS(
-    covariables_seccion_mex,
-    "inst/extdata/covariables_seccion_mex.rds",
-    compress = "xz"
-  )
-  message(
-    "covariables_seccion_mex.rds: ", nrow(covariables_seccion_mex),
-    " secciones."
-  )
-} else {
-  message("mex.rda no disponible; se omite el derivado de Edomex.")
-}
-
-# ---- Chihuahua: censo + histórico electoral ----
-# El objeto aelectoral de Chihuahua vive en el repo de la ola Nov-2024
-# (enc_chihuahua_nov2024/Insumos/chih.rda, clase Tablero). Elecciones con
-# cobertura estatal de dos ciclos: presidencial y diputaciones locales
-# 2024 + gubernatura y diputaciones locales 2021.
-path_electoral_chih <- file.path(
-  raiz, "enc_chihuahua_nov2024", "Insumos", "chih.rda"
+covariables_seccion <- construir_covariables_seccion(
+  censo_seccion = dplyr::filter(censo, entidad == !!entidad),
+  electoral_bd = electoral_bd,
+  # elecciones con cobertura estatal de dos ciclos
+  elecciones = c("pr_24", "dl_24", "gb_21", "dl_21")
 )
-if (file.exists(path_electoral_chih)) {
-  tablero_chih <- readRDS(path_electoral_chih)
-  covariables_seccion_chih <- construir_covariables_seccion(
-    censo_seccion = dplyr::filter(censo, entidad == "08"),
-    electoral_bd = tablero_chih$info$bd,
-    elecciones = c("pr_24", "dl_24", "gb_21", "dl_21")
-  )
-} else {
-  message("chih.rda no disponible; derivado de Chihuahua solo censal.")
-  covariables_seccion_chih <- construir_covariables_seccion(
-    censo_seccion = dplyr::filter(censo, entidad == "08")
-  )
-}
-saveRDS(
-  covariables_seccion_chih,
-  "inst/extdata/covariables_seccion_chih.rds",
-  compress = "xz"
-)
-message(
-  "covariables_seccion_chih.rds: ", nrow(covariables_seccion_chih),
-  " secciones."
-)
+
+dir.create(dirname(salida), showWarnings = FALSE, recursive = TRUE)
+saveRDS(covariables_seccion, salida, compress = "xz")
+message(nrow(covariables_seccion), " secciones -> ", salida)
