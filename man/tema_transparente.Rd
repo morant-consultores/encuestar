@@ -2,12 +2,12 @@
 % Please edit documentation in R/graficar.R
 \name{tema_transparente}
 \alias{tema_transparente}
-\title{Tema transparente para usarse en objetos tipo \link{ggplot} que vayan a ser exportados}
+\title{Tema transparente para usarse en objetos tipo \link[ggplot2:ggplot]{ggplot} que vayan a ser exportados}
 \usage{
 tema_transparente()
 }
 \value{
-Tema de \link{ggplot2} que agrega transparencia a los siguientes elementos del grafico:
+Tema de \link[ggplot2:ggplot2]{ggplot2} que agrega transparencia a los siguientes elementos del grafico:
 legend.backgroud, panel.background, plot.background, strip.background
 }
 \description{

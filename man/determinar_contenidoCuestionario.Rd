@@ -6,9 +6,6 @@
 \usage{
 determinar_contenidoCuestionario(pool, id_cuestionario)
 }
-\arguments{
-\item{id_cuestionario}{}
-}
 \description{
 Title
 }

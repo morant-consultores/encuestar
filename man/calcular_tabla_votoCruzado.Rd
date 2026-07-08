@@ -18,7 +18,7 @@ calcular_tabla_votoCruzado(diseno, var1, var2, filtro_var2, na_rm = TRUE)
 \item{na_rm}{na_rm=TRUE Variable booleana que indica si se desea filtrar NAs (TRUE) o no (FALSE)}
 }
 \value{
-\code{\link[=tibble]{tibble()}} con las variables necesarias para la funcion \code{\link[=formatear_tabla_votoCruzado]{formatear_tabla_votoCruzado()}}
+\code{\link[tibble:tibble]{tibble()}} con las variables necesarias para la funcion \code{\link[=formatear_tabla_votoCruzado]{formatear_tabla_votoCruzado()}}
 }
 \description{
 Calcular y ordena los resultados de un cruce entre una variable principal y una variable secundaria.

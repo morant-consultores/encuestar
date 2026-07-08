@@ -6,9 +6,6 @@
 \usage{
 corregir_cluster(respuestas, shp, mantener, nivel, var_n)
 }
-\arguments{
-\item{mantener}{}
-}
 \description{
 Title
 }

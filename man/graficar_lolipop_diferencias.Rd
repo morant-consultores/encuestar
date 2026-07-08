@@ -28,7 +28,7 @@ graficar_lolipop_diferencias(
 
 \item{nudge_x}{Parametro \link{nudge_y} de la funcion \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}} que modifica la posicion del texto en el grafico}
 
-\item{size_geom_text}{Parametro \link{size} de la funcion \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}} que modifica la posicion del texto en el grafico}
+\item{size_geom_text}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}} que modifica la posicion del texto en el grafico}
 
 \item{caption}{Cadena de texto usada en el parametro \link{caption} de la funcion \code{\link[ggplot2:labs]{ggplot2::labs()}}}
 
@@ -45,10 +45,10 @@ graficar_lolipop_diferencias(
 \item{ajuste_pos}{Valor de tipo decimal. Es el factor de ajuste de posición que los porcentajes graficados tomarán en caso de traslaparse. El porcentaje menor se despalzará la izquierda, y el mayor a la derecha. Solo se efectua si \link{traslape} es TRUE. Por defecto su valor es 0.02.}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica tipo lolipo
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica tipo lolipo
 que resalta las diferencias entre dos categorias
 }
 \examples{

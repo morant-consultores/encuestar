@@ -35,7 +35,7 @@ graficar_candidatoPartido(
 \item{size_text_conocimiento}{Valor de tipo entero. Tamaño de los porcentajes en la grafica de conocimiento.}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica tipo barras horizontales
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica tipo barras horizontales
 combinada con una grafica tipo intervalos. La grafica tipo barras muestra los porcentajes con de
 con los que asocian a determinado personaje. La grafica de intervalos muestra el nivel de conocimiento
 del mismo.

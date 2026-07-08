@@ -83,7 +83,21 @@ Muestra <-
       #'  se asume equiprobable.
       #' @param rake `LOGICAL` Parámetro heredado de la clase encuesta. Determina la postestratificacion
       #'  por edad y sexo.
-      extraer_diseno = function(respuestas, marco_muestral, tipo_encuesta, sin_peso, rake){
+      #' @param permitir_sin_conglomerados `LOGICAL`. Si el diseño con conglomerados
+      #'  no puede construirse, el default (`FALSE`) detiene con un error informativo:
+      #'  un diseño sin conglomerados ignora la correlación intraclase de las
+      #'  entrevistas de una misma sección/manzana y subestima los errores
+      #'  estándar (~25% medido en Chihuahua Ene-2026). Usa `TRUE` solo como
+      #'  decisión consciente del analista; se emite un warning y el diseño se
+      #'  construye estratificado sin conglomerados.
+      #' @param umbral_rake Vector `c(inferior, superior)` con el rango aceptable
+      #'  de los factores de ajuste del rake (default `c(0.5, 2)`). Sin cuotas en
+      #'  campo, el rake absorbe TODA la corrección de composición demográfica:
+      #'  factores fuera del umbral señalan un campo desbalanceado (revisar pases
+      #'  de horario) y disparan la varianza de las estimaciones.
+      extraer_diseno = function(respuestas, marco_muestral, tipo_encuesta, sin_peso, rake,
+                                permitir_sin_conglomerados = FALSE,
+                                umbral_rake = c(0.5, 2)){
         if(sin_peso){
           self$diseno <- survey::svydesign(
             ids=~1,
@@ -101,7 +115,27 @@ Muestra <-
             ,T)
 
           diseno <- if("try-error" %in% class(r)){
-            message("Se intenta muestreo estratificado por estrato. Faltan unidades a muestrear.")
+            if(!permitir_sin_conglomerados){
+              stop(
+                "No se pudo construir el diseño muestral CON conglomerados (",
+                trimws(conditionMessage(attr(r, "condition"))),
+                "). Un diseño sin conglomerados (ids = ~1) ignora la ",
+                "correlación intraclase por sección/manzana y subestima los ",
+                "errores estándar de todo el estudio. Revisa las columnas ",
+                "cluster_*/fpc_*/strata_* del snapshot (NAs en fpc suelen ",
+                "venir de joins vacíos contra el plan muestral); si decides ",
+                "degradar el diseño a propósito, usa ",
+                "permitir_sin_conglomerados = TRUE.",
+                call. = FALSE
+              )
+            }
+            warning(
+              "Diseño construido SIN conglomerados por decisión explícita ",
+              "(permitir_sin_conglomerados = TRUE): los errores estándar ",
+              "quedarán subestimados al ignorar la correlación intraclase ",
+              "por sección/manzana.",
+              call. = FALSE
+            )
             out <- survey::svydesign(
               pps="brewer",
               ids = ~1,
@@ -138,7 +172,70 @@ Muestra <-
 
             pobG <- pob %>% count(rango_edad, wt = value, name = "Freq")
             pobS<- pob %>% count(sexo, wt = value, name = "Freq")
+
+            # margen degenerado (categoria con respondientes pero Freq 0/NA
+            # en el marco, tipico de una columna del marco toda NA):
+            # survey::rake fallaria con "Strata in sample absent from
+            # population. This Can't Happen" — se valida antes con un
+            # error accionable
+            for (margen in list(list(bd = pobG, var = "rango_edad"),
+                                list(bd = pobS, var = "sexo"))) {
+              en_muestra <- unique(stats::na.omit(respuestas[[margen$var]]))
+              con_freq <- margen$bd[[margen$var]][
+                !is.na(margen$bd$Freq) & margen$bd$Freq > 0
+              ]
+              faltantes <- setdiff(en_muestra, con_freq)
+              if (length(faltantes) > 0) {
+                stop(
+                  "El margen poblacional de `", margen$var, "` esta en 0 o NA ",
+                  "para categoria(s) presentes en la muestra: ",
+                  paste(faltantes, collapse = ", "),
+                  ". Revisa las columnas correspondientes del marco muestral ",
+                  "antes de rakear.",
+                  call. = FALSE
+                )
+              }
+            }
+
             self$diseno <- survey::rake(diseno, list(~rango_edad, ~sexo), list(pobG, pobS))
+
+            # Monitoreo de los factores de ajuste del rake: sin cuotas en
+            # campo, el rake carga toda la corrección de composición y su
+            # costo es varianza (deff ~ 1 + CV^2 de los pesos). Se normaliza
+            # por la mediana para aislar la COMPOSICIÓN: el reescalado
+            # uniforme de nivel (suma de pesos -> total poblacional del
+            # marco) no es señal de desbalance
+            factor_rake <- as.numeric(stats::weights(self$diseno)) /
+              as.numeric(stats::weights(diseno))
+            mediana_rake <- stats::median(factor_rake, na.rm = TRUE)
+            if(!is.finite(mediana_rake) || mediana_rake <= 0 ||
+                 any(!is.finite(factor_rake))){
+              warning(
+                "No se pudo evaluar la calidad del rake: hay factores no ",
+                "finitos o mediana <= 0. Revisa si algun margen poblacional ",
+                "del marco es 0/NA para una categoria con respondientes.",
+                call. = FALSE
+              )
+              return(invisible(NULL))
+            }
+            factor_rake <- factor_rake / mediana_rake
+            message(sprintf(
+              "Factores de ajuste del rake: min %.2f | mediana %.2f | max %.2f.",
+              min(factor_rake), stats::median(factor_rake), max(factor_rake)
+            ))
+            if(min(factor_rake) < umbral_rake[1] || max(factor_rake) > umbral_rake[2]){
+              warning(sprintf(
+                paste0(
+                  "Factores de rake fuera del umbral [%.2f, %.2f] ",
+                  "(min %.2f, max %.2f): la composición del campo se desvía ",
+                  "mucho de los márgenes poblacionales. Sin cuotas, esta es la ",
+                  "señal para revisar los pases de horario/cobertura del ",
+                  "levantamiento; los pesos extremos inflan la varianza de ",
+                  "todas las estimaciones."
+                ),
+                umbral_rake[1], umbral_rake[2], min(factor_rake), max(factor_rake)
+              ), call. = FALSE)
+            }
           } else{
             self$diseno <- diseno
           }

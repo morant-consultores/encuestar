@@ -13,7 +13,7 @@ analizar_frecuencias_multirespuesta(diseno, patron_inicial)
 \item{patron_inicial}{Cadena de texto en comun (inicial) entre los nombres de las variables asociadas a la pregunta}
 }
 \value{
-\code{\link[=tibble]{tibble()}} con las estimaciones de frecuencia para cada valor unico entre las variables
+\code{\link[tibble:tibble]{tibble()}} con las estimaciones de frecuencia para cada valor unico entre las variables
 }
 \description{
 Analizar frecuencias a multiples variables asociadas a una misma pregunta con opcion a multirespuesta

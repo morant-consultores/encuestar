@@ -11,9 +11,6 @@ rectificar_respuestasOpinometro(
   elim_na_ub = T
 )
 }
-\arguments{
-\item{variables_cuestionario}{}
-}
 \description{
 rectificar_respuestasOpinometro
 }

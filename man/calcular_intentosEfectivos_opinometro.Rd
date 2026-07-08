@@ -6,9 +6,6 @@
 \usage{
 calcular_intentosEfectivos_opinometro(bd_respuestasOpinometro)
 }
-\arguments{
-\item{bd_respuestasOpinometro}{}
-}
 \description{
 Title
 }

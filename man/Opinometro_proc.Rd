@@ -10,118 +10,125 @@ importante relevancia pues brinda a la paquetería una fuente de datos e insumos
 históricamente se a usado que es \code{SurveyToGo}.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{id_cuestionarioOpinometro}}{Campo heredado de la clase \code{Encuesta}.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{id_cuestionarioOpinometro}}{Campo heredado de la clase \code{Encuesta}.}
 
-\item{\code{pool}}{Campo heredado de la clase \code{Encuesta}.}
+    \item{\code{pool}}{Campo heredado de la clase \code{Encuesta}.}
 
-\item{\code{variables_cuestionario}}{Nombres de las variables que, de acuerdo al diccionario, forman el
+    \item{\code{variables_cuestionario}}{Nombres de las variables que, de acuerdo al diccionario, forman el
 conjunto de preguntas de la encuesta}
 
-\item{\code{bd_respuestas_cuestionario}}{\code{\link[=tibble]{tibble()}} que contiene las respuestas serán utilizadas para
+    \item{\code{bd_respuestas_cuestionario}}{\code{\link[tibble:tibble]{tibble()}} que contiene las respuestas serán utilizadas para
 construir el diseño muestral de la encuesta.}
 
-\item{\code{diccionario}}{Diccionario (o codebook) del cuestionario de la encuesta. Heredado de la
+    \item{\code{diccionario}}{Diccionario (o codebook) del cuestionario de la encuesta. Heredado de la
 clase \code{Encuesta} o se provee de forma externa.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-Opinometro_proc-new}{\code{Opinometro_proc$new()}}
-\item \href{#method-Opinometro_proc-definir_contenido}{\code{Opinometro_proc$definir_contenido()}}
-\item \href{#method-Opinometro_proc-construir_respuestas}{\code{Opinometro_proc$construir_respuestas()}}
-\item \href{#method-Opinometro_proc-verificar_variables}{\code{Opinometro_proc$verificar_variables()}}
-\item \href{#method-Opinometro_proc-clone}{\code{Opinometro_proc$clone()}}
-}
+  \itemize{
+    \item \href{#method-Opinometro_proc-initialize}{\code{Opinometro_proc$new()}}
+    \item \href{#method-Opinometro_proc-definir_contenido}{\code{Opinometro_proc$definir_contenido()}}
+    \item \href{#method-Opinometro_proc-construir_respuestas}{\code{Opinometro_proc$construir_respuestas()}}
+    \item \href{#method-Opinometro_proc-verificar_variables}{\code{Opinometro_proc$verificar_variables()}}
+    \item \href{#method-Opinometro_proc-clone}{\code{Opinometro_proc$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Opinometro_proc-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Opinometro_proc-new}{}}}
-\subsection{Method \code{new()}}{
-Establece conexión con la base de datos donde está alojada la
+\if{html}{\out{<a id="method-Opinometro_proc-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-Opinometro_proc-initialize}{}}}
+\subsection{\code{Opinometro_proc$new()}}{
+  Establece conexión con la base de datos donde está alojada la
 implementación del \code{Opinómetro}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Opinometro_proc$new(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Opinometro_proc$new(
   id_cuestionarioOpinometro = NA,
   pool = NA,
   diccionario = NULL,
   bd_respuestas = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{id_cuestionarioOpinometro}}{Valor entero. Identificador del cuestionario
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{id_cuestionarioOpinometro}}{Valor entero. Identificador del cuestionario
 aplicado en campo generado en la plataforma \code{Opinómetro}.}
-
-\item{\code{pool}}{Objeto tipo \link{pool} generado al conectarse a la base de datos que
-almacena las respuestas. Se recomienda utilizar la función \code{\link[=dbPool]{dbPool()}} de la
-paquetería \link{pool} para esto.}
-
-\item{\code{diccionario}}{\code{\link[=tibble]{tibble()}} Diccionario (o codebook) del cuestionario de la
+      \item{\code{pool}}{Objeto tipo \link[pool:pool]{pool} generado al conectarse a la base de datos que
+almacena las respuestas. Se recomienda utilizar la función \code{\link[pool:dbPool]{dbPool()}} de la
+paquetería \link[pool:pool]{pool} para esto.}
+      \item{\code{diccionario}}{\code{\link[tibble:tibble]{tibble()}} Diccionario (o codebook) del cuestionario de la
 encuesta. Aunque la clase \code{Opinometro} reproduce el diccionario a partir del
 cuestionario construido en la plataforma \code{Opinometro}, el parametro \code{diccionario}
 es aquel que históricamente se ha utilizado para produccion. Es decir, aquel que
 está usualmente guardado en un archivo de excel y/o que recibe la clase \code{Encuesta}
 en el campo \code{diccionario}.}
+      \item{\code{bd_respuestas}}{\code{\link[tibble:tibble]{tibble()}} Respuestas de la base del opinometro}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{bd_respuestas}}{\code{\link[=tibble]{tibble()}} Respuestas de la base del opinometro}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Opinometro_proc-definir_contenido"></a>}}
 \if{latex}{\out{\hypertarget{method-Opinometro_proc-definir_contenido}{}}}
-\subsection{Method \code{definir_contenido()}}{
-Determina las variables que están contenidas en la plataforma
+\subsection{\code{Opinometro_proc$definir_contenido()}}{
+  Determina las variables que están contenidas en la plataforma
 \code{Opinometro}a partir de los campos construidos en el cuestinoario.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Opinometro_proc$definir_contenido()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Opinometro_proc$definir_contenido()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Opinometro_proc-construir_respuestas"></a>}}
 \if{latex}{\out{\hypertarget{method-Opinometro_proc-construir_respuestas}{}}}
-\subsection{Method \code{construir_respuestas()}}{
-Construye el \code{\link[=tibble]{tibble()}} de respuestas contenidas en la base de datos
+\subsection{\code{Opinometro_proc$construir_respuestas()}}{
+  Construye el \code{\link[tibble:tibble]{tibble()}} de respuestas contenidas en la base de datos
 que tiene implementada la plataforma ``Opinometro`.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Opinometro_proc$construir_respuestas(bd_respuestas)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Opinometro_proc$construir_respuestas(bd_respuestas)}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Opinometro_proc-verificar_variables"></a>}}
 \if{latex}{\out{\hypertarget{method-Opinometro_proc-verificar_variables}{}}}
-\subsection{Method \code{verificar_variables()}}{
-Notifica al usuario si hay variables faltantes o sobrantes en el \link{tibble}
+\subsection{\code{Opinometro_proc$verificar_variables()}}{
+  Notifica al usuario si hay variables faltantes o sobrantes en el \link[tibble:tibble]{tibble}
 que contiene las respuestas.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Opinometro_proc$verificar_variables()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Opinometro_proc$verificar_variables()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Opinometro_proc-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-Opinometro_proc-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Opinometro_proc$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{Opinometro_proc$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Opinometro_proc$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

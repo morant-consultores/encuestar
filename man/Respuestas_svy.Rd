@@ -11,205 +11,221 @@ de clasificadoras de métodos. De esta forma, la clase \code{Resultados} escenci
 procesat y visualizar.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{encuesta}}{Clase de jerarquía superior. Campo heredado por la clase \code{Encuesta}.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{encuesta}}{Clase de jerarquía superior. Campo heredado por la clase \code{Encuesta}.}
 
-\item{\code{diseno}}{Diseno muestral actual. Aunque el diseno esté contenido en la clase \code{Encuesta},
+    \item{\code{diseno}}{Diseno muestral actual. Aunque el diseno esté contenido en la clase \code{Encuesta},
 el modo de procesamiento de encuesta que no se levantó en campo requiere de alimentar la clase
 \code{Resultados} con un diseno muestral independiente a la clase \code{Muestra}.}
 
-\item{\code{diccionario}}{Diccionario de procesamiento. Aunque el diccionario esté contendio en la
+    \item{\code{diccionario}}{Diccionario de procesamiento. Aunque el diccionario esté contendio en la
 clase \code{Cuestionario} que a su vez está dentro de la clase \code{Encuesta} el modo de procesamiento de
 encuesta que no se levantói en campo requiere de alimentar la clase con un diccionario que no
 haya sido procesado por la clase \code{Cuestionario}.}
 
-\item{\code{Descriptiva}}{Clase de jerarquía menor. Contiene los métodos que visualizan resultados de
+    \item{\code{Descriptiva}}{Clase de jerarquía menor. Contiene los métodos que visualizan resultados de
 forma más simple como gráficas de barras de resultados de una sola variable.}
 
-\item{\code{Regiones}}{Clase de jerarquía menor, Contiene los métodos que visualizan resultados basados
+    \item{\code{Regiones}}{Clase de jerarquía menor, Contiene los métodos que visualizan resultados basados
 en la estratificación de la encuesta.}
 
-\item{\code{Modelo}}{Clase de jerarquía menor. Contiene métodos de análisis estadísitico como PCA.}
+    \item{\code{Modelo}}{Clase de jerarquía menor. Contiene métodos de análisis estadísitico como PCA.}
 
-\item{\code{Cruce}}{Clase de jerarquía menor. Contiene métodos enfocados en presentar resultados
+    \item{\code{Cruce}}{Clase de jerarquía menor. Contiene métodos enfocados en presentar resultados
 cruzando dos o más variables.}
 
-\item{\code{Especial}}{Clase de jerarquía menor. Contiene métodos para visualizar resultados construidos
+    \item{\code{Especial}}{Clase de jerarquía menor. Contiene métodos para visualizar resultados construidos
 de forma personalizada.}
 
-\item{\code{Tendencias}}{Clase de jerarquía menor. Contiene los metodos de estimacions usando la media móvil}
+    \item{\code{Tendencias}}{Clase de jerarquía menor. Contiene los metodos de estimacions usando la media móvil}
 
-\item{\code{tema}}{Objeto \link{theme} de la paquetería \link{ggplot2} que contiene el formato e identidad gráfica
+    \item{\code{tema}}{Objeto \link[ggplot2:theme]{theme} de la paquetería \link[ggplot2:ggplot2]{ggplot2} que contiene el formato e identidad gráfica
 de Morant Consultores}
 
-\item{\code{graficadas}}{En desuso. Contiene un \link{ tibble} que indica qué variables ya han sido procesadas
+    \item{\code{graficadas}}{En desuso. Contiene un \link{ tibble} que indica qué variables ya han sido procesadas
 durante la producción.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{encuesta}}{Clase de jerarquía superior. Campo heredado por la clase \code{Encuesta}.}
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{encuesta}}{Clase de jerarquía superior. Campo heredado por la clase \code{Encuesta}.}
 
-\item{\code{diseno}}{Diseno muestral actual. Aunque el diseno esté contenido en la clase \code{Encuesta},
+    \item{\code{diseno}}{Diseno muestral actual. Aunque el diseno esté contenido en la clase \code{Encuesta},
 el modo de procesamiento de encuesta que no se levantó en campo requiere de alimentar la clase
 \code{Resultados} con un diseno muestral independiente a la clase \code{Muestra}.}
 
-\item{\code{diccionario}}{Diccionario de procesamiento. Aunque el diccionario esté contendio en la
+    \item{\code{diccionario}}{Diccionario de procesamiento. Aunque el diccionario esté contendio en la
 clase \code{Cuestionario} que a su vez está dentro de la clase \code{Encuesta} el modo de procesamiento de
 encuesta que no se levantói en campo requiere de alimentar la clase con un diccionario que no
 haya sido procesado por la clase \code{Cuestionario}.}
 
-\item{\code{Descriptiva}}{Clase de jerarquía menor. Contiene los métodos que visualizan resultados de
+    \item{\code{Descriptiva}}{Clase de jerarquía menor. Contiene los métodos que visualizan resultados de
 forma más simple como gráficas de barras de resultados de una sola variable.}
 
-\item{\code{Regiones}}{Clase de jerarquía menor, Contiene los métodos que visualizan resultados basados
+    \item{\code{Regiones}}{Clase de jerarquía menor, Contiene los métodos que visualizan resultados basados
 en la estratificación de la encuesta.}
 
-\item{\code{Modelo}}{Clase de jerarquía menor. Contiene métodos de análisis estadísitico como PCA.}
+    \item{\code{Modelo}}{Clase de jerarquía menor. Contiene métodos de análisis estadísitico como PCA.}
 
-\item{\code{Cruce}}{Clase de jerarquía menor. Contiene métodos enfocados en presentar resultados
+    \item{\code{Cruce}}{Clase de jerarquía menor. Contiene métodos enfocados en presentar resultados
 cruzando dos o más variables.}
 
-\item{\code{Especial}}{Clase de jerarquía menor. Contiene métodos para visualizar resultados construidos
+    \item{\code{Especial}}{Clase de jerarquía menor. Contiene métodos para visualizar resultados construidos
 de forma personalizada.}
 
-\item{\code{Tendencias}}{Clase de jerarquía menor. Contiene los metodos de estimacions usando la media móvil}
+    \item{\code{Tendencias}}{Clase de jerarquía menor. Contiene los metodos de estimacions usando la media móvil}
 
-\item{\code{tema}}{Objeto \link{theme} de la paquetería \link{ggplot2} que contiene el formato e identidad gráfica
+    \item{\code{tema}}{Objeto \link[ggplot2:theme]{theme} de la paquetería \link[ggplot2:ggplot2]{ggplot2} que contiene el formato e identidad gráfica
 de Morant Consultores}
 
-\item{\code{graficadas}}{En desuso. Contiene un \link{ tibble} que indica qué variables ya han sido procesadas
+    \item{\code{graficadas}}{En desuso. Contiene un \link{ tibble} que indica qué variables ya han sido procesadas
 durante la producción.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-Respuestas_svy-new}{\code{Respuestas_svy$new()}}
-\item \href{#method-Respuestas_svy-obtener_eliminadas_auditorias}{\code{Respuestas_svy$obtener_eliminadas_auditorias()}}
-\item \href{#method-Respuestas_svy-obtener_eliminadas_regla}{\code{Respuestas_svy$obtener_eliminadas_regla()}}
-\item \href{#method-Respuestas_svy-obtener_eliminadas_no_efectivas}{\code{Respuestas_svy$obtener_eliminadas_no_efectivas()}}
-\item \href{#method-Respuestas_svy-obtener_eliminadas_sin_coordenadas}{\code{Respuestas_svy$obtener_eliminadas_sin_coordenadas()}}
-\item \href{#method-Respuestas_svy-obtener_fuera_muestra}{\code{Respuestas_svy$obtener_fuera_muestra()}}
-\item \href{#method-Respuestas_svy-obtener_fuera_otros}{\code{Respuestas_svy$obtener_fuera_otros()}}
-\item \href{#method-Respuestas_svy-vars_diseno}{\code{Respuestas_svy$vars_diseno()}}
-\item \href{#method-Respuestas_svy-clone}{\code{Respuestas_svy$clone()}}
-}
+  \itemize{
+    \item \href{#method-Respuestas_svy-initialize}{\code{Respuestas_svy$new()}}
+    \item \href{#method-Respuestas_svy-obtener_eliminadas_auditorias}{\code{Respuestas_svy$obtener_eliminadas_auditorias()}}
+    \item \href{#method-Respuestas_svy-obtener_eliminadas_regla}{\code{Respuestas_svy$obtener_eliminadas_regla()}}
+    \item \href{#method-Respuestas_svy-obtener_eliminadas_no_efectivas}{\code{Respuestas_svy$obtener_eliminadas_no_efectivas()}}
+    \item \href{#method-Respuestas_svy-obtener_eliminadas_sin_coordenadas}{\code{Respuestas_svy$obtener_eliminadas_sin_coordenadas()}}
+    \item \href{#method-Respuestas_svy-obtener_fuera_muestra}{\code{Respuestas_svy$obtener_fuera_muestra()}}
+    \item \href{#method-Respuestas_svy-obtener_fuera_otros}{\code{Respuestas_svy$obtener_fuera_otros()}}
+    \item \href{#method-Respuestas_svy-vars_diseno}{\code{Respuestas_svy$vars_diseno()}}
+    \item \href{#method-Respuestas_svy-clone}{\code{Respuestas_svy$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Respuestas_svy-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Respuestas_svy-new}{}}}
-\subsection{Method \code{new()}}{
-Toma los datos de la base procesada y los va separando para su lectura.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Respuestas_svy$new(bd_respuestas)}\if{html}{\out{</div>}}
+\if{html}{\out{<a id="method-Respuestas_svy-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-Respuestas_svy-initialize}{}}}
+\subsection{\code{Respuestas_svy$new()}}{
+  Toma los datos de la base procesada y los va separando para su lectura.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Respuestas_svy$new(bd_respuestas)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{bd_respuestas}}{Base de datos que carga los datos previamente procesados}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{bd_respuestas}}{Base de datos que carga los datos previamente procesados}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Respuestas_svy-obtener_eliminadas_auditorias"></a>}}
 \if{latex}{\out{\hypertarget{method-Respuestas_svy-obtener_eliminadas_auditorias}{}}}
-\subsection{Method \code{obtener_eliminadas_auditorias()}}{
-Visualiza las variables que aún no han sido producidas
+\subsection{\code{Respuestas_svy$obtener_eliminadas_auditorias()}}{
+  Visualiza las variables que aún no han sido producidas
 por la paqutería durante la producción.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Respuestas_svy$obtener_eliminadas_auditorias()}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Respuestas_svy$obtener_eliminadas_auditorias()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Respuestas_svy-obtener_eliminadas_regla"></a>}}
 \if{latex}{\out{\hypertarget{method-Respuestas_svy-obtener_eliminadas_regla}{}}}
-\subsection{Method \code{obtener_eliminadas_regla()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Respuestas_svy$obtener_eliminadas_regla()}\if{html}{\out{</div>}}
+\subsection{\code{Respuestas_svy$obtener_eliminadas_regla()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Respuestas_svy$obtener_eliminadas_regla()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Respuestas_svy-obtener_eliminadas_no_efectivas"></a>}}
 \if{latex}{\out{\hypertarget{method-Respuestas_svy-obtener_eliminadas_no_efectivas}{}}}
-\subsection{Method \code{obtener_eliminadas_no_efectivas()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Respuestas_svy$obtener_eliminadas_no_efectivas()}\if{html}{\out{</div>}}
+\subsection{\code{Respuestas_svy$obtener_eliminadas_no_efectivas()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Respuestas_svy$obtener_eliminadas_no_efectivas()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Respuestas_svy-obtener_eliminadas_sin_coordenadas"></a>}}
 \if{latex}{\out{\hypertarget{method-Respuestas_svy-obtener_eliminadas_sin_coordenadas}{}}}
-\subsection{Method \code{obtener_eliminadas_sin_coordenadas()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Respuestas_svy$obtener_eliminadas_sin_coordenadas()}\if{html}{\out{</div>}}
+\subsection{\code{Respuestas_svy$obtener_eliminadas_sin_coordenadas()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Respuestas_svy$obtener_eliminadas_sin_coordenadas()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Respuestas_svy-obtener_fuera_muestra"></a>}}
 \if{latex}{\out{\hypertarget{method-Respuestas_svy-obtener_fuera_muestra}{}}}
-\subsection{Method \code{obtener_fuera_muestra()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Respuestas_svy$obtener_fuera_muestra()}\if{html}{\out{</div>}}
+\subsection{\code{Respuestas_svy$obtener_fuera_muestra()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Respuestas_svy$obtener_fuera_muestra()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Respuestas_svy-obtener_fuera_otros"></a>}}
 \if{latex}{\out{\hypertarget{method-Respuestas_svy-obtener_fuera_otros}{}}}
-\subsection{Method \code{obtener_fuera_otros()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Respuestas_svy$obtener_fuera_otros()}\if{html}{\out{</div>}}
+\subsection{\code{Respuestas_svy$obtener_fuera_otros()}}{
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Respuestas_svy$obtener_fuera_otros()}
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Respuestas_svy-vars_diseno"></a>}}
 \if{latex}{\out{\hypertarget{method-Respuestas_svy-vars_diseno}{}}}
-\subsection{Method \code{vars_diseno()}}{
-Agrega las variables relacionadas al diseno muestral
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Respuestas_svy$vars_diseno(muestra, var_n, tipo_encuesta)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{muestra}}{Contiene el diseño muestral completo de la encuesta.}
-
-\item{\code{var_n}}{var_n Valor tipo caracter que indica el nombre de la variable asociado al último
+\subsection{\code{Respuestas_svy$vars_diseno()}}{
+  Agrega las variables relacionadas al diseno muestral
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Respuestas_svy$vars_diseno(muestra, var_n, tipo_encuesta)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{muestra}}{Contiene el diseño muestral completo de la encuesta.}
+      \item{\code{var_n}}{var_n Valor tipo caracter que indica el nombre de la variable asociado al último
 nivel de la etapa de muestreo.}
+      \item{\code{tipo_encuesta}}{Campo de la clase Encuesta que determina el tipo de encuesta levantada.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{tipo_encuesta}}{Campo de la clase Encuesta que determina el tipo de encuesta levantada.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Respuestas_svy-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-Respuestas_svy-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Respuestas_svy$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{Respuestas_svy$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Respuestas_svy$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

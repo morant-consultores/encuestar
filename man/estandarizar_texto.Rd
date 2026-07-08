@@ -11,9 +11,6 @@ estandarizar_texto(
   minusculas = TRUE
 )
 }
-\arguments{
-\item{minusculas}{}
-}
 \description{
 Estandarizar texto para imitar resultados de la categorizacion con el bot
 }
