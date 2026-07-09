@@ -113,7 +113,9 @@ alimentar el resto de la clase.
   marco_muestral,
   tipo_encuesta,
   sin_peso,
-  rake
+  rake,
+  permitir_sin_conglomerados = FALSE,
+  umbral_rake = c(0.5, 2)
 )}
     \if{html}{\out{</div>}}
   }
@@ -128,6 +130,18 @@ muestral usado para calcular los pesos de los individuos}
 se asume equiprobable.}
       \item{\code{rake}}{\code{LOGICAL} Parámetro heredado de la clase encuesta. Determina la postestratificacion
 por edad y sexo.}
+      \item{\code{permitir_sin_conglomerados}}{\code{LOGICAL}. Si el diseño con conglomerados
+no puede construirse, el default (\code{FALSE}) detiene con un error informativo:
+un diseño sin conglomerados ignora la correlación intraclase de las
+entrevistas de una misma sección/manzana y subestima los errores
+estándar (~25\% medido en Chihuahua Ene-2026). Usa \code{TRUE} solo como
+decisión consciente del analista; se emite un warning y el diseño se
+construye estratificado sin conglomerados.}
+      \item{\code{umbral_rake}}{Vector \code{c(inferior, superior)} con el rango aceptable
+de los factores de ajuste del rake (default \code{c(0.5, 2)}). Sin cuotas en
+campo, el rake absorbe TODA la corrección de composición demográfica:
+factores fuera del umbral señalan un campo desbalanceado (revisar pases
+de horario) y disparan la varianza de las estimaciones.}
     }
     \if{html}{\out{</div>}}
   }
