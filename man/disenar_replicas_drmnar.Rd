@@ -58,13 +58,21 @@ El weight-swap ingenuo de \code{\link[=ajustar_pesos_drmnar]{ajustar_pesos_drmna
 \code{svydesign} cuyos pesos (diseño x \code{1/pi_hat}) \code{survey} trata como
 \strong{fijos}: los errores estándar de \code{svymean} salen demasiado angostos
 porque ignoran que \code{pi_hat} es estimado. Aquí, en cambio, se construye
-un \code{survey::svrepdesign} con réplicas de bootstrap por conglomerado: en
-cada réplica se remuestrean las UPM dentro de estrato y se \strong{re-estima
-\code{pi_hat}} sobre ese remuestreo, de modo que la dispersión entre
-réplicas captura toda la varianza (incluida la de la propensión).
-\code{survey::svymean} sobre el resultado propaga esa varianza
+un \code{survey::svrepdesign} con réplicas de bootstrap por conglomerado
+(Rao-Wu-Yue): en cada réplica se remuestrean las UPM dentro de estrato
+y se \strong{re-estima \code{pi_hat} con los pesos de la réplica}, de modo que la
+dispersión entre réplicas captura la varianza del muestreo de UPM y la
+de la propensión. \code{survey::svymean} sobre el resultado la propaga
 automáticamente, así que morantviz reporta intervalos correctos sin
-cambios.
+cambios. Dos límites del alcance: los factores de rake del diseño de
+entrada quedan \strong{fijos} (no se re-calibran por réplica), y los
+estratos con una sola UPM no aportan varianza entre réplicas (la
+función avisa cuando los hay).
+
+Igual que en \code{\link[=ajustar_pesos_drmnar]{ajustar_pesos_drmnar()}}, el diseño devuelto es
+\strong{específico de \code{pregunta}}: sus pesos (base y de réplica) llevan el
+factor MNAR de esa pregunta. No lo uses para estimar otras preguntas —
+construye un diseño de réplicas por pregunta con decisión DR-MNAR.
 
 Es la vía recomendada cuando la decisión de la pregunta es DR-MNAR y se
 quieren \strong{intervalos publicables} con el flujo de morantviz. El costo

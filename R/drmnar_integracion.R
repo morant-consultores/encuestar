@@ -98,13 +98,21 @@ ajustar_pesos_drmnar <- function(diseno, pregunta, covariables = NULL,
 #' `svydesign` cuyos pesos (diseño x `1/pi_hat`) `survey` trata como
 #' **fijos**: los errores estándar de `svymean` salen demasiado angostos
 #' porque ignoran que `pi_hat` es estimado. Aquí, en cambio, se construye
-#' un `survey::svrepdesign` con réplicas de bootstrap por conglomerado: en
-#' cada réplica se remuestrean las UPM dentro de estrato y se **re-estima
-#' `pi_hat`** sobre ese remuestreo, de modo que la dispersión entre
-#' réplicas captura toda la varianza (incluida la de la propensión).
-#' `survey::svymean` sobre el resultado propaga esa varianza
+#' un `survey::svrepdesign` con réplicas de bootstrap por conglomerado
+#' (Rao-Wu-Yue): en cada réplica se remuestrean las UPM dentro de estrato
+#' y se **re-estima `pi_hat` con los pesos de la réplica**, de modo que la
+#' dispersión entre réplicas captura la varianza del muestreo de UPM y la
+#' de la propensión. `survey::svymean` sobre el resultado la propaga
 #' automáticamente, así que morantviz reporta intervalos correctos sin
-#' cambios.
+#' cambios. Dos límites del alcance: los factores de rake del diseño de
+#' entrada quedan **fijos** (no se re-calibran por réplica), y los
+#' estratos con una sola UPM no aportan varianza entre réplicas (la
+#' función avisa cuando los hay).
+#'
+#' Igual que en [ajustar_pesos_drmnar()], el diseño devuelto es
+#' **específico de `pregunta`**: sus pesos (base y de réplica) llevan el
+#' factor MNAR de esa pregunta. No lo uses para estimar otras preguntas —
+#' construye un diseño de réplicas por pregunta con decisión DR-MNAR.
 #'
 #' Es la vía recomendada cuando la decisión de la pregunta es DR-MNAR y se
 #' quieren **intervalos publicables** con el flujo de morantviz. El costo
@@ -150,10 +158,18 @@ disenar_replicas_drmnar <- function(diseno, pregunta, covariables = NULL,
   y <- ifelse(ins$r == 1, ins$y, 0)
   cluster <- if (!is.null(ins$cluster)) as.character(ins$cluster) else as.character(seq_len(n))
   estrato <- if (!is.null(ins$estrato)) as.character(ins$estrato) else rep("1", n)
+  # ids de UPM únicos ENTRE estratos: si dos estratos comparten etiqueta de
+  # UPM, el split() de abajo mezclaría sus filas
+  cluster <- paste(estrato, cluster, sep = "||")
 
-  # propensión MNAR sobre un subconjunto de filas (una réplica)
-  pesos_mnar_en <- function(filas) {
+  # propensión MNAR sobre un subconjunto de filas (una réplica), ajustada
+  # con los pesos DE LA RÉPLICA (w x multiplicador RWY): el refit debe ver
+  # la misma muestra ponderada que el promedio, si no la varianza de pi_hat
+  # se captura solo en parte y el EE queda angosto. Devuelve NULL si el
+  # núcleo no ajusta o no converge.
+  pesos_mnar_en <- function(filas, mult = NULL) {
     w_sub <- ins$w[filas]
+    if (!is.null(mult)) w_sub <- w_sub * mult[filas]
     w_sub <- w_sub * length(filas) / sum(w_sub)
     nuc <- tryCatch(
       ajustar_nucleo_drmnar(
@@ -164,14 +180,24 @@ disenar_replicas_drmnar <- function(diseno, pregunta, covariables = NULL,
       ),
       error = function(e) NULL
     )
-    if (is.null(nuc)) {
-      return(rep(1, length(filas))) # fallback: sin corrección esa réplica
+    if (is.null(nuc) || !isTRUE(nuc$convergencia)) {
+      return(NULL)
     }
     ifelse(ins$r[filas] == 1, as.numeric(nuc$ipw$pesos_mnar), 1)
   }
 
-  # réplica base (todas las filas)
+  # réplica base (todas las filas): si el núcleo no ajusta aquí, el diseño
+  # entero saldría etiquetado DR-MNAR sin corrección — mejor abortar
   factor_base <- pesos_mnar_en(seq_len(n))
+  if (is.null(factor_base)) {
+    stop(
+      "El modelo de propensión MNAR de `", pregunta, "` no ajustó o no ",
+      "convergió sobre la muestra completa; no se puede construir el ",
+      "diseño de réplicas. Revisa covariables (colinealidad, celdas ",
+      "unánimes) o `intervalo_gamma`.",
+      call. = FALSE
+    )
+  }
   peso_base <- w_base * factor_base
 
   # bootstrap por conglomerado dentro de estrato (Rao-Wu-Yue): en cada
@@ -181,7 +207,18 @@ disenar_replicas_drmnar <- function(diseno, pregunta, covariables = NULL,
   upm_de_estrato <- tapply(cluster, estrato, function(x) unique(x))
   estratos_u <- names(upm_de_estrato)
 
+  solitarios <- sum(lengths(upm_de_estrato) <= 1)
+  if (solitarios > 0) {
+    warning(
+      solitarios, " estrato(s) con una sola UPM: contribuyen varianza ",
+      "cero entre réplicas y el EE puede quedar subestimado. Considera ",
+      "colapsar estratos.",
+      call. = FALSE
+    )
+  }
+
   rep_weights <- matrix(0, nrow = n, ncol = n_replicas)
+  fallos <- 0L
   for (b in seq_len(n_replicas)) {
     mult <- numeric(n) # multiplicador de bootstrap por fila (0 = fuera)
     for (h in estratos_u) {
@@ -197,8 +234,22 @@ disenar_replicas_drmnar <- function(diseno, pregunta, covariables = NULL,
     }
     filas_b <- which(mult > 0)
     factor_b <- numeric(n)
-    factor_b[filas_b] <- pesos_mnar_en(filas_b)
+    fb <- pesos_mnar_en(filas_b, mult)
+    if (is.null(fb)) {
+      # fallback: esa réplica queda sin corrección MNAR (se cuenta y avisa)
+      fallos <- fallos + 1L
+      fb <- rep(1, length(filas_b))
+    }
+    factor_b[filas_b] <- fb
     rep_weights[, b] <- w_base * factor_b * mult
+  }
+  if (fallos > 0) {
+    warning(
+      fallos, " de ", n_replicas, " réplicas no ajustaron el modelo de ",
+      "propensión y quedaron sin corrección MNAR; con muchas fallas el ",
+      "EE deja de ser confiable.",
+      call. = FALSE
+    )
   }
 
   vars <- diseno$variables

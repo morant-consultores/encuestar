@@ -25,10 +25,12 @@ histórico electoral.
 ## Censo INEGI por sección
 
 El insumo es el censo 2020 agregado por sección electoral (llave
-`seccion = "EE_SSSS"`, p. ej. `"08_0064"`). Es un archivo pesado (~119 MB)
-que **no** se versiona: el script `data-raw/preparar_covariables_seccion.R`
-deriva tablas delgadas por entidad hacia `inst/extdata/`
-(`covariables_seccion_chih.rds`, `covariables_seccion_mex.rds`).
+`seccion = "EE_SSSS"`, p. ej. `"08_0064"`). El censo y el electoral son
+**insumos de proyecto, no del paquete** (cambian por entidad y por ola):
+la plantilla `data-raw/preparar_covariables_seccion.R` se copia al repo
+de la ola y deriva la tabla delgada hacia
+`insumos/covariables_seccion.rds` **dentro de ese repo** — nunca hacia el
+paquete.
 
 ```{r, eval=FALSE}
 censo <- readRDS("inegi/seccion_2020.rda") # guardado con saveRDS

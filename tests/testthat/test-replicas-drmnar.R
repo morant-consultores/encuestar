@@ -110,3 +110,33 @@ test_that("los no respondentes por protocolo quedan enmascarados aunque traigan 
   media_rep <- as.numeric(coef(survey::svymean(~y_d, rep, na.rm = TRUE)))[1]
   expect_lt(abs(media_rep - est$est[est$modelo == "Weights-MNAR"]), 0.02)
 })
+
+test_that("si el núcleo no ajusta sobre la muestra completa, aborta (no devuelve un diseño sin corrección)", {
+  sint <- crear_diseno_sintetico(n = 3000, gamma_y = 1.5, semilla = 21,
+                                 n_clusters = 80)
+  # covariable constante -> colinealidad con el intercepto -> núcleo no ajusta
+  sint$diseno$variables$x <- 1
+  expect_error(
+    disenar_replicas_drmnar(
+      diseno = sint$diseno, pregunta = "conoce_cand", covariables = "x",
+      categoria = "Sí lo conoce", instrumento = "drmnar_z", n_replicas = 10
+    ),
+    "propensión"
+  )
+})
+
+test_that("avisa cuando hay estratos con una sola UPM (varianza cero entre réplicas)", {
+  sint <- crear_diseno_sintetico(n = 3000, gamma_y = 1.5, semilla = 23,
+                                 n_clusters = 80)
+  v <- sint$diseno$variables
+  v$estrato2 <- ifelse(v$upm == v$upm[1], "solitario", "resto")
+  d2 <- survey::svydesign(ids = ~upm, strata = ~estrato2, weights = ~peso,
+                          data = v, nest = TRUE)
+  expect_warning(
+    disenar_replicas_drmnar(
+      diseno = d2, pregunta = "conoce_cand", covariables = "x",
+      categoria = "Sí lo conoce", instrumento = "drmnar_z", n_replicas = 20
+    ),
+    "una sola UPM"
+  )
+})
