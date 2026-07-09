@@ -55,12 +55,14 @@ Imports:
     yesno
 Suggests:
     dbplyr,
+    DBI,
     haven,
     knitr,
     odbc,
     pool,
     rmarkdown,
     RSQLite,
+    sampling,
     testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr
