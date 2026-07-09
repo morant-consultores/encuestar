@@ -69,6 +69,13 @@ cambios.
 Es la vía recomendada cuando la decisión de la pregunta es DR-MNAR y se
 quieren \strong{intervalos publicables} con el flujo de morantviz. El costo
 es tiempo de cómputo (una estimación de propensión por réplica).
+
+En el diseño devuelto, la columna \code{pregunta} viene \strong{enmascarada
+(\code{NA}) donde la respuesta por protocolo es \code{r = 0}}: un desertor del
+filtro pudo dejar valores en campo (batería corta) pero no cuenta como
+respuesta del módulo político; sin enmascarar, \code{svymean} lo mezclaría
+con peso base y el punto quedaría mal. Así el diseño es seguro para
+\code{svymean(~pregunta, na.rm = TRUE)} tal cual lo usa morantviz.
 }
 \examples{
 \dontrun{

@@ -81,3 +81,32 @@ test_that("la media de réplicas coincide con el estimador IPW-MNAR puntual", {
   media_rep <- as.numeric(coef(survey::svymean(~y_d, rep, na.rm = TRUE)))[1]
   expect_lt(abs(media_rep - est$est[est$modelo == "Weights-MNAR"]), 0.02)
 })
+
+test_that("los no respondentes por protocolo quedan enmascarados aunque traigan valor", {
+  # caso real: el desertor del filtro SÍ contestó en campo (batería corta) o
+  # la simulación conserva la verdad — pero por protocolo (drmnar_r = 0) NO
+  # debe entrar a la estimación. Sin enmascarar, svymean lo mezcla con peso
+  # base y arruina el punto.
+  sint <- crear_diseno_sintetico(n = 5000, gamma_y = 1.5, semilla = 13,
+                                 n_clusters = 120)
+  est <- estimar_drmnar(
+    diseno = sint$diseno, pregunta = "conoce_cand", covariables = "x",
+    categoria = "Sí lo conoce", instrumento = "drmnar_z"
+  )
+
+  # adversarial: rellenar la pregunta de los r = 0 con la clase minoritaria
+  con_valor <- sint$diseno
+  r0 <- con_valor$variables$drmnar_r == 0
+  con_valor$variables$conoce_cand[r0] <- "No lo conoce"
+
+  rep <- disenar_replicas_drmnar(
+    diseno = con_valor, pregunta = "conoce_cand", covariables = "x",
+    categoria = "Sí lo conoce", instrumento = "drmnar_z", n_replicas = 100
+  )
+  # el diseño devuelto debe traer la pregunta enmascarada donde r = 0
+  expect_true(all(is.na(rep$variables$conoce_cand[r0])))
+
+  rep <- stats::update(rep, y_d = as.numeric(rep$variables$conoce_cand == "Sí lo conoce"))
+  media_rep <- as.numeric(coef(survey::svymean(~y_d, rep, na.rm = TRUE)))[1]
+  expect_lt(abs(media_rep - est$est[est$modelo == "Weights-MNAR"]), 0.02)
+})

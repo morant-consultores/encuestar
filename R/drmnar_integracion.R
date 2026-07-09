@@ -110,6 +110,13 @@ ajustar_pesos_drmnar <- function(diseno, pregunta, covariables = NULL,
 #' quieren **intervalos publicables** con el flujo de morantviz. El costo
 #' es tiempo de cómputo (una estimación de propensión por réplica).
 #'
+#' En el diseño devuelto, la columna `pregunta` viene **enmascarada
+#' (`NA`) donde la respuesta por protocolo es `r = 0`**: un desertor del
+#' filtro pudo dejar valores en campo (batería corta) pero no cuenta como
+#' respuesta del módulo político; sin enmascarar, `svymean` lo mezclaría
+#' con peso base y el punto quedaría mal. Así el diseño es seguro para
+#' `svymean(~pregunta, na.rm = TRUE)` tal cual lo usa morantviz.
+#'
 #' @inheritParams ajustar_pesos_drmnar
 #' @param n_replicas Número de réplicas de bootstrap (default 200; más
 #'   réplicas = EE más estable, más cómputo).
@@ -196,6 +203,11 @@ disenar_replicas_drmnar <- function(diseno, pregunta, covariables = NULL,
 
   vars <- diseno$variables
   vars$peso_drmnar <- peso_base
+  # protocolo: r = 0 no es respuesta del módulo aunque la columna traiga
+  # valor (desertor con batería corta, o simulación que conserva la verdad)
+  if (pregunta %in% names(vars)) {
+    vars[[pregunta]][which(ins$r == 0)] <- NA
+  }
 
   survey::svrepdesign(
     data = vars,
