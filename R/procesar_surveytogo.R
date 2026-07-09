@@ -193,7 +193,10 @@ analizar_sankey <- function(diseno, variables, filtro_var1, filtro_var2){
 #' @param corte_otro Parámetro 'prop' de la función 'fct_lump' de la paquetería 'forcats' usado para agrupar valores pequeños de partidos políticos
 #' @return Lista de donde cada elemento es un [tibble()] asociado al conocimiento y asociacion partidista
 #' @examples
+#' \dontrun{
+#' # la función es interna (no exportada); el ejemplo requiere encuesta_demo
 #' analizar_candidatoPartido(diseno = encuesta_demo$muestra$diseno, diccionario = encuesta_demo$cuestionario$diccionario, llave_partido = "partido_pm", llave_conocimiento = "conoce_pm", respuesta_conoce = "Sí", candidatos = c("lia", "javier"))
+#' }
 analizar_candidatoPartido <- function(diseno, diccionario, llave_partido, llave_conocimiento, respuesta_conoce, candidatos, corte_otro = 0.05){
 
   conoce <- paste(llave_conocimiento, candidatos, sep = "_")

@@ -1,0 +1,81 @@
+---
+title: "DR-MNAR 6: Caso real — Chihuahua Ene-2026"
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
+vignette: >
+  %\VignetteIndexEntry{DR-MNAR 6: Caso real — Chihuahua Ene-2026}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, message=FALSE, echo=FALSE}
+library(encuestar)
+```
+<div class = "watermark">
+<img src = "./Manual-diccionario/morant.png">
+</div>
+
+La ola Ene/Feb-2026 de Chihuahua fue el **primer levantamiento con el
+instrumento aleatorizado** (`gustos_aleatorio_50`) y sirvió para validar el
+módulo completo. El análisis reproducible vive en el repositorio del
+proyecto: `encuesta/explorar_norespuesta.R` (outputs en
+`encuesta/norespuesta/`, presentación en
+`encuesta/R/presentacion_norespuesta.R`).
+
+## El experimento en campo
+
+De 1,740 entrevistas efectivas: **833 en control** (directo a política) y
+**907 en tratamiento** (filtro temático). Solo **198** del tratamiento
+eligieron "Política"; los 709 restantes eligieron Salud (344), Deportes
+(173), Películas (121), etc. Bajo protocolo, esos 709 son **no respuesta
+del módulo político**.
+
+**Particularidad clave:** el campo *no interrumpió* el cuestionario de los
+desertores, así que conocemos sus respuestas verdaderas. Eso convirtió la
+ola en un experimento de validación: el DR-MNAR se estima usando *solo* a
+los respondientes por protocolo y se compara contra la media rakeada de
+*todos*.
+
+## Diagnóstico (nivel estatal)
+
+| Pregunta | $\gamma_Y$ [IC 95%] | Decisión |
+|---|---|---|
+| `conoce_cruz` = "Sí lo conoce" | 0.78 [0.26, 1.30] | **DR-MNAR** |
+| `conoce_andrea` = "Sí lo conoce" | 0.81 [0.37, 1.25] | **DR-MNAR** |
+| `candidato_votaria_1` = Cruz | 0.54 [0.10, 0.99] | **DR-MNAR** |
+
+$\gamma_Y > 0$: quienes conocen (o votarían por) los personajes de MORENA
+tienen **más** disposición a contestar el módulo político — el flujo
+tradicional infla conocimiento e intención.
+
+Por región: `conoce_andrea` resultó no ignorable también dentro de Juárez
+y de la capital; en "Resto del estado" los IC son demasiado anchos (n
+chico) y la decisión regional se queda en Raking.
+
+## Cuánto se modifica y validación
+
+| Pregunta | svymean+rake | DR-MNAR | Verdad completa | Error rake | Error DR |
+|---|---|---|---|---|---|
+| conoce_cruz | 71.9% | 69.0% | 68.6% | +3.3 pp | +0.4 pp |
+| conoce_andrea | 54.5% | 51.3% | 51.8% | +2.6 pp | −0.5 pp |
+| intención Cruz | 48.3% | 46.5% | 47.4% | +0.9 pp | −0.8 pp |
+
+El DR-MNAR redujo el error del rake ~5× en conocimiento. Las preguntas
+condicionales (`voto_cruz`/`voto_andrea`, universo = quienes conocen al
+personaje) no mostraron $\gamma$ significativo dentro de su universo.
+
+## Lecciones operativas que quedaron codificadas
+
+1. **`drmnar_r` manda sobre los NA**: como los desertores tenían respuesta,
+   derivar el indicador de los NA habría marcado a todos como
+   respondientes ($\gamma$ no identificado). Los estimadores usan
+   `drmnar_r` automáticamente.
+2. **Llaves de sección reales**: el snapshot trae `SECCION` character
+   numérica ("64"); `unir_covariables_individuo(..., entidad = "08")` la
+   normaliza a `"08_0064"`.
+3. **Convergencia con pesos PPS dispersos** (ratio ~50×): se juzga por el
+   residuo de las ecuaciones, no por el código interno de `BBsolve`.
+4. **Subgrupos chicos**: "Resto del estado" convergió con avisos e IC
+   anchos — el diagnóstico por subgrupo requiere n suficiente en el brazo
+   tratamiento.

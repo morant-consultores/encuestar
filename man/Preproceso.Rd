@@ -102,6 +102,8 @@ la aplicación de monitorio de en un \code{folder} llamado \code{auditoria} en e
     \item \href{#method-Preproceso-procesar_nuevas_entradas}{\code{Preproceso$procesar_nuevas_entradas()}}
     \item \href{#method-Preproceso-actualizar_bd}{\code{Preproceso$actualizar_bd()}}
     \item \href{#method-Preproceso-generar_diseno}{\code{Preproceso$generar_diseno()}}
+    \item \href{#method-Preproceso-preparar_variables_dicotomicas_drmnar}{\code{Preproceso$preparar_variables_dicotomicas_drmnar()}}
+    \item \href{#method-Preproceso-generar_diseno_drmnar}{\code{Preproceso$generar_diseno_drmnar()}}
     \item \href{#method-Preproceso-clone}{\code{Preproceso$clone()}}
   }
 }
@@ -217,6 +219,81 @@ para ser añadidas al snapshot.
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
     \preformatted{Preproceso$generar_diseno()}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Preproceso-preparar_variables_dicotomicas_drmnar"></a>}}
+\if{latex}{\out{\hypertarget{method-Preproceso-preparar_variables_dicotomicas_drmnar}{}}}
+\subsection{\code{Preproceso$preparar_variables_dicotomicas_drmnar()}}{
+  Prepara las variables DR-MNAR (instrumento \code{drmnar_z},
+respuesta por protocolo \code{drmnar_r} y dicotómicas por pregunta)
+sobre los registros nuevos del snapshot. Llamar DESPUÉS de
+\code{procesar_nuevas_entradas()} y ANTES de \code{actualizar_bd()} para que
+las variables queden persistidas en el snapshot (flujo AppAuditoria).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Preproceso$preparar_variables_dicotomicas_drmnar(
+  instrumento_campo,
+  opcion_politica = "Política",
+  preguntas = NULL
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{instrumento_campo}}{Pregunta aleatoria del filtro temático en
+campo (NA = brazo control), p. ej. "gustos_aleatorio_50".}
+      \item{\code{opcion_politica}}{Valor del filtro que continúa el módulo
+político.}
+      \item{\code{preguntas}}{Lista nombrada \code{list(pregunta = categoria(s))} de
+dicotómicas a reservar para los cálculos por pregunta.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Preproceso-generar_diseno_drmnar"></a>}}
+\if{latex}{\out{\hypertarget{method-Preproceso-generar_diseno_drmnar}{}}}
+\subsection{\code{Preproceso$generar_diseno_drmnar()}}{
+  Genera el segundo tipo de diseño (bundle \code{diseno_drmnar})
+a partir del diseño muestral ponderado del flujo normal: corre el
+diagnóstico de no respuesta no ignorable por pregunta y aplica la
+regla de decisión DR-MNAR vs Raking (con override manual opcional).
+Requiere haber corrido \code{generar_diseno()} (o lo ejecuta).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Preproceso$generar_diseno_drmnar(
+  preguntas,
+  covariables = NULL,
+  instrumento_campo = "gustos_aleatorio_50",
+  opcion_politica = "Política",
+  covariables_seccion = NULL,
+  entidad = NULL,
+  subconjuntos = NULL,
+  override = NULL,
+  ...
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{preguntas}}{Lista nombrada \code{list(pregunta = categoria(s))}.}
+      \item{\code{covariables}}{Covariables de los modelos (individuales y/o
+seccionales ya unidas a las variables del diseño).}
+      \item{\code{instrumento_campo}}{Pregunta aleatoria del filtro en campo.}
+      \item{\code{opcion_politica}}{Valor del filtro que continúa el módulo.}
+      \item{\code{covariables_seccion}}{Tibble opcional de
+\code{construir_covariables_seccion()} a unir por sección.}
+      \item{\code{entidad}}{Clave "EE" para normalizar la llave de sección.}
+      \item{\code{subconjuntos}}{Lista nombrada de vectores lógicos.}
+      \item{\code{override}}{Tibble \code{pregunta}, \code{decision} para forzar decisiones.}
+      \item{\code{...}}{Argumentos adicionales para \code{diagnosticar_norespuesta()}.}
+    }
     \if{html}{\out{</div>}}
   }
 }

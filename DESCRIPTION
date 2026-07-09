@@ -1,6 +1,6 @@
 Package: encuestar
 Title: Calculo de resultados de encuestas
-Version: 2.0.1
+Version: 2.1.0
 Authors@R: c(
     person(given = "Emilio", family = "Morones", email = "emorones@morant.com.mx", role = c("cre", "aut"), comment = c(ORCID = "YOUR-ORCID-ID")),
     person(given = "Allan", family = "Meza", email = "al.josue93@gmail.com", role = c("aut"), comment = c(ORCID = "YOUR-ORCID-ID")),
@@ -11,7 +11,8 @@ Description: El ojetivo de la paquetería es producir los resultados de las esti
 License: MIT + file LICENSE
 Depends: 
     R (>= 2.10)
-Imports: 
+Imports:
+    BB,
     beepr,
     dplyr,
     factoextra,
@@ -32,6 +33,7 @@ Imports:
     janitor,
     lemon,
     lwgeom,
+    numDeriv,
     officer,
     patchwork,
     purrr,
@@ -52,11 +54,15 @@ Imports:
     utils,
     yesno
 Suggests:
+    dbplyr,
+    DBI,
+    haven,
     knitr,
     odbc,
     pool,
     rmarkdown,
     RSQLite,
+    sampling,
     testthat (>= 3.0.0)
 VignetteBuilder: 
     knitr

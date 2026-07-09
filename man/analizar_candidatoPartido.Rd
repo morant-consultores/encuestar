@@ -36,5 +36,8 @@ Lista de donde cada elemento es un \code{\link[tibble:tibble]{tibble()}} asociad
 Calcula las estimaciones de asociacion partidista de un personaje en particular
 }
 \examples{
+\dontrun{
+# la función es interna (no exportada); el ejemplo requiere encuesta_demo
 analizar_candidatoPartido(diseno = encuesta_demo$muestra$diseno, diccionario = encuesta_demo$cuestionario$diccionario, llave_partido = "partido_pm", llave_conocimiento = "conoce_pm", respuesta_conoce = "Sí", candidatos = c("lia", "javier"))
+}
 }

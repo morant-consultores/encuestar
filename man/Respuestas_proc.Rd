@@ -68,11 +68,13 @@ geolocalización válida se descartan o no.}
     \item \href{#method-Respuestas_proc-clone}{\code{Respuestas_proc$clone()}}
   }
 }
-\if{html}{\out{<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details><summary>Inherited methods</summary>
 <ul>
   <li><span class="pkg-link" data-pkg="encuestar" data-topic="Preproceso" data-id="actualizar_bd"><a href='../../encuestar/html/Preproceso.html#method-Preproceso-actualizar_bd'><code>Preproceso$actualizar_bd()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="encuestar" data-topic="Preproceso" data-id="generar_diseno"><a href='../../encuestar/html/Preproceso.html#method-Preproceso-generar_diseno'><code>Preproceso$generar_diseno()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="encuestar" data-topic="Preproceso" data-id="generar_diseno_drmnar"><a href='../../encuestar/html/Preproceso.html#method-Preproceso-generar_diseno_drmnar'><code>Preproceso$generar_diseno_drmnar()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="encuestar" data-topic="Preproceso" data-id="preparar_respuestas"><a href='../../encuestar/html/Preproceso.html#method-Preproceso-preparar_respuestas'><code>Preproceso$preparar_respuestas()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="encuestar" data-topic="Preproceso" data-id="preparar_variables_dicotomicas_drmnar"><a href='../../encuestar/html/Preproceso.html#method-Preproceso-preparar_variables_dicotomicas_drmnar'><code>Preproceso$preparar_variables_dicotomicas_drmnar()</code></a></span></li>
   <li><span class="pkg-link" data-pkg="encuestar" data-topic="Preproceso" data-id="procesar_nuevas_entradas"><a href='../../encuestar/html/Preproceso.html#method-Preproceso-procesar_nuevas_entradas'><code>Preproceso$procesar_nuevas_entradas()</code></a></span></li>
 </ul>
 </details>}}

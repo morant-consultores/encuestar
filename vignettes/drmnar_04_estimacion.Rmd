@@ -1,0 +1,94 @@
+---
+title: "DR-MNAR 4: Estimación doblemente robusta"
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
+vignette: >
+  %\VignetteIndexEntry{DR-MNAR 4: Estimación doblemente robusta}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, message=FALSE, echo=FALSE}
+library(encuestar)
+```
+<div class = "watermark">
+<img src = "./Manual-diccionario/morant.png">
+</div>
+
+## Los tres pasos del estimador (Bailey 2023 / Sun et al. 2018)
+
+1. **Propensión de respuesta MNAR (IPW):** se modela
+   $P(R=1 \mid Z, X, Y) = \text{expit}(X\beta + Z\gamma_Z + Y\gamma_Y)$
+   resolviendo ecuaciones de momento donde el instrumento aleatorizado
+   identifica $\gamma_Y$. El peso es $1/\hat\pi_i$.
+2. **Imputación:** con los respondientes se modela $P(Y=1 \mid X, Z)$ y la
+   opinión de los no respondientes se "inclina" por
+   $e^{-\gamma}$ (ecuación odds-ratio de la Sección 4 del Anexo).
+3. **Doblemente robusto:** combina ambos aplicando el peso **sobre el
+   residuo**, no sobre $Y$ crudo:
+   $$\hat{\bar Y}_{DR} = \frac{1}{N} \sum_i \left[ \frac{R_i}{\hat\pi_i}\left(Y_i - \hat Y_i^0\right) + \hat Y_i^0 \right]$$
+   Si la imputación es perfecta el residuo es 0; si falla, el IPW purga el
+   sesgo restante. Basta que **uno** de los dos modelos esté bien
+   especificado (garantía cruzada, verificada en los tests del paquete).
+
+## Adaptación al muestreo complejo de Morant
+
+* **Peso analítico** = peso base del diseño (inversa de la probabilidad de
+  selección, `weights(diseno)`) × $1/\hat\pi_i$. Cada contribución de
+  momento se pondera; con peso 1 se reproduce exactamente el estimador iid
+  de Bailey (test de replicación con IPSOS Feb-2019).
+* **UPM y estratos declarados**: la varianza usa un **sándwich agrupado
+  por UPM y centrado por estrato** — tratar los datos como muestreo
+  aleatorio simple subestimaría los errores estándar. Como $\hat\pi_i$ y
+  $\hat Y^0_i$ son estimados, el sándwich apila las ecuaciones de los tres
+  pasos para propagar su incertidumbre.
+
+## La comparación de 7 estimadores (Figura 1)
+
+```{r, eval=FALSE}
+res <- estimar_drmnar(
+  diseno = diseno,                    # svydesign del flujo (rake incluido)
+  pregunta = "conoce_cruz",
+  categoria = "Sí lo conoce",         # define y = 1 (una-vs-resto)
+  covariables = c("sexo", "rango_edad", "escolaridad_prom"),
+  instrumento = "drmnar_z"
+)
+graficar_comparacion_estimadores(res)
+```
+
+| Modelo | Qué es |
+|---|---|
+| `Observado` | Media simple de respondientes, sin pesos |
+| `Weights-MAR` | `svymean` con el diseño rakeado — **el flujo actual** |
+| `Imput-MAR`, `DR-MAR` | Imputación y DR asumiendo $\gamma = 0$ |
+| `Weights-MNAR` | IPW con $\gamma$ estimado (peso diseño × $1/\hat\pi$) |
+| `Imput-MNAR` | Imputación inclinada por $\gamma$ |
+| `DR-MNAR` | **El estimador recomendado bajo no ignorabilidad** |
+
+La distancia entre `Weights-MAR` y `DR-MNAR` es **cuánto se modifica** el
+resultado al corregir por no respuesta no ignorable.
+
+## Por subgrupos
+
+```{r, eval=FALSE}
+estimar_drmnar(
+  diseno, pregunta = "conoce_cruz", categoria = "Sí lo conoce",
+  covariables = covariables,
+  subconjunto = diseno$variables$municipio == "JUAREZ",
+  nombre_subconjunto = "Juárez"
+)
+```
+
+## Advertencias prácticas
+
+* **Preguntas condicionales** (p. ej. `voto_cruz`, que solo se pregunta a
+  quienes conocen al personaje): estima sobre el subconjunto del universo
+  del ítem para no confundir "no aplica" con "no respuesta".
+* **Pesos extremos** $1/\hat\pi$: revisa `graficar_pesos_drmnar()`; el DR
+  amortigua el problema (pondera el residuo) pero pesos >10 ameritan
+  revisar covariables.
+* **Celdas unánimes** en un subgrupo → error claro pidiendo retirar la
+  covariable (mismo tratamiento que Bailey con `Black` en submuestras).
+
+Continúa en **DR-MNAR 5: Integración con morantviz**.

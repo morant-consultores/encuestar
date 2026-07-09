@@ -43,6 +43,7 @@ Resultados <-
       Cruce = NULL,
       Especial = NULL,
       Tendencias = NULL,
+      NoRespuesta = NULL,
       tema = NULL,
       graficadas = NULL,
       #' @description Carga los insumos necesarios para producir resultados en
@@ -94,6 +95,11 @@ Resultados <-
 
         self$Tendencias <- Tendencias$new(encuesta = self$encuesta,
                                           diseno = self$diseno)
+
+        self$NoRespuesta <- NoRespuesta$new(encuesta = self$encuesta,
+                                            diseno = self$diseno,
+                                            diccionario = self$diccionario,
+                                            tema = self$tema)
 
         if(!is.null(self$encuesta)) {
 

@@ -1,0 +1,72 @@
+# CI multiplataforma del paquete encuestar.
+# Corre R CMD check (incluida la suite testthat) en macOS, Windows y
+# Ubuntu para garantizar que los cálculos DR-MNAR y el resto del paquete
+# funcionan igual en las tres plataformas del equipo.
+#
+# Workflow derivado de r-lib/actions (check-standard).
+on:
+  push:
+    branches: [main, master, dev, "feat/**"]
+  pull_request:
+
+name: R-CMD-check.yaml
+
+permissions: read-all
+
+jobs:
+  R-CMD-check:
+    runs-on: ${{ matrix.config.os }}
+
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: macos-latest,   r: 'release'}
+          - {os: windows-latest, r: 'release'}
+          - {os: ubuntu-latest,  r: 'release'}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          # CI valida el módulo DR-MNAR: R CMD check estructural + la suite
+          # testthat (que incluye todo el DR-MNAR) en las 3 plataformas.
+          # Se omiten viñetas y ejemplos porque arrastran DEUDA PREVIA al
+          # módulo, ortogonal al DR-MNAR:
+          #  - Viñetas: las 5 previas (Cruce, Descriptiva, Especiales,
+          #    Manual-diccionario, Nubes) usan tema_morant() con la API S3 de
+          #    ggplot2 3.x y rompen bajo ggplot2 4.0 (dispatch S7). El equipo
+          #    corre ggplot2 3.x en producción; las 6 viñetas drmnar_* sí
+          #    compilan con 4.0.
+          #  - Ejemplos: 32 usan el dataset `encuesta_demo`, que referencia
+          #    clases de muestreaR (no declarada como dependencia) y
+          #    tema_morant (ggplot2 3.x). analizar_cruce además tiene ejemplo
+          #    sin @export.
+          # Saldar esa deuda (migrar tema_morant a ggplot2 4.0, declarar
+          # muestreaR, exportar/ajustar ejemplos) es tarea aparte.
+          args: 'c("--no-manual", "--as-cran", "--ignore-vignettes", "--no-examples")'
+          build_args: 'c("--no-manual", "--no-build-vignettes")'
+          # el paquete arrastra WARNINGs/NOTEs previos al módulo DR-MNAR;
+          # el CI falla solo en ERRORs mientras se saldan esas deudas
+          error-on: '"error"'
