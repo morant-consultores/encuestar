@@ -1,4 +1,4 @@
-# encuestar 2.1.0 (rama feat/doubly_robust)
+# encuestar 2.1.0
 
 ## Módulo DR-MNAR: no respuesta no ignorable (Bailey 2023 + Anexo Técnico)
 
@@ -35,6 +35,10 @@
   con el caso real de Chihuahua Ene-2026 (validación contra la verdad
   completa: error del DR 0.4–0.8 pp vs 0.9–3.3 pp del rake).
 * Dependencias nuevas: BB, numDeriv (Imports); haven (Suggests).
+
+## Cartografía
+
+* Se robustece el manejo de la cartografía (`shp`) frente a geometrías válidas en el plano (GEOS) pero inválidas para el motor esférico s2 (p. ej. vértices duplicados). Se aplica `sf::st_make_valid()` antes de las disoluciones que fuerzan `sf_use_s2(T)` en `crear_shp_regiones` (mapas por región) y en la construcción del mapa base de la app de auditoría, evitando el error `Loop ... is not valid: Edge ... is degenerate (duplicate vertex)` al construir la clase `Encuesta`.
 
 # encuestar 1.0.0
 
