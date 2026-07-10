@@ -22,10 +22,10 @@
     cols <- paste0(p, seq_len(max_intentos))
     cols <- cols[cols %in% names(bd)]
     if (length(cols) > 0) {
-      return(cols)
+      return(list(cols = cols, prefijo = p))
     }
   }
-  character(0)
+  list(cols = character(0), prefijo = NA_character_)
 }
 
 .normalizar_resultado <- function(x) {
@@ -72,7 +72,8 @@ pivotar_intentos <- function(bd, id = "SbjNum", seccion = "SECCION",
       stop("No existe la columna `", col, "` en el snapshot.", call. = FALSE)
     }
   }
-  cols <- .detectar_columnas_intentos(bd, prefijo, max_intentos)
+  det <- .detectar_columnas_intentos(bd, prefijo, max_intentos)
+  cols <- det$cols
   if (length(cols) == 0) {
     stop(
       "No hay columnas de intentos en el snapshot (se buscaron INT_1..INT_",
@@ -91,7 +92,11 @@ pivotar_intentos <- function(bd, id = "SbjNum", seccion = "SECCION",
       names_to = "intento", values_to = "resultado"
     ) |>
     dplyr::mutate(
-      intento = as.integer(sub("^INT_?", "", intento))
+      # el número de intento sale del prefijo DETECTADO (no de un regex
+      # fijo: con un prefijo personalizado daría NA); substring y no sub()
+      # para no interpretar el prefijo como regex
+      intento = as.integer(substring(intento, nchar(det$prefijo) + 1L)),
+      resultado = trimws(resultado)
     ) |>
     dplyr::filter(!is.na(resultado), resultado != "") |>
     dplyr::arrange(.data[[id]], intento)
@@ -147,8 +152,15 @@ pivotar_intentos <- function(bd, id = "SbjNum", seccion = "SECCION",
 #'
 #' @return `tibble` con una fila por sección: `seccion` (caracter),
 #'   `contactos`, `efectivas` y, con detalle, una columna
-#'   `intentos_<resultado>` por cada resultado observado. Atributo
+#'   `intentos_<resultado>` por cada resultado observado (solo intentos
+#'   registrados; puede sumar menos que `contactos`). Atributo
 #'   `"fuente"`: `"detalle_intentos"` o `"intento_efectivo"`.
+#'
+#'   Garantías del contrato: `contactos >= efectivas` siempre (cada
+#'   renglón levantado cuenta al menos su propio contacto, aunque el
+#'   encuestador no haya registrado intentos), ninguna sección del
+#'   snapshot desaparece, y los renglones sin sección se excluyen con
+#'   aviso.
 #' @export
 derivar_registro_contactos <- function(bd, id = "SbjNum",
                                        seccion = "SECCION",
@@ -160,37 +172,70 @@ derivar_registro_contactos <- function(bd, id = "SbjNum",
          call. = FALSE)
   }
 
-  cols <- .detectar_columnas_intentos(bd, prefijo, max_intentos)
-  largo <- if (length(cols) > 0) {
-    suppressWarnings(
-      pivotar_intentos(bd, id = id, seccion = seccion, prefijo = prefijo,
-                       max_intentos = max_intentos, codigos = codigos)
-    )
-  } else {
-    NULL
+  # renglones sin sección: fila fantasma que nunca empata con el plan y
+  # que planear_siguiente_ola no valida — fuera, con aviso
+  sin_seccion <- is.na(bd[[seccion]])
+  if (any(sin_seccion)) {
+    warning(sum(sin_seccion), " renglón(es) sin sección quedan fuera del ",
+            "registro de contactos.", call. = FALSE)
+    bd <- bd[!sin_seccion, , drop = FALSE]
   }
 
-  efectivas <- bd |>
-    dplyr::mutate(seccion = as.character(.data[[seccion]])) |>
-    dplyr::count(seccion, name = "efectivas")
+  cols <- .detectar_columnas_intentos(bd, prefijo, max_intentos)$cols
+  largo <- NULL
+  if (length(cols) > 0) {
+    # se silencia SOLO el aviso de "columnas vacías" (aquí hay respaldo);
+    # los demás (códigos fuera de catálogo) deben llegar al usuario
+    largo <- withCallingHandlers(
+      pivotar_intentos(bd, id = id, seccion = seccion, prefijo = prefijo,
+                       max_intentos = max_intentos, codigos = codigos),
+      warning = function(w) {
+        if (grepl("vac", conditionMessage(w))) {
+          invokeRestart("muffleWarning")
+        }
+      }
+    )
+  }
 
   if (!is.null(largo) && nrow(largo) > 0) {
     # ---- fuente completa: el detalle por intento ----
-    conteos <- largo |>
-      dplyr::mutate(seccion = as.character(.data[[seccion]])) |>
-      dplyr::count(seccion, resultado)
-    registro <- conteos |>
-      dplyr::count(seccion, wt = n, name = "contactos") |>
-      dplyr::left_join(efectivas, by = "seccion") |>
-      dplyr::left_join(
-        conteos |>
-          dplyr::mutate(
-            resultado = paste0("intentos_", .normalizar_resultado(resultado))
-          ) |>
-          tidyr::pivot_wider(names_from = resultado, values_from = n,
-                             values_fill = 0),
-        by = "seccion"
+    # contactos POR RENGLÓN con piso 1: un renglón levantado implica al
+    # menos su propio contacto aunque el encuestador no haya registrado
+    # intentos (adopción gradual). Así el invariante del contrato con
+    # planear_siguiente_ola (contactos >= efectivas) se cumple siempre y
+    # ninguna sección desaparece por venir sin detalle.
+    conteo_renglon <- largo |>
+      dplyr::count(dplyr::across(dplyr::all_of(id)), name = ".n_int")
+    registro <- bd |>
+      dplyr::select(dplyr::all_of(c(id, seccion))) |>
+      dplyr::left_join(conteo_renglon, by = id) |>
+      dplyr::mutate(
+        seccion = as.character(.data[[seccion]]),
+        .n_int = pmax(dplyr::coalesce(.n_int, 0L), 1L)
+      ) |>
+      dplyr::group_by(seccion) |>
+      dplyr::summarise(
+        contactos = sum(.n_int),
+        efectivas = dplyr::n(),
+        .groups = "drop"
       )
+
+    # desglose por resultado (solo intentos registrados): normalizar ANTES
+    # de contar, para que etiquetas equivalentes ("No abrió" / "no abrio")
+    # sumen en una sola columna en vez de duplicar llaves en pivot_wider
+    desglose <- largo |>
+      dplyr::mutate(
+        seccion = as.character(.data[[seccion]]),
+        resultado = paste0("intentos_", .normalizar_resultado(resultado))
+      ) |>
+      dplyr::count(seccion, resultado) |>
+      tidyr::pivot_wider(names_from = resultado, values_from = n,
+                         values_fill = 0L)
+
+    registro <- registro |>
+      dplyr::left_join(desglose, by = "seccion") |>
+      dplyr::mutate(dplyr::across(dplyr::starts_with("intentos_"),
+                                  ~dplyr::coalesce(.x, 0L)))
     attr(registro, "fuente") <- "detalle_intentos"
     return(registro)
   }
@@ -214,8 +259,12 @@ derivar_registro_contactos <- function(bd, id = "SbjNum",
   registro <- bd |>
     dplyr::mutate(
       seccion = as.character(.data[[seccion]]),
-      # una entrevista con INT faltante existió: mínimo 1 intento
-      .int = pmax(dplyr::coalesce(.data[[col_intento_efectivo]], 1L), 1L)
+      # tolera INT como texto (exports crudos); lo no numérico o faltante
+      # cuenta como 1: la entrevista existió, hubo al menos un intento
+      .int = suppressWarnings(
+        as.integer(as.character(.data[[col_intento_efectivo]]))
+      ),
+      .int = pmax(dplyr::coalesce(.int, 1L), 1L)
     ) |>
     dplyr::group_by(seccion) |>
     dplyr::summarise(

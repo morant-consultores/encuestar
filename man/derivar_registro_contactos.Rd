@@ -38,8 +38,15 @@ intento efectivo (default \code{"INT"}).}
 \value{
 \code{tibble} con una fila por sección: \code{seccion} (caracter),
 \code{contactos}, \code{efectivas} y, con detalle, una columna
-\verb{intentos_<resultado>} por cada resultado observado. Atributo
+\verb{intentos_<resultado>} por cada resultado observado (solo intentos
+registrados; puede sumar menos que \code{contactos}). Atributo
 \code{"fuente"}: \code{"detalle_intentos"} o \code{"intento_efectivo"}.
+
+Garantías del contrato: \code{contactos >= efectivas} siempre (cada
+renglón levantado cuenta al menos su propio contacto, aunque el
+encuestador no haya registrado intentos), ninguna sección del
+snapshot desaparece, y los renglones sin sección se excluyen con
+aviso.
 }
 \description{
 Agrega los intentos de entrevista a la tabla por sección que consume
