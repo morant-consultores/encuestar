@@ -1,3 +1,16 @@
+# encuestar 2.1.1
+
+## Snapshot: conserva los registros NO efectivos y el detalle por intento
+
+- `Preproceso$preparar_respuestas()` ahora marca como `"Otro"` (no `NA`) a los
+  registros sin `finalizar` (rechazos, "No aplica", ...). Antes ese `NA` hacía
+  que `retirar_no_efectivas()` los descartara, así que **jamás llegaban al
+  snapshot** y se subestimaban los intentos de campo.
+- Además re-adjunta las columnas de detalle por intento (`INT_1..INT_15`) al
+  frame preparado para que lleguen al snapshot: son el insumo de
+  `pivotar_intentos()` / `derivar_registro_contactos()`. El diseño muestral
+  sigue usando solo efectivas vía `filtrar_efectivas()`.
+
 # encuestar 2.1.0
 
 ## Módulo DR-MNAR: no respuesta no ignorable (Bailey 2023 + Anexo Técnico)

@@ -196,16 +196,37 @@ Preproceso <-
             }
           }
 
+        # Detalle por intento (INT_1..INT_15): cada renglón acumula el
+        # resultado de cada toque de puerta. `-contains("INT")` de abajo los
+        # descarta (junto con gps/aux/etc.), así que se re-adjuntan desde el
+        # crudo para que lleguen al snapshot. Son el insumo de
+        # `pivotar_intentos()` / `derivar_registro_contactos()` (registro de
+        # contactos y tasa de respuesta por sección para la sobremuestra), que
+        # esperan leerlos DEL snapshot. `matches("^INT[0-9]+$")` toma solo las
+        # numeradas: no arrastra columnas de cuestionario tipo `internet`.
+        cols_intento <- self$bd_respuestas |>
+          select(Id, matches("^INT[0-9]+$"))
+
         self$bd_respuestas_preparadas <- self$bd_respuestas |>
           select(
             -contains(c("gps", "intentos_", "introduccion", "aux_", "INT"))
           ) |>
           left_join(bd_geo, by = "Id") |>
+          left_join(cols_intento, by = "Id") |>
           mutate(
+            # `missing = "Otro"` es imprescindible: los registros NO efectivos
+            # (rechazos, "No aplica", etc.) traen `finalizar = NA`, y sin este
+            # argumento `if_else(NA, ...)` devuelve NA. Ese NA hacía que luego
+            # `retirar_no_efectivas()` —que filtra `TipoRegistro != "Efectivo"`—
+            # los descartara (NA != "Efectivo" es NA => se caen), por lo que
+            # jamás llegaban al snapshot. Con "Otro" se conservan como no
+            # efectivas y `bind_rows(self$no_efectivas)` los reincorpora al
+            # snapshot; el diseño los sigue excluyendo vía `filtrar_efectivas()`.
             TipoRegistro = if_else(
               finalizar == "Finalizar",
               "Efectivo",
-              "Otro"
+              "Otro",
+              missing = "Otro"
             ),
             cluster = as.numeric(as.character(cluster))
           )
