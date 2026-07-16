@@ -197,19 +197,26 @@ Preproceso <-
           }
 
         # Detalle por intento (INT_1..INT_15): cada renglón acumula el
-        # resultado de cada toque de puerta. `-contains("INT")` de abajo los
-        # descarta (junto con gps/aux/etc.), así que se re-adjuntan desde el
-        # crudo para que lleguen al snapshot. Son el insumo de
+        # resultado de cada toque de puerta. El `-matches("^INT_?[0-9]+$")` de
+        # abajo los descarta (junto con gps/aux/etc.), así que se re-adjuntan
+        # desde el crudo para que lleguen al snapshot. Son el insumo de
         # `pivotar_intentos()` / `derivar_registro_contactos()` (registro de
         # contactos y tasa de respuesta por sección para la sobremuestra), que
-        # esperan leerlos DEL snapshot. `matches("^INT[0-9]+$")` toma solo las
-        # numeradas: no arrastra columnas de cuestionario tipo `internet`.
+        # esperan leerlos DEL snapshot.
+        #
+        # IMPORTANTE: el drop de las numeradas DEBE ser un `matches()` anclado,
+        # NO `contains("INT")`. `tidyselect::contains()` hace coincidencia por
+        # subcadena e `ignore.case = TRUE` por defecto, así que `"INT"` también
+        # tiraba variables de cuestionario que contienen las letras "int"
+        # (`internet`, `conoce_interurbano`, `op_interurbano`); al no re-
+        # adjuntarse quedaban 100% NULL en el snapshot.
         cols_intento <- self$bd_respuestas |>
-          select(Id, matches("^INT[0-9]+$"))
+          select(Id, matches("^INT_?[0-9]+$"))
 
         self$bd_respuestas_preparadas <- self$bd_respuestas |>
           select(
-            -contains(c("gps", "intentos_", "introduccion", "aux_", "INT"))
+            -contains(c("gps", "intentos_", "introduccion", "aux_")),
+            -matches("^INT_?[0-9]+$")
           ) |>
           left_join(bd_geo, by = "Id") |>
           left_join(cols_intento, by = "Id") |>
