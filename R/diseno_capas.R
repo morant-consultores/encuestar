@@ -95,9 +95,29 @@ construir_diseno_capas <- function(bd, plan, seccion = "SECCION",
   }
 
   # ---- Capa 2: clase de no respuesta por sección (declarada y con tope) ----
+  # f_s = min(n_plan / logradas_s, tope)
+  #
+  # SIN piso en 1. Antes había un `pmax(..., 1)` que impedía que el factor
+  # bajara de 1: cuando una sección levantaba MÁS de lo planeado el exceso no
+  # deflactaba y la sección terminaba representando tantas veces su población
+  # como veces se hubiera excedido (medido en el 309: secciones a >3x del plan
+  # decían representar 242 mil personas contra 24 mil las que iban en plan).
+  # La población de una sección es FIJA: no crece porque se toquen más puertas,
+  # así que sobre-ejecutar debe deflactar. Con este cambio el peso de una
+  # sección sobre-ejecutada es ln/(pi * logradas) y su total es INVARIANTE al
+  # número de entrevistas.
+  #
+  # El tope aplica SOLO a la inflación por sub-ejecución (factor > 1) y puede
+  # venir POR SECCIÓN si el plan trae la columna `tope_seccion`. Eso permite
+  # distinguir la sección CERRADA —agotó su presupuesto de puertas, su déficit
+  # es no respuesta real y merece el factor completo (tope Inf)— de la que
+  # sigue en campo, que está incompleta y sí conviene topar para que una
+  # sección con 1 entrevista no cargue el peso de 20.
   capas <- capas |>
     dplyr::mutate(
-      factor_clase = pmin(pmax(n_plan / logradas, 1), tope_clase),
+      .tope = if ("tope_seccion" %in% names(capas)) tope_seccion else tope_clase,
+      .tope = dplyr::coalesce(.tope, tope_clase),
+      factor_clase = pmin(n_plan / logradas, .tope),
       peso_seccion = w_seleccion * factor_clase
     )
 
