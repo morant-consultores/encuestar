@@ -180,6 +180,58 @@ graficar_pesos_drmnar <- function(pesos, umbral = 10) {
     tema_morant()
 }
 
+#' Tabla de covariables de la fusión DR-MNAR (lámina del deck diagnóstico)
+#'
+#' Dibuja como lámina el catálogo de covariables usadas en el ajuste
+#' (individuales del cuestionario y/o contextuales censales por AGEB) y
+#' anota si el vector ENRIQUECIDO (fusión multinivel) está activo o en
+#' fallback según el umbral de n. Es la lámina de portada metodológica del
+#' deck de diagnóstico de no respuesta; se movió aquí (antes vivía inline en
+#' el script `press_norespuesta` de cada proyecto) para que el deck use puras
+#' funciones del paquete.
+#'
+#' @param doc `data.frame` con una fila por covariable y columnas
+#'   `covariable`, `tipo`, `fuente`, `mide` (p. ej. el `covariables_doc` del
+#'   bundle de [generar_diseno_drmnar()]).
+#' @param n_ef Número de efectivas del corte.
+#' @param umbral n a partir del cual se activa el vector enriquecido.
+#' @param ricas Vector de covariables del esquema enriquecido (para la nota
+#'   de fallback).
+#' @return Objeto [ggplot2::ggplot].
+#' @export
+graficar_tabla_covariables <- function(doc, n_ef, umbral, ricas) {
+  n <- nrow(doc); doc$y <- if (n > 0) n:1 else numeric(0)
+  encabez <- data.frame(x = c(0.00, 0.19, 0.33, 0.55),
+                        lab = c("Covariable", "Tipo", "Fuente", "Qué ajusta / mide"))
+  activo  <- n_ef >= umbral
+  cap <- if (activo) {
+    sprintf("Vector ENRIQUECIDO activo (n = %s >= %s efectivas): fusion individual + contextual censal por AGEB.",
+            format(n_ef, big.mark = ","), format(umbral, big.mark = ","))
+  } else {
+    sprintf("Vector en FALLBACK (n = %s < %s). A partir de %s efectivas se activa la fusion: %s.",
+            format(n_ef, big.mark = ","), format(umbral, big.mark = ","),
+            format(umbral, big.mark = ","), paste(ricas, collapse = " + "))
+  }
+  ggplot() +
+    annotate("text", x = encabez$x, y = n + 1, label = encabez$lab,
+             hjust = 0, fontface = "bold", size = 5, color = COLOR_MORANT) +
+    geom_hline(yintercept = n + 0.55, color = COLOR_NEUTRO, linewidth = 0.5) +
+    geom_text(data = doc, aes(x = 0.00, y = .data$y, label = .data$covariable),
+              hjust = 0, size = 4.7, fontface = "bold", color = COLOR_NEUTRO) +
+    geom_text(data = doc, aes(x = 0.19, y = .data$y, label = .data$tipo),
+              hjust = 0, size = 4.2, color = "#555555") +
+    geom_text(data = doc, aes(x = 0.33, y = .data$y, label = .data$fuente),
+              hjust = 0, size = 4.2, color = "#555555") +
+    geom_text(data = doc, aes(x = 0.55, y = .data$y,
+              label = stringr::str_wrap(.data$mide, 38)), hjust = 0, size = 4.2, color = "#333333") +
+    scale_x_continuous(limits = c(0, 1)) +
+    scale_y_continuous(limits = c(0.4, n + 1.6)) +
+    labs(caption = stringr::str_wrap(cap, 120)) +
+    theme_void() +
+    theme(plot.caption = element_text(hjust = 0, size = 12, color = "#666666",
+                                      margin = ggplot2::margin(t = 14)))
+}
+
 # Clase R6 -----------------------------------------------------------------
 
 #' Análisis de no respuesta no ignorable (DR-MNAR)
