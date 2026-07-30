@@ -1,4 +1,17 @@
-# encuestar 2.1.0 (rama feat/doubly_robust)
+# encuestar 2.1.1
+
+## Snapshot: conserva los registros NO efectivos y el detalle por intento
+
+- `Preproceso$preparar_respuestas()` ahora marca como `"Otro"` (no `NA`) a los
+  registros sin `finalizar` (rechazos, "No aplica", ...). Antes ese `NA` hacía
+  que `retirar_no_efectivas()` los descartara, así que **jamás llegaban al
+  snapshot** y se subestimaban los intentos de campo.
+- Además re-adjunta las columnas de detalle por intento (`INT_1..INT_15`) al
+  frame preparado para que lleguen al snapshot: son el insumo de
+  `pivotar_intentos()` / `derivar_registro_contactos()`. El diseño muestral
+  sigue usando solo efectivas vía `filtrar_efectivas()`.
+
+# encuestar 2.1.0
 
 ## Módulo DR-MNAR: no respuesta no ignorable (Bailey 2023 + Anexo Técnico)
 
@@ -35,6 +48,10 @@
   con el caso real de Chihuahua Ene-2026 (validación contra la verdad
   completa: error del DR 0.4–0.8 pp vs 0.9–3.3 pp del rake).
 * Dependencias nuevas: BB, numDeriv (Imports); haven (Suggests).
+
+## Cartografía
+
+* Se robustece el manejo de la cartografía (`shp`) frente a geometrías válidas en el plano (GEOS) pero inválidas para el motor esférico s2 (p. ej. vértices duplicados). Se aplica `sf::st_make_valid()` antes de las disoluciones que fuerzan `sf_use_s2(T)` en `crear_shp_regiones` (mapas por región) y en la construcción del mapa base de la app de auditoría, evitando el error `Loop ... is not valid: Edge ... is degenerate (duplicate vertex)` al construir la clase `Encuesta`.
 
 # encuestar 1.0.0
 

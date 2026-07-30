@@ -1532,6 +1532,9 @@ Regiones <- R6::R6Class(classname = "Regiones",
                             sf_use_s2(T)
                             self$shp_regiones <-
                               self$encuesta$shp_completo$shp$SECCION %>%
+                              # Corrige geometrias validas en el plano pero invalidas para s2
+                              #  (vertices duplicados) que rompen la disolucion por region
+                              sf::st_make_valid() %>%
                               left_join(self$encuesta$muestra$muestra$poblacion$marco_muestral %>%
                                           distinct(SECCION, region), by = "SECCION") %>%
                               group_by(region) %>%

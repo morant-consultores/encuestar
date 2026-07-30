@@ -25,6 +25,9 @@ Auditoria <- R6::R6Class("Auditoria",
                              # readr::write_excel_csv(encuesta$respuestas$base, glue::glue("{dir}/data/bd.csv"))
                              sf_use_s2(T)
                              mapa_base <- encuesta$shp_completo$shp$MUNICIPIO %>%
+                               # Corrige geometrias validas en el plano pero invalidas para s2
+                               #  (vertices duplicados) que rompen la disolucion por estrato
+                               sf::st_make_valid() %>%
                                left_join(encuesta$muestra$muestra$poblacion$marco_muestral %>% distinct(MUNICIPIO,strata_1)) %>%
                                group_by(strata_1) %>% summarise(n()) %>%
                                sf::st_buffer(dist = 0)
