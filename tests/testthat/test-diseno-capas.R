@@ -114,3 +114,42 @@ test_that("deff menor que el esquema de fpc empírico puro en escenario desbalan
   w_viejo <- (10 / logradas)[match(bd$SECCION, plan_fixture()$seccion)]
   expect_lt(kish(w_v2), kish(w_viejo))
 })
+
+# ---- SOBRE-EJECUCIÓN: el factor debe DEFLACTAR (regresión) -------------------
+# Antes había un pmax(..., 1) que impedía que el factor bajara de 1: una
+# sección que levantaba de más no deflactaba y terminaba representando tantas
+# veces su población como veces se hubiera excedido.
+test_that("capa 2: sobre-ejecutar deflacta (factor < 1, sin piso en 1)", {
+  capas <- construir_diseno_capas(
+    bd = bd_fixture(logradas = c(10, 20, 50, 10)),
+    plan = plan_fixture(), seccion = "SECCION", tope_clase = 3
+  ) |> attr("capas")
+  expect_equal(capas$factor_clase[capas$seccion == "S1"], 1)     # 10/10
+  expect_equal(capas$factor_clase[capas$seccion == "S2"], 0.5)   # 10/20
+  expect_equal(capas$factor_clase[capas$seccion == "S3"], 0.2)   # 10/50
+})
+
+test_that("el peso TOTAL de una sección no depende de cuántas entrevistas hizo", {
+  # La población de una sección es fija: sobre-ejecutar no puede inflarla.
+  totales <- vapply(list(c(10, 10, 10, 10), c(10, 20, 50, 10)), function(lg) {
+    capas <- construir_diseno_capas(
+      bd = bd_fixture(logradas = lg), plan = plan_fixture(),
+      seccion = "SECCION", tope_clase = 3
+    ) |> attr("capas")
+    s3 <- capas[capas$seccion == "S3", ]
+    s3$peso_seccion * s3$logradas          # población representada por S3
+  }, numeric(1))
+  expect_equal(totales[1], totales[2], tolerance = 1e-9)
+})
+
+# ---- tope POR SECCIÓN: cerradas sin tope, en campo con tope -----------------
+test_that("tope_seccion del plan manda sobre el tope_clase global", {
+  plan <- plan_fixture()
+  plan$tope_seccion <- c(3, 3, Inf, 3)     # S3 cerrada: no respuesta real
+  capas <- construir_diseno_capas(
+    bd = bd_fixture(logradas = c(10, 5, 2, 10)),
+    plan = plan, seccion = "SECCION", tope_clase = 3
+  ) |> attr("capas")
+  expect_equal(capas$factor_clase[capas$seccion == "S2"], 2)   # 10/5, bajo tope
+  expect_equal(capas$factor_clase[capas$seccion == "S3"], 5)   # 10/2 SIN topar
+})

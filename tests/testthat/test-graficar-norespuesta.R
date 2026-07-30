@@ -87,3 +87,28 @@ test_that("la clase NoRespuesta orquesta diagnóstico, estimación y gráficas",
   desc <- nr$descriptivos()
   expect_true(all(c("indicador", "valor") %in% names(desc)))
 })
+
+test_that("graficar_tabla_covariables arma la lámina de covariables", {
+  doc <- data.frame(
+    covariable = c("sexo", "rango_edad"),
+    tipo = c("Individual", "Individual"),
+    fuente = c("Cuestionario", "Cuestionario"),
+    mide = c("Sexo (F/M)", "Edad en cortes INEGI")
+  )
+  # vector enriquecido activo (n >= umbral): la nota lo debe decir
+  g <- graficar_tabla_covariables(doc, n_ef = 2157, umbral = 1200,
+                                  ricas = c("sexo", "rango_edad", "esc_ctx"))
+  expect_s3_class(g, "ggplot")
+  expect_match(g$labels$caption, "ENRIQUECIDO")
+
+  # fallback (n < umbral): la nota anuncia el vector que se activaría
+  g2 <- graficar_tabla_covariables(doc, n_ef = 800, umbral = 1200,
+                                   ricas = c("sexo", "esc_ctx"))
+  expect_match(g2$labels$caption, "FALLBACK")
+
+  # sin covariables: no debe reventar
+  vacio <- doc[0, ]
+  expect_s3_class(
+    graficar_tabla_covariables(vacio, n_ef = 800, umbral = 1200, ricas = "sexo"),
+    "ggplot")
+})
