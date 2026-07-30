@@ -9,7 +9,8 @@ graficar_barras(
   salto = 20,
   porcentajes_fuera = F,
   desplazar_porcentajes = 0,
-  orden_respuestas = NA
+  orden_respuestas = NA,
+  text_size = 8
 )
 }
 \arguments{
@@ -24,10 +25,10 @@ graficar_barras(
 \item{orden_respuestas}{Vector ordenado tipo caracter usado para ordenar los valores del eje x}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica de barras
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica de barras
 ordenadas de acuerdo al criterio indicado.
 }
 \examples{

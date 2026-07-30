@@ -30,13 +30,13 @@ graficar_lineas(
 
 \item{text_nudge_y}{Parametro \link{nudge_y} de la funcion \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}} que modifica la posicion del texto en el grafico}
 
-\item{size_text}{Parametro \link{size} de la funcion \code{\link[ggplot2:element]{ggplot2::element_text()}} usado en el parametro \link{axis.text.x} en el tema particular del grafico}
+\item{size_text}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggplot2:element_text]{ggplot2::element_text()}} usado en el parametro \link{axis.text.x} en el tema particular del grafico}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica de lineas.
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica de lineas.
 }
 \examples{
 encuestar:::analizar_cruce(diseno = encuesta_demo$muestra$diseno, variable_principal = "region", variable_secundaria = "voto_pr_24", vartype = "cv") |> na.omit() |> dplyr::rename(var_x = region, var_y = voto_pr_24, media = coef) |> encuestar:::graficar_lineas(orden_var_x = c("Perdidas", "Competitivas", "Voto Blando", "Voto Duro"), colores_var_y = c("Claudia Sheinbaum por MORENA-PT-Partido Verde" = "#A6032F", "Xóchitl Gálvez por PAN-PRI-PRD" = "#0339a6", "No recuerda" = "gray40","No contesta" = "gray60", "Jorge Álvarez Máynez por Movimiento Ciudadano" = "#F27405", "Anulé mi voto" = "black"), limits = c(0, 0.5))

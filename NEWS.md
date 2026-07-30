@@ -1,3 +1,58 @@
+# encuestar 2.1.1
+
+## Snapshot: conserva los registros NO efectivos y el detalle por intento
+
+- `Preproceso$preparar_respuestas()` ahora marca como `"Otro"` (no `NA`) a los
+  registros sin `finalizar` (rechazos, "No aplica", ...). Antes ese `NA` hacía
+  que `retirar_no_efectivas()` los descartara, así que **jamás llegaban al
+  snapshot** y se subestimaban los intentos de campo.
+- Además re-adjunta las columnas de detalle por intento (`INT_1..INT_15`) al
+  frame preparado para que lleguen al snapshot: son el insumo de
+  `pivotar_intentos()` / `derivar_registro_contactos()`. El diseño muestral
+  sigue usando solo efectivas vía `filtrar_efectivas()`.
+
+# encuestar 2.1.0
+
+## Módulo DR-MNAR: no respuesta no ignorable (Bailey 2023 + Anexo Técnico)
+
+* Núcleo de estimación con instrumento aleatorizado (`R/drmnar_nucleo.R`):
+  IPW-MNAR (BBsolve), imputación con inclinación odds-ratio y estimador
+  doblemente robusto, generalizados a **pesos de diseño** (peso analítico =
+  peso base × 1/pi, aplicado sobre el residuo) y **varianza sándwich
+  agrupada por UPM y estrato**. Con peso 1 reproduce la réplica publicada
+  de Bailey (test contra IPSOS Feb-2019, Turnout/All).
+* `estimar_drmnar()`: comparación de 7 estimadores (Observado,
+  Weights/Imput/DR en MAR y MNAR) por pregunta y subgrupo, con
+  dicotomización una-vs-resto.
+* `diagnosticar_norespuesta()` + `resumen_decision_norespuesta()`: gamma e
+  IC por pregunta × categoría × subconjunto y la regla de decisión de la
+  Sección 5 (DR-MNAR vs Raking, mutuamente excluyentes por estimando).
+* `Preproceso$preparar_variables_dicotomicas_drmnar()` persiste en el
+  snapshot `drmnar_z`, `drmnar_tema`, `drmnar_r` (respuesta por protocolo)
+  y las dicotómicas por pregunta; `Preproceso$generar_diseno_drmnar()` /
+  `generar_diseno_drmnar()` producen el bundle con decisión automática y
+  override manual.
+* Covariables contextuales por sección: `construir_covariables_seccion()`
+  (censo INEGI 2020: escolaridad, conectividad, urbanización),
+  `calcular_margen_victoria_neto()` (bloques oficialista/opositor con
+  coaliciones) y `unir_covariables_individuo()` (normaliza llaves reales).
+* Gráficas con identidad Morant: `graficar_diagnostico_norespuesta()`
+  (caterpillar de gamma), `graficar_comparacion_estimadores()` (Figura 1),
+  `graficar_flujo_norespuesta()` (Figure 2) y `graficar_pesos_drmnar()`;
+  clase `NoRespuesta` en el hub `Resultados`.
+* Integración con morantviz: `ajustar_pesos_drmnar()` (weight-swap),
+  `exportar_resultado_morantviz()` (inyección del DR completo) y
+  `diseno_para_pregunta()` (árbol de decisión sobre el bundle).
+* Suite TDD completa (replicación de Bailey, doble robustez, subgrupos,
+  pesos dispersos, contrato del snapshot) y viñetas `drmnar_01`–`drmnar_06`
+  con el caso real de Chihuahua Ene-2026 (validación contra la verdad
+  completa: error del DR 0.4–0.8 pp vs 0.9–3.3 pp del rake).
+* Dependencias nuevas: BB, numDeriv (Imports); haven (Suggests).
+
+## Cartografía
+
+* Se robustece el manejo de la cartografía (`shp`) frente a geometrías válidas en el plano (GEOS) pero inválidas para el motor esférico s2 (p. ej. vértices duplicados). Se aplica `sf::st_make_valid()` antes de las disoluciones que fuerzan `sf_use_s2(T)` en `crear_shp_regiones` (mapas por región) y en la construcción del mapa base de la app de auditoría, evitando el error `Loop ... is not valid: Edge ... is degenerate (duplicate vertex)` al construir la clase `Encuesta`.
+
 # encuestar 1.0.0
 
 * La primer version de la paquetería agrupa en una sola clase los posibles resultados que se han implementado a lo largo de 3 años de trabajo. Contiene la version revisada de todos los metodos que ofrece.

@@ -17,7 +17,7 @@ se va a hacer el cruce}
 \item{filtro_var2}{Valores de interes de la primer variable presente en el vector}
 }
 \value{
-\code{\link[=tibble]{tibble()}} con las estimaciones de frecuencia para cada valor unico entre las variables
+\code{\link[tibble:tibble]{tibble()}} con las estimaciones de frecuencia para cada valor unico entre las variables
 }
 \description{
 Calcular datos necesarios para la funcion \code{\link[=graficar_sankey]{graficar_sankey()}}

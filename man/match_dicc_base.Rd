@@ -6,9 +6,6 @@
 \usage{
 match_dicc_base(self)
 }
-\arguments{
-\item{encuesta_qro}{}
-}
 \description{
 Title
 }

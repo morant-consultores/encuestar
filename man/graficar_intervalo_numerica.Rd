@@ -21,10 +21,10 @@ graficar_intervalo_numerica(
 \item{text_point_size}{Tamaño del texto que acompaña el valor de la estimación}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica de puntos \code{\link[ggplot2:geom_point]{ggplot2::geom_point()}}
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica de puntos \code{\link[ggplot2:geom_point]{ggplot2::geom_point()}}
 con intervalos asociados a los intervalos de confianza
 }
 \examples{

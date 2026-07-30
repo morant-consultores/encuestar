@@ -10,93 +10,94 @@ relacionada al levantamiento, respuestas y equipo que trabaja en campo. La clase
 cinco clases subordinadas: \code{Cuestionario}, \code{Respuestas}, \code{Muestra}, \code{Resultados} y \code{Auditoria}.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{muestra}}{El campo \code{muestra} contiene los resultados de ejecutar la clase \code{Muestra} de
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{muestra}}{El campo \code{muestra} contiene los resultados de ejecutar la clase \code{Muestra} de
 jerarquía menor. Dicha clase contiene el diseño muestral calculado a partir de la edad, sexo y
 geolocalización de los individuos entrevistados. Además del diseño muestral contiene métodos para
 modificar dicho diseño a partir de postestratificaciones o filtrar a través de subconjuntos de
 la muestra.}
 
-\item{\code{shp}}{El campo \code{shp} contiene la cartografía de los clusters que hayan sido seleccionados en
+    \item{\code{shp}}{El campo \code{shp} contiene la cartografía de los clusters que hayan sido seleccionados en
 el proceso de muestreo.}
 
-\item{\code{cuestionario}}{El campo \code{cuestionario} contiene los resultados de ejecutar la clase
+    \item{\code{cuestionario}}{El campo \code{cuestionario} contiene los resultados de ejecutar la clase
 \code{Cuestionario}. Dicha clase originalmente recibía el texto y las clases asociadas al cuestinoario
-en formato .docx y generaba el diccionario. Actualmente la clase recibe y asigna el \code{\link[=tibble]{tibble()}}
+en formato .docx y generaba el diccionario. Actualmente la clase recibe y asigna el \code{\link[tibble:tibble]{tibble()}}
 que contiene el diccionario y realiza unas cuantas verificaciones.}
 
-\item{\code{respuestas}}{El campo \code{respuestas} contiene los resultados de ejecutar la clase \code{Respuestas}
+    \item{\code{respuestas}}{El campo \code{respuestas} contiene los resultados de ejecutar la clase \code{Respuestas}
 de jerarquía menor. Dicha clase tiene como objetivo verificar, limpiar y estandarizar las
 respuestas recibidas de campo.}
 
-\item{\code{n_simulaciones}}{Valor entero usado para simular un \code{\link[=tibble]{tibble()}} necesario para generar
+    \item{\code{n_simulaciones}}{Valor entero usado para simular un \code{\link[tibble:tibble]{tibble()}} necesario para generar
 la clase \code{Respuestas}.}
 
-\item{\code{opinometro_id}}{Valor entero usado para generar el \code{\link[=tibble]{tibble()}} de respuestas a través
+    \item{\code{opinometro_id}}{Valor entero usado para generar el \code{\link[tibble:tibble]{tibble()}} de respuestas a través
 de la plataforma Opinómetro y que es necesario para generar la clase \code{Respuestas}.}
 
-\item{\code{pool}}{El campo \code{pool} se hereda para ser usado por la clase \code{Opinómetro}.}
+    \item{\code{pool}}{El campo \code{pool} se hereda para ser usado por la clase \code{Opinómetro}.}
 
-\item{\code{bd_categorias}}{El \code{\link[=tibble]{tibble()}} que contiene las categoriías generadas por IA se une al
-\code{\link[=tibble]{tibble()}} \code{respuestas} independientemente si el segundo es del campo \code{respuestas} o
+    \item{\code{bd_categorias}}{El \code{\link[tibble:tibble]{tibble()}} que contiene las categoriías generadas por IA se une al
+\code{\link[tibble:tibble]{tibble()}} \code{respuestas} independientemente si el segundo es del campo \code{respuestas} o
 generado por opinómetro.}
 
-\item{\code{bd_correcciones}}{El campo se hereda a la clase \code{Respuestas}.}
+    \item{\code{bd_correcciones}}{El campo se hereda a la clase \code{Respuestas}.}
 
-\item{\code{patron}}{El campo se hereda a la clase \code{Respuestas}.}
+    \item{\code{patron}}{El campo se hereda a la clase \code{Respuestas}.}
 
-\item{\code{auditoria_telefonica}}{El campo se hereda a la clase \code{Respuestas}.}
+    \item{\code{auditoria_telefonica}}{El campo se hereda a la clase \code{Respuestas}.}
 
-\item{\code{quitar_vars}}{\code{DEPRECATED} en futuro desuso.}
+    \item{\code{quitar_vars}}{\code{DEPRECATED} en futuro desuso.}
 
-\item{\code{mantener}}{El campo se hereda a la clase \code{Respuestas}.}
+    \item{\code{mantener}}{El campo se hereda a la clase \code{Respuestas}.}
 
-\item{\code{auditar}}{El campo se queda guardado en la clase \code{Encuesta} para su uso en la aplicación
+    \item{\code{auditar}}{El campo se queda guardado en la clase \code{Encuesta} para su uso en la aplicación
 de monitoreo del levantamiento.}
 
-\item{\code{vars_tendencias}}{El campo se queda guardado en la clase \code{Encuesta} para su uso en la
+    \item{\code{vars_tendencias}}{El campo se queda guardado en la clase \code{Encuesta} para su uso en la
 aplicación de monitoreo del levantamiento.}
 
-\item{\code{sin_peso}}{El campo se hereda a la clase \code{Respuestas}.}
+    \item{\code{sin_peso}}{El campo se hereda a la clase \code{Respuestas}.}
 
-\item{\code{rake}}{El campo se hereda a la clase \code{Respuestas}.}
+    \item{\code{rake}}{El campo se hereda a la clase \code{Respuestas}.}
 
-\item{\code{mantener_falta_coordenadas}}{El campo se hereda a la clase \code{Respuestas}.}
+    \item{\code{mantener_falta_coordenadas}}{El campo se hereda a la clase \code{Respuestas}.}
 
-\item{\code{tipo_encuesta}}{Por defecto se imputa que el tipo de encuesta sea \code{ine}.}
+    \item{\code{tipo_encuesta}}{Por defecto se imputa que el tipo de encuesta sea \code{ine}.}
 
-\item{\code{shp_completo}}{Extensión del campo \code{shp}. Una vez calculadas las entrevistas efectivas y
+    \item{\code{shp_completo}}{Extensión del campo \code{shp}. Una vez calculadas las entrevistas efectivas y
 asignadas las ponderaciones. Se determinan las ubicaciones puntuales donde se levantaron las
 entrevistas y se agrega al objeto \code{shp}.}
 
-\item{\code{Resultados}}{Clase subordinada. La clase \code{Resultados} contiene todos los método utilizados
+    \item{\code{Resultados}}{Clase subordinada. La clase \code{Resultados} contiene todos los método utilizados
 para generar el entregable final.}
 
-\item{\code{Auditoria}}{Clase subordinada. La clase \code{Auditoria} en su mayor parte escribe el script de
+    \item{\code{Auditoria}}{Clase subordinada. La clase \code{Auditoria} en su mayor parte escribe el script de
 la aplicación de monitorio de en un \code{folder} llamado \code{auditoria} en el \verb{working directory}.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-Encuesta-new}{\code{Encuesta$new()}}
-\item \href{#method-Encuesta-simular_surveytogo}{\code{Encuesta$simular_surveytogo()}}
-\item \href{#method-Encuesta-error_muestral_maximo}{\code{Encuesta$error_muestral_maximo()}}
-\item \href{#method-Encuesta-exportar_entregable}{\code{Encuesta$exportar_entregable()}}
-\item \href{#method-Encuesta-clone}{\code{Encuesta$clone()}}
-}
+  \itemize{
+    \item \href{#method-Encuesta-initialize}{\code{Encuesta$new()}}
+    \item \href{#method-Encuesta-simular_surveytogo}{\code{Encuesta$simular_surveytogo()}}
+    \item \href{#method-Encuesta-error_muestral_maximo}{\code{Encuesta$error_muestral_maximo()}}
+    \item \href{#method-Encuesta-exportar_entregable}{\code{Encuesta$exportar_entregable()}}
+    \item \href{#method-Encuesta-clone}{\code{Encuesta$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Encuesta-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Encuesta-new}{}}}
-\subsection{Method \code{new()}}{
-Se reciben los insumos de respuestas, auditoria y otros parámetros asociados
+\if{html}{\out{<a id="method-Encuesta-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-Encuesta-initialize}{}}}
+\subsection{\code{Encuesta$new()}}{
+  Se reciben los insumos de respuestas, auditoria y otros parámetros asociados
 al levantamiento de la encuesta para construir el diseño muestral y las clases posteriores
 para generar resultados.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Encuesta$new(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Encuesta$new(
   muestra = NA,
   shp = NA,
   cuestionario = NA,
@@ -104,175 +105,161 @@ para generar resultados.
   n_simulaciones = NA,
   opinometro_id = NA,
   pool = NA,
-  bd_categorias = NA,
-  bd_correcciones = NA,
+  bd_categorias = NULL,
+  bd_correcciones = NULL,
   patron = NA,
   auditoria_telefonica = tibble(SbjNum = c(0), razon = c("A")),
   quitar_vars = c(),
   mantener = "",
-  auditar = NA,
+  auditar = c(""),
   vars_tendencias = NA,
   sin_peso = FALSE,
   rake = TRUE,
   mantener_falta_coordenadas = FALSE,
   tipo_encuesta = "ine"
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{muestra}}{Objeto tipo \code{.rda} generado por la paquetería \code{muestrear}. Es el diseño muestral
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{muestra}}{Objeto tipo \code{.rda} generado por la paquetería \code{muestrear}. Es el diseño muestral
 de la encuesta. El dobjeto \code{muestra} es de formato personalizado por lo que no es posible
 (o práctico) sustituirlo.}
-
-\item{\code{shp}}{Objeto tipo \code{.rda} generado por la paquetería \code{muestrear}. Contiene toda la
+      \item{\code{shp}}{Objeto tipo \code{.rda} generado por la paquetería \code{muestrear}. Contiene toda la
 cartografía utilizada para el equipo de campo y que a su vez es utilizada por la aplicación
 de monitoreo del levantamiento. El objeto \code{shp} es de formato personalizado por lo que no
 es posible (o práctico) sustituirlo.}
-
-\item{\code{cuestionario}}{\code{\link[=tibble]{tibble()}} que es el diccionario del cuestionario que se aplica a los
+      \item{\code{cuestionario}}{\code{\link[tibble:tibble]{tibble()}} que es el diccionario del cuestionario que se aplica a los
 entrevistados. El parámetro \code{cuestionario}, después de una actualización, actúa como el
 diccionario (o codebbok).}
-
-\item{\code{respuestas}}{\code{\link[=tibble]{tibble()}} de respuestas obtenidas por las personas entrevistadas.}
-
-\item{\code{n_simulaciones}}{Valor entero. Con el objetivo de publicar la aplicación de monitoreio
+      \item{\code{respuestas}}{\code{\link[tibble:tibble]{tibble()}} de respuestas obtenidas por las personas entrevistadas.}
+      \item{\code{n_simulaciones}}{Valor entero. Con el objetivo de publicar la aplicación de monitoreio
 antes de inciar el levantamiento es posible simular una base de respuestas.
 \code{n_simulaciones} es el total de respuestas simuladas, es decir, es el \code{\link[=nrow]{nrow()}} que simula
 al campo \code{respuestas}. El valor recomendado es del 10\% del total de entrevistas objetivo
 de la encuesta. Es mutuamente excluyente con el campo \code{respuestas}.}
-
-\item{\code{opinometro_id}}{Valor entero. Identificador del cuestionario aplicado en campo generado
+      \item{\code{opinometro_id}}{Valor entero. Identificador del cuestionario aplicado en campo generado
 en la plataforma \code{Opinómetro}. Es necesario consultar a la persona que construyó el
 cuestionario para conocer el \code{opinometro_id} asociado. Es mutuamente excluyente con el
 campo \code{respuestas}.}
-
-\item{\code{pool}}{Objeto tipo \link{pool} generado al conectarse a la base de datos que almacena las
-respuestas. Se recomienda utilizar la función \code{\link[=dbPool]{dbPool()}} de la paquetería \link{pool} para esto.}
-
-\item{\code{bd_categorias}}{\code{\link[=tibble]{tibble()}} que contiene los resultados generados por IA a partir de las
+      \item{\code{pool}}{Objeto tipo \link[pool:pool]{pool} generado al conectarse a la base de datos que almacena las
+respuestas. Se recomienda utilizar la función \code{\link[pool:dbPool]{dbPool()}} de la paquetería \link[pool:pool]{pool} para esto.}
+      \item{\code{bd_categorias}}{\code{\link[tibble:tibble]{tibble()}} que contiene los resultados generados por IA a partir de las
 preguntas abiertas.}
-
-\item{\code{bd_correcciones}}{\code{\link[=tibble]{tibble()}} que contiene las correcciones de los registros de las encuestas
+      \item{\code{bd_correcciones}}{\code{\link[tibble:tibble]{tibble()}} que contiene las correcciones de los registros de las encuestas
 efectivas.}
-
-\item{\code{patron}}{Valor tipo caracter que indica qué cadenas de texto quitar de las posibles opciones
+      \item{\code{patron}}{Valor tipo caracter que indica qué cadenas de texto quitar de las posibles opciones
 de respuesta a las preguntas para no presentarlas en los resultados.}
-
-\item{\code{auditoria_telefonica}}{\code{\link[=tibble]{tibble()}} que contiene las entrevistas que, por auditoría telefónica,
+      \item{\code{auditoria_telefonica}}{\code{\link[tibble:tibble]{tibble()}} que contiene las entrevistas que, por auditoría telefónica,
 han sido eliminadas de los registros.}
-
-\item{\code{quitar_vars}}{\code{DEPRECATED} Vector tipo caracter que contiene las variables que se desean
+      \item{\code{quitar_vars}}{\code{DEPRECATED} Vector tipo caracter que contiene las variables que se desean
 omitir del procesamiento.}
-
-\item{\code{mantener}}{Vector tipo caracter que indica los clusters a los cuales habrá que forzar las
+      \item{\code{mantener}}{Vector tipo caracter que indica los clusters a los cuales habrá que forzar las
 entrevistas que se hayan levantado cerca de los mismos.}
-
-\item{\code{auditar}}{Vector tipo caracter que contiene las varaibles que se mostraán en la aplicación
+      \item{\code{auditar}}{Vector tipo caracter que contiene las varaibles que se mostraán en la aplicación
 de monitoreo de levantamiento en la pestala \code{Resultados}.}
-
-\item{\code{vars_tendencias}}{Vector tipo caracter que contiene las variables que se mostrarán en la
+      \item{\code{vars_tendencias}}{Vector tipo caracter que contiene las variables que se mostrarán en la
 aplicación de monitoreo de levantamiento en la sección \code{Tendencias}.}
-
-\item{\code{sin_peso}}{\code{LOGICAL} Determina si esl diseno muestral construido será ponderado o no.}
-
-\item{\code{rake}}{\code{LOGICAL} Determina si el diseno muestral será postestratificado por edad y sexo.}
-
-\item{\code{mantener_falta_coordenadas}}{\code{LOGICAL}. Determina si se descartan o no las entrevistas sin
+      \item{\code{sin_peso}}{\code{LOGICAL} Determina si esl diseno muestral construido será ponderado o no.}
+      \item{\code{rake}}{\code{LOGICAL} Determina si el diseno muestral será postestratificado por edad y sexo.}
+      \item{\code{mantener_falta_coordenadas}}{\code{LOGICAL}. Determina si se descartan o no las entrevistas sin
 geolocalización válida o nula.}
-
-\item{\code{tipo_encuesta}}{\code{DEPRECATED}. La paquetería cuenta con un modo de cálculo de diseño muestral
+      \item{\code{tipo_encuesta}}{\code{DEPRECATED}. La paquetería cuenta con un modo de cálculo de diseño muestral
 análogo al \code{INEGI}. Sin embargo, este modo ha entrado en desuso y en un futuro desaparecerá.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Encuesta-simular_surveytogo"></a>}}
 \if{latex}{\out{\hypertarget{method-Encuesta-simular_surveytogo}{}}}
-\subsection{Method \code{simular_surveytogo()}}{
-Simula una base de respuestas de campo a parti del diccionario delos insumos mínumos necesarios
+\subsection{\code{Encuesta$simular_surveytogo()}}{
+  Simula una base de respuestas de campo a parti del diccionario delos insumos mínumos necesarios
 y suficientes.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Encuesta$simular_surveytogo(cuestionario, n, diseño, shp)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Encuesta$simular_surveytogo(cuestionario, n, diseño, shp)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{cuestionario}}{Campo de la clase encuesta.}
+      \item{\code{n}}{Valor entero. Define el \code{\link[=nrow]{nrow()}} del \code{\link[tibble:tibble]{tibble()}} de respuestas simuladas.}
+      \item{\code{diseño}}{Parámetro inicial de la clase \code{Encuesta}.}
+      \item{\code{shp}}{Parámetro inicial de la clase \code{Encuesta}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{cuestionario}}{Campo de la clase encuesta.}
-
-\item{\code{n}}{Valor entero. Define el \code{\link[=nrow]{nrow()}} del \code{\link[=tibble]{tibble()}} de respuestas simuladas.}
-
-\item{\code{diseño}}{Parámetro inicial de la clase \code{Encuesta}.}
-
-\item{\code{shp}}{Parámetro inicial de la clase \code{Encuesta}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Encuesta-error_muestral_maximo"></a>}}
 \if{latex}{\out{\hypertarget{method-Encuesta-error_muestral_maximo}{}}}
-\subsection{Method \code{error_muestral_maximo()}}{
-Cálculo del error muestral de cada pregunta de opción múltiple y despliegue de resultados
+\subsection{\code{Encuesta$error_muestral_maximo()}}{
+  Cálculo del error muestral de cada pregunta de opción múltiple y despliegue de resultados
 en forma de objeto de ggplot2
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Encuesta$error_muestral_maximo(quitar_patron = NULL)}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Encuesta$error_muestral_maximo(quitar_patron = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{quitar_patron}}{Vector tipo vacater que contiene los patrones coumnes entre nombres
+de variables que se deben omitir en el cálculo.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{quitar_patron}}{Vector tipo vacater que contiene los patrones coumnes entre nombres
-de variables que se deben omitir en el cálculo.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Encuesta-exportar_entregable"></a>}}
 \if{latex}{\out{\hypertarget{method-Encuesta-exportar_entregable}{}}}
-\subsection{Method \code{exportar_entregable()}}{
-Exportar entregables al terminar cada levantamiento.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Encuesta$exportar_entregable(
+\subsection{\code{Encuesta$exportar_entregable()}}{
+  Exportar entregables al terminar cada levantamiento.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Encuesta$exportar_entregable(
   carpeta = "entregables",
   agregar = NULL,
   quitar = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{carpeta}}{Nombre de la carpeta de destino}
-
-\item{\code{agregar}}{Vector tipo caracter que contiene las variables que se entregan en la base
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{carpeta}}{Nombre de la carpeta de destino}
+      \item{\code{agregar}}{Vector tipo caracter que contiene las variables que se entregan en la base
 de datos.}
-
-\item{\code{quitar}}{Vector tipo caracter que contiene las variables que se omiten en la base
+      \item{\code{quitar}}{Vector tipo caracter que contiene las variables que se omiten en la base
 de datos.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Encuesta-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-Encuesta-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Encuesta$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{Encuesta$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Encuesta$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

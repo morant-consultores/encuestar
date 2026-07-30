@@ -8,76 +8,75 @@ La clase \code{Cruce} contiene los métodos necesarios para producir los resulta
 relacionados de crucar dos o más variables.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{encuesta}}{Clase de jerarquía superior. Se requiere para extraer el diseno de la encuesta.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{encuesta}}{Clase de jerarquía superior. Se requiere para extraer el diseno de la encuesta.}
 
-\item{\code{diseno}}{Objeto tipo \link{design} de la paquetería \link{survey} relacionado con el diseno de la
+    \item{\code{diseno}}{Objeto tipo \link{design} de la paquetería \link{survey} relacionado con el diseno de la
 encuesta.}
 
-\item{\code{diccionario}}{Diccionario de procesamiento de la encuesta.}
+    \item{\code{diccionario}}{Diccionario de procesamiento de la encuesta.}
 
-\item{\code{tema}}{Objeto tipo \link{theme} de la paquetería \link{ggplot2}}
+    \item{\code{tema}}{Objeto tipo \link[ggplot2:theme]{theme} de la paquetería \link[ggplot2:ggplot2]{ggplot2}}
 
-\item{\code{graficadas}}{Campo heredado por la clase \code{Resultados}.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{graficadas}}{Campo heredado por la clase \code{Resultados}.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-Cruce-new}{\code{Cruce$new()}}
-\item \href{#method-Cruce-bloques}{\code{Cruce$bloques()}}
-\item \href{#method-Cruce-lineas}{\code{Cruce$lineas()}}
-\item \href{#method-Cruce-lolipop_diferencias}{\code{Cruce$lolipop_diferencias()}}
-\item \href{#method-Cruce-sankey_categorica}{\code{Cruce$sankey_categorica()}}
-\item \href{#method-Cruce-tabla_votoCruzado}{\code{Cruce$tabla_votoCruzado()}}
-\item \href{#method-Cruce-clone}{\code{Cruce$clone()}}
-}
+  \itemize{
+    \item \href{#method-Cruce-initialize}{\code{Cruce$new()}}
+    \item \href{#method-Cruce-bloques}{\code{Cruce$bloques()}}
+    \item \href{#method-Cruce-lineas}{\code{Cruce$lineas()}}
+    \item \href{#method-Cruce-lolipop_diferencias}{\code{Cruce$lolipop_diferencias()}}
+    \item \href{#method-Cruce-sankey_categorica}{\code{Cruce$sankey_categorica()}}
+    \item \href{#method-Cruce-tabla_votoCruzado}{\code{Cruce$tabla_votoCruzado()}}
+    \item \href{#method-Cruce-clone}{\code{Cruce$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Cruce-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Cruce-new}{}}}
-\subsection{Method \code{new()}}{
-Define los insumos necesarios para preparar los métodos que producen los resultados
+\if{html}{\out{<a id="method-Cruce-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-Cruce-initialize}{}}}
+\subsection{\code{Cruce$new()}}{
+  Define los insumos necesarios para preparar los métodos que producen los resultados
 entre dos o más variables.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cruce$new(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cruce$new(
   encuesta = NULL,
   diseno = NULL,
   diccionario = NULL,
   tema,
   graficadas = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{encuesta}}{Clase de jerarquía superior. Es el formato de la paquetería \code{encuestar}. Contiene
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{encuesta}}{Clase de jerarquía superior. Es el formato de la paquetería \code{encuestar}. Contiene
 el diseno muestral de la encuesta.}
-
-\item{\code{diseno}}{Objeto tipo \link{design} de la paquetería \link{survey}. No se espera que los parametros
+      \item{\code{diseno}}{Objeto tipo \link{design} de la paquetería \link{survey}. No se espera que los parametros
 \code{encuesta} y \code{diseno} sean no nullos. El segundo sobreescribe el primero.}
-
-\item{\code{diccionario}}{Diccionario (o codebook) del cuestionario de la encuesta.}
-
-\item{\code{tema}}{Objeto tipo \link{theme} de la paquetería \link{ggplot2}.}
-
-\item{\code{graficadas}}{Parametro heredado de la clase \code{Resultados}.}
+      \item{\code{diccionario}}{Diccionario (o codebook) del cuestionario de la encuesta.}
+      \item{\code{tema}}{Objeto tipo \link[ggplot2:theme]{theme} de la paquetería \link[ggplot2:ggplot2]{ggplot2}.}
+      \item{\code{graficadas}}{Parametro heredado de la clase \code{Resultados}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Cruce-bloques"></a>}}
 \if{latex}{\out{\hypertarget{method-Cruce-bloques}{}}}
-\subsection{Method \code{bloques()}}{
-Calcula el cruce entre dos variables donde una de las dos es binaria. Visualiza
+\subsection{\code{Cruce$bloques()}}{
+  Calcula el cruce entre dos variables donde una de las dos es binaria. Visualiza
 los resultados usando \code{\link[treemapify:geom_treemap]{treemapify::geom_treemap()}}. El método también funciona para casos
 en que la variable principal no es binaria pero no se recomienda su uso.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cruce$bloques(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cruce$bloques(
   variable_principal,
   variable_secundaria,
   colores_variable_secundaria,
@@ -86,45 +85,40 @@ en que la variable principal no es binaria pero no se recomienda su uso.
   linea_grosor = 2,
   linea_color = "white",
   na_rm = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{variable_principal}}{Valor tipo caracter que indica la variable principal que idealmente
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{variable_principal}}{Valor tipo caracter que indica la variable principal que idealmente
 es binaria.}
-
-\item{\code{variable_secundaria}}{Valor tipo caracter que indica la variable secundaria. No se recomienda
+      \item{\code{variable_secundaria}}{Valor tipo caracter que indica la variable secundaria. No se recomienda
 varaibles tipo numérico.}
-
-\item{\code{colores_variable_secundaria}}{Vector que identifica los colores asociados a los valores
-únicos de la variable secundaria. Es el argumento \link{values} de la función \code{\link[ggplot2:scale_manual]{ggplot2::scale_fill_manual()}}.}
-
-\item{\code{filter_variable_secundaria}}{Valor tipo caracter. Operación de identidad que se aplica como filtro entre los
+      \item{\code{colores_variable_secundaria}}{Vector que identifica los colores asociados a los valores
+únicos de la variable secundaria. Es el argumento \link{values} de la función \code{\link[ggplot2:scale_fill_manual]{ggplot2::scale_fill_manual()}}.}
+      \item{\code{filter_variable_secundaria}}{Valor tipo caracter. Operación de identidad que se aplica como filtro entre los
 resultados de la variable secundaria.}
-
-\item{\code{vartype}}{Parametro de \code{\link[srvyr:survey_mean]{srvyr::survey_mean()}} que reporta la variabilidad de la estimacion}
-
-\item{\code{linea_grosor}}{Valor tipo entero. Determina el grosor de la linea que divide a los
+      \item{\code{vartype}}{Parametro de \code{\link[srvyr:survey_mean]{srvyr::survey_mean()}} que reporta la variabilidad de la estimacion}
+      \item{\code{linea_grosor}}{Valor tipo entero. Determina el grosor de la linea que divide a los
 'subbloques' dentro de cada grupo.}
-
-\item{\code{linea_color}}{Valor tipo caracter. Color en formato \code{HEX}. Es el color de la linea que
+      \item{\code{linea_color}}{Valor tipo caracter. Color en formato \code{HEX}. Es el color de la linea que
 separa a los 'subbloques'}
+      \item{\code{na_rm}}{\code{LOGICAL}. En el cálculo de estimaciones, se omiten los valores nulos.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{na_rm}}{\code{LOGICAL}. En el cálculo de estimaciones, se omiten los valores nulos.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Cruce-lineas"></a>}}
 \if{latex}{\out{\hypertarget{method-Cruce-lineas}{}}}
-\subsection{Method \code{lineas()}}{
-Calcula el cruce entre dos variables no necesariamente binarias y muestra el
-resultado usando \code{\link[ggplot2:geom_path]{ggplot2::geom_line()}} para cada valor de la variable secundaria.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cruce$lineas(
+\subsection{\code{Cruce$lineas()}}{
+  Calcula el cruce entre dos variables no necesariamente binarias y muestra el
+resultado usando \code{\link[ggplot2:geom_line]{ggplot2::geom_line()}} para cada valor de la variable secundaria.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cruce$lineas(
   variable_principal,
   variable_secundaria,
   orden_variable_principal,
@@ -139,63 +133,52 @@ resultado usando \code{\link[ggplot2:geom_path]{ggplot2::geom_line()}} para cada
   size_text_y = 14,
   size_text_legend = 14,
   na_rm = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{variable_principal}}{Valor tipo caracter que indica la variable principal. Las categorías
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{variable_principal}}{Valor tipo caracter que indica la variable principal. Las categorías
 se muestran en el eje x.}
-
-\item{\code{variable_secundaria}}{Valor tipo caracter que indica la variable secundaria.}
-
-\item{\code{orden_variable_principal}}{Vector tipo caracter. Contiene los valores únicos de la
+      \item{\code{variable_secundaria}}{Valor tipo caracter que indica la variable secundaria.}
+      \item{\code{orden_variable_principal}}{Vector tipo caracter. Contiene los valores únicos de la
 variable principal en forma ordenada.}
-
-\item{\code{valores_variable_secundaria}}{Vector tipo caracter  que contiene los valores de interés
+      \item{\code{valores_variable_secundaria}}{Vector tipo caracter  que contiene los valores de interés
 de la variable secundaria.}
-
-\item{\code{colores_variable_secundaria}}{Vector que identifica los colores asociados a los valores
-únicos de la variable secundaria. Es el argumento \link{values} de la función \code{\link[ggplot2:scale_manual]{ggplot2::scale_fill_manual()}}.}
-
-\item{\code{limits}}{Dupla tipo numérica. Son los posibles valores mínimos y máximos posibles asociados
+      \item{\code{colores_variable_secundaria}}{Vector que identifica los colores asociados a los valores
+únicos de la variable secundaria. Es el argumento \link{values} de la función \code{\link[ggplot2:scale_fill_manual]{ggplot2::scale_fill_manual()}}.}
+      \item{\code{limits}}{Dupla tipo numérica. Son los posibles valores mínimos y máximos posibles asociados
 a la pregunta que representa la variable.}
-
-\item{\code{wrap_x}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
-Aplica la función \code{\link[=str_wrap]{str_wrap()}} de la paquetería \link{stringr} a las labels del eje x.}
-
-\item{\code{wrap_legend}}{Valor tipo entero. Reduce o aumenta la longitud de las \code{legends} del gráfico}
-
-\item{\code{text_nudge_y}}{Valor real. Parámetro \link{nudge_y} de la función \link{geom_text} aplicado a la
+      \item{\code{wrap_x}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
+Aplica la función \code{\link[stringr:str_wrap]{str_wrap()}} de la paquetería \link[stringr:stringr]{stringr} a las labels del eje x.}
+      \item{\code{wrap_legend}}{Valor tipo entero. Reduce o aumenta la longitud de las \code{legends} del gráfico}
+      \item{\code{text_nudge_y}}{Valor real. Parámetro \link{nudge_y} de la función \link[ggplot2:geom_text]{geom_text} aplicado a la
 función \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}.}
-
-\item{\code{size_text}}{Valor entero. Determina el tamano del dentro del gráfico. Es el parámetro
-\link{size} de la función \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}.}
-
-\item{\code{size_text_x}}{Valor entero. Determina el tamano del dentro del eje x. Es el parámetro
-\link{size} de la función \code{\link[ggplot2:element]{ggplot2::element_text()}} aplicado a \link{axis.text.x}}
-
-\item{\code{size_text_y}}{Valor entero. Determina el tamano del dentro del eje y. Es el parámetro
-\link{size} de la función \code{\link[ggplot2:element]{ggplot2::element_text()}} aplicado a \link{axis.text.y}}
-
-\item{\code{size_text_legend}}{Valor entero. Determina el tamano del dentro de las legends Es el parámetro
-\link{size} de la función \code{\link[ggplot2:element]{ggplot2::element_text()}} aplicado a \link{axis.text.legend}}
-
-\item{\code{na_rm}}{\code{LOGICAL}. En el cálculo de estimaciones, se omiten los valores nulos.}
+      \item{\code{size_text}}{Valor entero. Determina el tamano del dentro del gráfico. Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}.}
+      \item{\code{size_text_x}}{Valor entero. Determina el tamano del dentro del eje x. Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:element_text]{ggplot2::element_text()}} aplicado a \link{axis.text.x}}
+      \item{\code{size_text_y}}{Valor entero. Determina el tamano del dentro del eje y. Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:element_text]{ggplot2::element_text()}} aplicado a \link{axis.text.y}}
+      \item{\code{size_text_legend}}{Valor entero. Determina el tamano del dentro de las legends Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:element_text]{ggplot2::element_text()}} aplicado a \link{axis.text.legend}}
+      \item{\code{na_rm}}{\code{LOGICAL}. En el cálculo de estimaciones, se omiten los valores nulos.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Cruce-lolipop_diferencias"></a>}}
 \if{latex}{\out{\hypertarget{method-Cruce-lolipop_diferencias}{}}}
-\subsection{Method \code{lolipop_diferencias()}}{
-Calcula el cruce entre dos variables categoricas donde la primera o principal
+\subsection{\code{Cruce$lolipop_diferencias()}}{
+  Calcula el cruce entre dos variables categoricas donde la primera o principal
 es binaria, filtra los valores de interés de la segunda variable y muestra las diferencias
 relativas a la primera en una gráfica tipo lolipop.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cruce$lolipop_diferencias(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cruce$lolipop_diferencias(
   variable_principal,
   variables_secundarias,
   filtro_variables_secundarias,
@@ -213,113 +196,104 @@ relativas a la primera en una gráfica tipo lolipop.
   size_text_y = 16,
   size_text_caption = 16,
   size_text_legend = 16,
-  ver_diferencias = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{variable_principal}}{Valor tipo caracter que indica la variable principal. Las categorías
+  ver_diferencias = TRUE,
+  traslape = F,
+  limite_dif_pct = 0.02,
+  ajuste_pos = 0.02
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{variable_principal}}{Valor tipo caracter que indica la variable principal. Las categorías
 se muestran en el eje y.}
-
-\item{\code{variables_secundarias}}{Valor tipo caracter que indica las variables secundarias.}
-
-\item{\code{filtro_variables_secundarias}}{Valor tipo caracter. Valor en común entre las variables
+      \item{\code{variables_secundarias}}{Valor tipo caracter que indica las variables secundarias.}
+      \item{\code{filtro_variables_secundarias}}{Valor tipo caracter. Valor en común entre las variables
 secundarias y que es de interés para mostrar resultados.}
-
-\item{\code{orden_variablePrincipal}}{Vector tipo caracter. Contiene los valores únicos de la
+      \item{\code{orden_variablePrincipal}}{Vector tipo caracter. Contiene los valores únicos de la
 variable principal en forma ordenada.}
-
-\item{\code{colores_variables_secundarias}}{Vector que identifica los colores asociados a los valores
-únicos de las variables secundaria. Es el argumento \link{values} de la función \code{\link[ggplot2:scale_manual]{ggplot2::scale_fill_manual()}}.}
-
-\item{\code{caption}}{Valor tipo caracter. Es el \link{caption} del gráfico.}
-
-\item{\code{nudge_x}}{Valor real. Parámetro \link{nudge_x} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
-
-\item{\code{size_geom_text}}{Valor entero. Determina el tamano del dentro del gráfico. Es el parámetro
-\link{size} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
-
-\item{\code{invertir_variables}}{\code{LOGICAL}. Determina si las variables principal y secundarias se
+      \item{\code{colores_variables_secundarias}}{Vector que identifica los colores asociados a los valores
+únicos de las variables secundaria. Es el argumento \link{values} de la función \code{\link[ggplot2:scale_fill_manual]{ggplot2::scale_fill_manual()}}.}
+      \item{\code{caption}}{Valor tipo caracter. Es el \link{caption} del gráfico.}
+      \item{\code{nudge_x}}{Valor real. Parámetro \link{nudge_x} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
+      \item{\code{size_geom_text}}{Valor entero. Determina el tamano del dentro del gráfico. Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
+      \item{\code{invertir_variables}}{\code{LOGICAL}. Determina si las variables principal y secundarias se
 invierten en el gráfico.}
-
-\item{\code{vartype}}{Parametro de \code{\link[srvyr:survey_mean]{srvyr::survey_mean()}} que reporta la variabilidad de la estimacion}
-
-\item{\code{limits}}{Dupla tipo numérica. Son los posibles valores mínimos y máximos posibles asociados
+      \item{\code{vartype}}{Parametro de \code{\link[srvyr:survey_mean]{srvyr::survey_mean()}} que reporta la variabilidad de la estimacion}
+      \item{\code{limits}}{Dupla tipo numérica. Son los posibles valores mínimos y máximos posibles asociados
 a la pregunta que representa la variable.}
-
-\item{\code{wrap_y}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje y.
-Aplica la función \code{\link[=str_wrap]{str_wrap()}} de la paquetería \link{stringr} a las labels del eje y.}
-
-\item{\code{wrap_caption}}{Valor tipo entero. Reduce o aumenta la longitud del texto mostrado en
+      \item{\code{wrap_y}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje y.
+Aplica la función \code{\link[stringr:str_wrap]{str_wrap()}} de la paquetería \link[stringr:stringr]{stringr} a las labels del eje y.}
+      \item{\code{wrap_caption}}{Valor tipo entero. Reduce o aumenta la longitud del texto mostrado en
 el caption.}
-
-\item{\code{size_text_x}}{Valor entero. Determina el tamano del dentro del eje x. Es el parámetro
-\link{size} de la función \code{\link[ggplot2:element]{ggplot2::element_text()}} aplicado a \link{axis.text.x}}
-
-\item{\code{size_text_y}}{Valor entero. Determina el tamano del dentro del eje y. Es el parámetro
-\link{size} de la función \code{\link[ggplot2:element]{ggplot2::element_text()}} aplicado a \link{axis.text.y}}
-
-\item{\code{size_text_caption}}{Valor entero. Determina el tamano del dentro de las legends Es el parámetro
-\link{size} de la función \code{\link[ggplot2:element]{ggplot2::element_text()}} aplicado a \link{axis.text.caption}}
-
-\item{\code{size_text_legend}}{Valor entero. Determina el tamano del dentro de las legends Es el parámetro
-\link{size} de la función \code{\link[ggplot2:element]{ggplot2::element_text()}} aplicado a \link{axis.text.legend}}
-
-\item{\code{ver_diferencias}}{\code{LOGICAL}. Determina si se muestran las diferencias en puntos porcentuales
+      \item{\code{size_text_x}}{Valor entero. Determina el tamano del dentro del eje x. Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:element_text]{ggplot2::element_text()}} aplicado a \link{axis.text.x}}
+      \item{\code{size_text_y}}{Valor entero. Determina el tamano del dentro del eje y. Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:element_text]{ggplot2::element_text()}} aplicado a \link{axis.text.y}}
+      \item{\code{size_text_caption}}{Valor entero. Determina el tamano del dentro de las legends Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:element_text]{ggplot2::element_text()}} aplicado a \link{axis.text.caption}}
+      \item{\code{size_text_legend}}{Valor entero. Determina el tamano del dentro de las legends Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:element_text]{ggplot2::element_text()}} aplicado a \link{axis.text.legend}}
+      \item{\code{ver_diferencias}}{\code{LOGICAL}. Determina si se muestran las diferencias en puntos porcentuales
 dentro del gráfico.}
+      \item{\code{traslape}}{Valor bopoleano. En caso de ser TRUE, realiza un factor de ajuste para los porcentajes presentados por \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.
+Solo afecta a los valores cuya diferencia máxima y mínima se menor que el factor de tolerancia \link{limite_dif_pct}.  Por defecto tiene valor FALSE.}
+      \item{\code{limite_dif_pct}}{Valor de tipo decimal. Es el factor o nivel de tolerencia para la diferencia entre dos puntos
+que al graficar sus porcentajes tienen un nivel de traslape. Solo se efectua si \link{traslape} es TRUE. Por defecto su valor es 0.02.}
+      \item{\code{ajuste_pos}}{Valor de tipo decimal. Es el factor de ajuste de posición que los porcentajes
+graficados tomarán en caso de traslaparse. El porcentaje menor se despalzará la izquierda, y el mayor a la derecha. Solo se efectua si \link{traslape} es TRUE. Por defecto su valor es 0.02.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Cruce-sankey_categorica"></a>}}
 \if{latex}{\out{\hypertarget{method-Cruce-sankey_categorica}{}}}
-\subsection{Method \code{sankey_categorica()}}{
-Muestra las proporciones de individuos correspondientes a valores unicos entre
+\subsection{\code{Cruce$sankey_categorica()}}{
+  Muestra las proporciones de individuos correspondientes a valores unicos entre
 dos variables en una gráfica tipo \code{sankey}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cruce$sankey_categorica(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cruce$sankey_categorica(
   variables = NULL,
   colores,
   size_text_cat = 6,
   width_text = 15,
   omitir_valores_variable1 = NULL,
   omitir_valores_variable2 = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{variables}}{Vector tipo caracter que contiene las dos variables a visualizar.}
-
-\item{\code{colores}}{Vector que identifica los colores asociados a los valores únicos de las variables
-Es el argumento \link{values} de la función \code{\link[ggplot2:scale_manual]{ggplot2::scale_fill_manual()}} y \code{\link[ggplot2:scale_manual]{ggplot2::scale_color_manual()}}}
-
-\item{\code{size_text_cat}}{Parametro \link{size} de la funcion \code{\link[ggsankey:geom_sankey_label]{ggsankey::geom_sankey_text()}} que determina
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{variables}}{Vector tipo caracter que contiene las dos variables a visualizar.}
+      \item{\code{colores}}{Vector que identifica los colores asociados a los valores únicos de las variables
+Es el argumento \link{values} de la función \code{\link[ggplot2:scale_fill_manual]{ggplot2::scale_fill_manual()}} y \code{\link[ggplot2:scale_color_manual]{ggplot2::scale_color_manual()}}}
+      \item{\code{size_text_cat}}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggsankey:geom_sankey_text]{ggsankey::geom_sankey_text()}} que determina
 el tamano del texto de las etiquetas en cada nodo del gráfico.}
-
-\item{\code{width_text}}{Valor tipo entero. Reduce o aumenta la longitud del texto mostrado en las etiquetas}
-
-\item{\code{omitir_valores_variable1}}{Vector tipo caracter. Valores únicos de la primer variable
+      \item{\code{width_text}}{Valor tipo entero. Reduce o aumenta la longitud del texto mostrado en las etiquetas}
+      \item{\code{omitir_valores_variable1}}{Vector tipo caracter. Valores únicos de la primer variable
 que se omiten de los resultados.}
-
-\item{\code{omitir_valores_variable2}}{Vector tipo caracter. Valores únicos de la segunda variable
+      \item{\code{omitir_valores_variable2}}{Vector tipo caracter. Valores únicos de la segunda variable
 que se omiten de los resultados.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Cruce-tabla_votoCruzado"></a>}}
 \if{latex}{\out{\hypertarget{method-Cruce-tabla_votoCruzado}{}}}
-\subsection{Method \code{tabla_votoCruzado()}}{
-Muestra las proporciones de individuos correspondientes a valores unicos entre
+\subsection{\code{Cruce$tabla_votoCruzado()}}{
+  Muestra las proporciones de individuos correspondientes a valores unicos entre
 dos variables en una tabla renderizada mediante la paquetería \link{flextable}.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cruce$tabla_votoCruzado(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cruce$tabla_votoCruzado(
   var1,
   var2,
   filtro_var2 = NULL,
@@ -330,57 +304,51 @@ dos variables en una tabla renderizada mediante la paquetería \link{flextable}.
   size_text_body = 14,
   salto = 20,
   na_rm = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{var1}}{Valor tipo caracter. Es el nombre de la variable principal del cruce.}
-
-\item{\code{var2}}{Valor tipo caracter. Nombre de la variable secundaria del cruce.}
-
-\item{\code{filtro_var2}}{Vector tiopo caracter. Son los valores únicos de la segunda variable que
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{var1}}{Valor tipo caracter. Es el nombre de la variable principal del cruce.}
+      \item{\code{var2}}{Valor tipo caracter. Nombre de la variable secundaria del cruce.}
+      \item{\code{filtro_var2}}{Vector tiopo caracter. Son los valores únicos de la segunda variable que
 se omiten de los resultados.}
-
-\item{\code{etiquetas}}{Dupla ordenada tipo caracter. Nombres de las variables para mostrar en el
+      \item{\code{etiquetas}}{Dupla ordenada tipo caracter. Nombres de las variables para mostrar en el
 resultado final.}
-
-\item{\code{colores_var1}}{Vector que identifica los colores asociados a los valores únicos de la
+      \item{\code{colores_var1}}{Vector que identifica los colores asociados a los valores únicos de la
 primer variable.}
-
-\item{\code{colores_var2}}{Vector que identifica los colores asociados a los valores únicos de la
+      \item{\code{colores_var2}}{Vector que identifica los colores asociados a los valores únicos de la
 segunda variable.}
-
-\item{\code{size_text_header}}{Valor tipo entero. Determina el tamano del texto en el encabezado
+      \item{\code{size_text_header}}{Valor tipo entero. Determina el tamano del texto en el encabezado
 de la tabla.}
-
-\item{\code{size_text_body}}{Valor tipo entero. Determina el tamano del texto en el cuerpo de la
+      \item{\code{size_text_body}}{Valor tipo entero. Determina el tamano del texto en el cuerpo de la
 tabla.}
-
-\item{\code{salto}}{Valor tipo entero. Reduce o aumenta la longitud del texto mostrado en
+      \item{\code{salto}}{Valor tipo entero. Reduce o aumenta la longitud del texto mostrado en
 el caption.}
+      \item{\code{na_rm}}{\code{LOGICAL}. En el cálculo de estimaciones, se omiten los valores nulos.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{na_rm}}{\code{LOGICAL}. En el cálculo de estimaciones, se omiten los valores nulos.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Cruce-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-Cruce-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Cruce$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{Cruce$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Cruce$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

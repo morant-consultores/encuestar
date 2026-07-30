@@ -15,8 +15,8 @@ pool = pool::dbPool(
     Driver= 'ODBC Driver 17 for SQL Server',
     Database = "SVNET",
     Server = "tcp:morant.database.windows.net",
-    UID = "emorones",
-    PWD = "Mor@nt2024",
+    UID = Sys.getenv("pool_uid"),
+    PWD = Sys.getenv("pool_pwd"),
     Port = 1433,
     timeout = 120)
 

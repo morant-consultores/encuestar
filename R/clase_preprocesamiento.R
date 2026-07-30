@@ -70,6 +70,7 @@ Preproceso <-
       diseño_muestral = NULL,
       sbj_eliminadas_auditoria = NULL,
       sbj_eliminadas_regla = NULL,
+      marcas_eliminacion = NULL,
       #' @description Se reciben los insumos de respuestas, auditoria y otros parámetros asociados
       #'  al levantamiento de la encuesta para construir el diseño muestral y las clases posteriores
       #'  para generar resultados.
@@ -115,6 +116,7 @@ Preproceso <-
         mantener = "",
         auditoria_telefonica = NULL,
         bd_eliminadas_regla = NULL,
+        bd_eliminadas_reglas = NULL,
         shp = NULL,
         tipo_encuesta = NULL,
         patron = NULL
@@ -130,28 +132,37 @@ Preproceso <-
         self$shp <- shp
         self$tipo_encuesta <- tipo_encuesta
         self$patron <- patron
+        self$bd_categorias <- bd_categorias
 
-        un <- self$muestra_diseno$niveles %>%
-          filter(nivel == self$muestra_diseno$ultimo_nivel)
-        nivel <- un |>
-          unite(nivel, tipo, nivel) |>
-          pull(nivel)
-        var_n <- un |> pull(variable)
+        # Backward compat: accept the old plural parameter name
+        if (!is.null(bd_eliminadas_reglas) && is.null(self$bd_eliminadas_regla)) {
+          warning("El parámetro 'bd_eliminadas_reglas' está obsoleto; usa 'bd_eliminadas_regla' (singular).")
+          self$bd_eliminadas_regla <- bd_eliminadas_reglas
+        }
 
-        self$shp_completo <- shp
+        if (!is.null(muestra) && !is.null(shp)) {
+          un <- self$muestra_diseno$niveles %>%
+            filter(nivel == self$muestra_diseno$ultimo_nivel)
+          nivel <- un |>
+            unite(nivel, tipo, nivel) |>
+            pull(nivel)
+          var_n <- un |> pull(variable)
 
-        self$shp <-
-          shp$shp %>%
-          purrr::pluck(var_n) %>%
-          inner_join(
-            muestra$muestra %>%
-              purrr::pluck(var_n) %>%
-              unnest(data) %>%
-              distinct(
-                !!rlang::sym(var_n) := !!rlang::sym(var_n),
-                !!rlang::sym(nivel)
-              )
-          )
+          self$shp_completo <- shp
+
+          self$shp <-
+            shp$shp %>%
+            purrr::pluck(var_n) %>%
+            inner_join(
+              muestra$muestra %>%
+                purrr::pluck(var_n) %>%
+                unnest(data) %>%
+                distinct(
+                  !!rlang::sym(var_n) := !!rlang::sym(var_n),
+                  !!rlang::sym(nivel)
+                )
+            )
+        }
         self$mantener <- mantener
 
         message("Objeto Preproceso inicializado.")
@@ -176,23 +187,53 @@ Preproceso <-
                 group_by(Id) |>
                 mutate(INT = row_number()) |>
                 ungroup() |>
-                filter(INT == max(INT), .by = Id)
+                filter(INT == max(INT), .by = Id) |>
+                select(Id, gps)
+            } else if ("gps" %in% names(.)) {
+              select(., Id, gps)
             } else {
-              .
+              tibble(Id = integer(0), gps = character(0))
             }
-          } |>
-          select(Id, gps)
+          }
+
+        # Detalle por intento (INT_1..INT_15): cada renglón acumula el
+        # resultado de cada toque de puerta. El `-matches("^INT_?[0-9]+$")` de
+        # abajo los descarta (junto con gps/aux/etc.), así que se re-adjuntan
+        # desde el crudo para que lleguen al snapshot. Son el insumo de
+        # `pivotar_intentos()` / `derivar_registro_contactos()` (registro de
+        # contactos y tasa de respuesta por sección para la sobremuestra), que
+        # esperan leerlos DEL snapshot.
+        #
+        # IMPORTANTE: el drop de las numeradas DEBE ser un `matches()` anclado,
+        # NO `contains("INT")`. `tidyselect::contains()` hace coincidencia por
+        # subcadena e `ignore.case = TRUE` por defecto, así que `"INT"` también
+        # tiraba variables de cuestionario que contienen las letras "int"
+        # (`internet`, `conoce_interurbano`, `op_interurbano`); al no re-
+        # adjuntarse quedaban 100% NULL en el snapshot.
+        cols_intento <- self$bd_respuestas |>
+          select(Id, matches("^INT_?[0-9]+$"))
 
         self$bd_respuestas_preparadas <- self$bd_respuestas |>
           select(
-            -contains(c("gps", "intentos_", "introduccion", "aux_", "INT"))
+            -contains(c("gps", "intentos_", "introduccion", "aux_")),
+            -matches("^INT_?[0-9]+$")
           ) |>
           left_join(bd_geo, by = "Id") |>
+          left_join(cols_intento, by = "Id") |>
           mutate(
+            # `missing = "Otro"` es imprescindible: los registros NO efectivos
+            # (rechazos, "No aplica", etc.) traen `finalizar = NA`, y sin este
+            # argumento `if_else(NA, ...)` devuelve NA. Ese NA hacía que luego
+            # `retirar_no_efectivas()` —que filtra `TipoRegistro != "Efectivo"`—
+            # los descartara (NA != "Efectivo" es NA => se caen), por lo que
+            # jamás llegaban al snapshot. Con "Otro" se conservan como no
+            # efectivas y `bind_rows(self$no_efectivas)` los reincorpora al
+            # snapshot; el diseño los sigue excluyendo vía `filtrar_efectivas()`.
             TipoRegistro = if_else(
               finalizar == "Finalizar",
               "Efectivo",
-              "Otro"
+              "Otro",
+              missing = "Otro"
             ),
             cluster = as.numeric(as.character(cluster))
           )
@@ -208,6 +249,19 @@ Preproceso <-
         # --- VALIDACIÓN INICIAL ---
         if (is.null(self$bd_respuestas_preparadas)) {
           stop("Primero debes ejecutar $preparar_respuestas().")
+        }
+
+        # --- Guard: snapshot_original debe ser un tibble en memoria ---
+        # Un tbl lazy hace que nrow() devuelva NA, lo que silenciosamente
+        # deshabilita el anti_join y trata todos los registros como nuevos,
+        # causando duplicados en el snapshot.
+        if (!is.null(self$snapshot_original) &&
+            inherits(self$snapshot_original, "tbl_lazy")) {
+          message(
+            "snapshot_original es una referencia lazy a la BD; ",
+            "ejecutando collect() antes del anti_join..."
+          )
+          self$snapshot_original <- dplyr::collect(self$snapshot_original)
         }
 
         # --- Reset de vectores (evita arrastre entre corridas) ---
@@ -244,6 +298,19 @@ Preproceso <-
           dplyr::pull(Id) |>
           unique()
 
+        # Estado completo (0 y 1) de cada registro evaluado en esta corrida.
+        # actualizar_bd() lo usa para sincronizar el snapshot en ambas
+        # direcciones: al borrar una regla o corregir una auditoría, los
+        # registros afectados se restauran en la siguiente actualización.
+        self$marcas_eliminacion <- marcadas_todas |>
+          dplyr::group_by(Id) |>
+          dplyr::summarize(
+            eliminada_auditoria = as.integer(max(eliminada_auditoria, na.rm = TRUE)),
+            eliminada_regla     = as.integer(max(eliminada_regla,     na.rm = TRUE)),
+            .groups = "drop"
+          ) |>
+          dplyr::rename(SbjNum = Id)
+
         # ============================================================
         # 3) Si no hay nuevos registros, no procesar pesado,
         #    pero sí permitir que actualizar_bd() haga UPDATE de eliminadas
@@ -261,12 +328,18 @@ Preproceso <-
         # ============================================================
         # 4) Procesar SOLO NUEVOS (flujo original preservado)
         # ============================================================
-        respuestas_con_marcas <- private$marcar_eliminadas_auditoria(
-          respuestas_nuevas
-        )
-        respuestas_con_marcas <- private$marcar_eliminadas_por_regla(
-          respuestas_con_marcas
-        )
+        # Los IDs eliminados ya fueron calculados globalmente en el paso 2.
+        # Reutilizamos esos vectores con un simple %in% en lugar de volver a
+        # ejecutar la detección completa (O(n×r) bucles para reglas de fecha).
+        respuestas_con_marcas <- respuestas_nuevas |>
+          dplyr::mutate(
+            eliminada_auditoria = dplyr::if_else(
+              Id %in% self$sbj_eliminadas_auditoria, 1L, 0L
+            ),
+            eliminada_regla = dplyr::if_else(
+              Id %in% self$sbj_eliminadas_regla, 1L, 0L
+            )
+          )
 
         message(glue::glue(
           "Se procesarán {nrow(respuestas_con_marcas)} nuevos registros."
@@ -290,11 +363,26 @@ Preproceso <-
         var_n <- un |> dplyr::pull(variable)
 
         # 4.3) Aplicar transformaciones complejas
+        catalogo_para_respuestas <- catalogo_variables |>
+          dplyr::bind_rows(
+            self$cuestionario$diccionario |>
+              dplyr::select(variable = llaves) |>
+              dplyr::mutate(
+                plataforma   = "cuestionario",
+                primer_nivel = "cuestionario",
+                segundo_nivel = dplyr::if_else(
+                  variable %in% c("cluster", "edad", "sexo"),
+                  "sistema",
+                  "cuestionario"
+                )
+              )
+          )
+
         self$Respuestas_proc <- Respuestas_proc$new(
           base = opinometro$bd_respuestas_cuestionario |>
             dplyr::mutate(cluster_0 = SbjNum),
           Preproceso = self,
-          catalogo = self$catalogo,
+          catalogo = catalogo_para_respuestas,
           muestra_completa = self$muestra_diseno,
           nivel = nivel,
           var_n = var_n
@@ -322,17 +410,43 @@ Preproceso <-
       actualizar_bd = function() {
         message("Iniciando la persistencia de cambios en la base de datos...")
 
-        # --- Orquestación de métodos privados ---
-        # El orden es importante para asegurar la integridad de los datos.
+        # Validar opinometro_id antes de construir nombres de tabla con él.
+        # Un ID no-entero generaría un nombre de tabla inválido que corrompería
+        # todas las queries de esta sesión.
+        private$validar_opinometro_id()
 
-        # 1. Añadir todas las nuevas entrevistas a la tabla.
-        private$agregar_nuevos_registros()
+        # --- Bloque 1 (atómico): insertar nuevos registros + corregir clusters ---
+        # Ambas operaciones sólo afectan registros nuevos. Si cualquiera falla
+        # se hace rollback de ambas; el snapshot queda idéntico al estado previo.
+        error_registros <- NULL
+        con <- pool::poolCheckout(self$pool)
+        on.exit(pool::poolReturn(con), add = TRUE)
 
-        # 2. Marcar entrevistas que deben ser excluidas del análisis.
-        private$marcar_registros_eliminados()
+        tryCatch({
+          DBI::dbBegin(con)
+          private$agregar_nuevos_registros(con)
+          private$actualizar_clusters_corregidos(con)
+          DBI::dbCommit(con)
+        }, error = function(e) {
+          DBI::dbRollback(con)
+          error_registros <<- e
+          message(glue::glue("- Rollback: {e$message}"))
+        })
 
-        # 3. Aplicar correcciones específicas, como la de clústeres.
-        private$actualizar_clusters_corregidos()
+        # --- Bloque 2 (idempotente): marcado de eliminaciones en todo el snapshot ---
+        # Corre siempre, independientemente del resultado del bloque 1, porque
+        # las reglas de eliminación se aplican sobre registros existentes y no
+        # deben quedar bloqueadas por un fallo en la inserción de nuevos.
+        # Se pasa `con` para reusar la conexión del bloque 1 y evitar un segundo
+        # poolCheckout simultáneo que puede causar deadlock si maxSize = 1.
+        private$marcar_registros_eliminados(con)
+
+        if (!is.null(error_registros)) {
+          stop(glue::glue(
+            "Eliminaciones actualizadas correctamente, pero los nuevos registros ",
+            "no pudieron insertarse: {error_registros$message}"
+          ))
+        }
 
         message("La base de datos ha sido actualizada exitosamente.")
         return(invisible(self))
@@ -384,6 +498,93 @@ Preproceso <-
 
         message("¡Diseño muestral ponderado generado exitosamente!")
         invisible(self)
+      },
+      #' @description Prepara las variables DR-MNAR (instrumento `drmnar_z`,
+      #'  respuesta por protocolo `drmnar_r` y dicotómicas por pregunta)
+      #'  sobre los registros nuevos del snapshot. Llamar DESPUÉS de
+      #'  `procesar_nuevas_entradas()` y ANTES de `actualizar_bd()` para que
+      #'  las variables queden persistidas en el snapshot (flujo AppAuditoria).
+      #' @param instrumento_campo Pregunta aleatoria del filtro temático en
+      #'  campo (NA = brazo control), p. ej. "gustos_aleatorio_50".
+      #' @param opcion_politica Valor del filtro que continúa el módulo
+      #'  político.
+      #' @param preguntas Lista nombrada `list(pregunta = categoria(s))` de
+      #'  dicotómicas a reservar para los cálculos por pregunta.
+      preparar_variables_dicotomicas_drmnar = function(instrumento_campo,
+                                                       opcion_politica = "Política",
+                                                       preguntas = NULL) {
+        if (is.null(self$nuevos_registros_snapshot)) {
+          stop(
+            "No hay registros nuevos procesados: corre ",
+            "procesar_nuevas_entradas() antes de preparar las variables ",
+            "DR-MNAR."
+          )
+        }
+        self$nuevos_registros_snapshot <- preparar_variables_drmnar(
+          bd = self$nuevos_registros_snapshot,
+          instrumento_campo = instrumento_campo,
+          opcion_politica = opcion_politica,
+          preguntas = preguntas
+        )
+        message("Variables DR-MNAR preparadas en los registros nuevos.")
+        invisible(self)
+      },
+      #' @description Genera el segundo tipo de diseño (bundle `diseno_drmnar`)
+      #'  a partir del diseño muestral ponderado del flujo normal: corre el
+      #'  diagnóstico de no respuesta no ignorable por pregunta y aplica la
+      #'  regla de decisión DR-MNAR vs Raking (con override manual opcional).
+      #'  Requiere haber corrido `generar_diseno()` (o lo ejecuta).
+      #' @param preguntas Lista nombrada `list(pregunta = categoria(s))`.
+      #' @param covariables Covariables de los modelos (individuales y/o
+      #'  seccionales ya unidas a las variables del diseño).
+      #' @param instrumento_campo Pregunta aleatoria del filtro en campo.
+      #' @param opcion_politica Valor del filtro que continúa el módulo.
+      #' @param covariables_seccion Tibble opcional de
+      #'  `construir_covariables_seccion()` a unir por sección.
+      #' @param entidad Clave "EE" para normalizar la llave de sección.
+      #' @param subconjuntos Lista nombrada de vectores lógicos.
+      #' @param override Tibble `pregunta`, `decision` para forzar decisiones.
+      #' @param ... Argumentos adicionales para `diagnosticar_norespuesta()`.
+      generar_diseno_drmnar = function(preguntas,
+                                       covariables = NULL,
+                                       instrumento_campo = "gustos_aleatorio_50",
+                                       opcion_politica = "Política",
+                                       covariables_seccion = NULL,
+                                       entidad = NULL,
+                                       subconjuntos = NULL,
+                                       override = NULL,
+                                       ...) {
+        if (is.null(self$diseño_muestral)) {
+          self$generar_diseno()
+        }
+        diseno <- self$diseño_muestral$diseno
+        vars <- diseno$variables
+        if (!"drmnar_z" %in% names(vars)) {
+          vars <- preparar_variables_drmnar(
+            bd = vars,
+            instrumento_campo = instrumento_campo,
+            opcion_politica = opcion_politica,
+            preguntas = preguntas
+          )
+        }
+        if (!is.null(covariables_seccion)) {
+          vars <- unir_covariables_individuo(
+            respuestas = vars,
+            covariables_seccion = covariables_seccion,
+            entidad = entidad
+          )
+        }
+        diseno$variables <- vars
+
+        # función exportada del paquete (no este método)
+        generar_diseno_drmnar(
+          diseno = diseno,
+          preguntas = preguntas,
+          covariables = covariables,
+          subconjuntos = subconjuntos,
+          override = override,
+          ...
+        )
       }
     ),
     private = list(
@@ -483,6 +684,7 @@ Preproceso <-
         base |>
           filter(
             TipoRegistro == "Efectivo",
+            eliminada_proceso == 0 | is.na(eliminada_proceso),
             eliminada_auditoria == 0 | is.na(eliminada_auditoria),
             eliminada_regla == 0 | is.na(eliminada_regla)
           )
@@ -505,7 +707,7 @@ Preproceso <-
           inner_join(muestra_obj$base %>% select(all_of(vars_join)))
 
         # --- 2. Creación de variables demográficas según tipo de encuesta ---
-        if (self$tipo_encuesta == "inegi") {
+        if (isTRUE(self$tipo_encuesta == "inegi")) {
           snap <- snap %>%
             mutate(
               rango_edad = as.character(cut(
@@ -517,7 +719,7 @@ Preproceso <-
             )
         }
 
-        if (self$tipo_encuesta == "ine") {
+        if (isTRUE(self$tipo_encuesta == "ine")) {
           snap <- snap %>%
             mutate(
               rango_edad = cut(
@@ -550,8 +752,7 @@ Preproceso <-
       #' Toma el tibble de la clase hija Respuestas_proc, le añade una columna
       #' de auditoría con la fecha y hora de la actualización, y lo anexa a la
       #' tabla snapshot correspondiente.
-      agregar_nuevos_registros = function() {
-        # Obtener los nuevos registros del objeto hijo
+      agregar_nuevos_registros = function(con) {
         nuevos_registros <- self$nuevos_registros_snapshot
 
         if (is.null(nuevos_registros) || nrow(nuevos_registros) == 0) {
@@ -559,41 +760,41 @@ Preproceso <-
           return(invisible(self))
         }
 
-        # Nombre de la tabla snapshot
         nombre_snapshot <- glue::glue("snapshot_id_{self$opinometro_id}")
 
-        tryCatch(
-          {
-            # --- INICIO DE LA MODIFICACIÓN ---
+        # Defensa final contra duplicados: el anti_join de
+        # procesar_nuevas_entradas() se hizo contra una lectura del snapshot
+        # que pudo quedar desactualizada si otra instancia de la aplicación
+        # insertó registros mientras esta corrida procesaba. Se re-verifica
+        # dentro de la transacción, justo antes de insertar.
+        ids_existentes <- DBI::dbGetQuery(
+          con,
+          glue::glue("SELECT SbjNum FROM {nombre_snapshot}")
+        )$SbjNum
 
-            # 1. Obtener la hora actual en la zona horaria de la Ciudad de México.
-            #    Es recomendable usar el paquete 'lubridate' para manejar zonas horarias.
-            hora_mexico <- lubridate::with_tz(Sys.time(), "America/Mexico_City")
+        duplicados <- nuevos_registros$SbjNum %in% ids_existentes
+        if (any(duplicados)) {
+          message(glue::glue(
+            "- Se omiten {sum(duplicados)} registros que ya existen en el snapshot ",
+            "(insertados por otra corrida concurrente)."
+          ))
+          nuevos_registros <- nuevos_registros[!duplicados, ]
+        }
 
-            # 2. Añadir la nueva columna de auditoría al tibble de nuevos registros.
-            #    Todas las filas de este lote tendrán el mismo timestamp.
-            registros_para_subir <- nuevos_registros %>%
-              dplyr::mutate(corte_actualizacion = hora_mexico)
+        if (nrow(nuevos_registros) == 0) {
+          message("- No quedaron registros nuevos por agregar.")
+          return(invisible(self))
+        }
 
-            # --- FIN DE LA MODIFICACIÓN ---
+        hora_mexico <- lubridate::with_tz(Sys.time(), "America/Mexico_City")
+        registros_para_subir <- nuevos_registros %>%
+          dplyr::mutate(corte_actualizacion = hora_mexico)
 
-            # 3. Anexar el tibble modificado a la base de datos.
-            DBI::dbAppendTable(
-              self$pool,
-              nombre_snapshot,
-              registros_para_subir
-            ) # <-- Se usa el tibble con la nueva columna
+        DBI::dbAppendTable(con, nombre_snapshot, registros_para_subir)
 
-            message(glue::glue(
-              "- Se agregaron {nrow(registros_para_subir)} nuevos registros a '{nombre_snapshot}'."
-            ))
-          },
-          error = function(e) {
-            stop(glue::glue(
-              "Falló la inserción de nuevos registros: {e$message}"
-            ))
-          }
-        )
+        message(glue::glue(
+          "- Se agregaron {nrow(registros_para_subir)} nuevos registros a '{nombre_snapshot}'."
+        ))
 
         return(invisible(self))
       },
@@ -602,47 +803,61 @@ Preproceso <-
       #' Ejecuta sentencias UPDATE para establecer el flag de eliminación
       #' (ej. eliminada_auditoria = 1) basándose en los SbjNum identificados
       #' en el proceso de limpieza.
-      marcar_registros_eliminados = function() {
-        # Extraer SbjNum de entrevistas eliminadas (por auditoría y reglas)
-        eliminadas_auditoria <- self$sbj_eliminadas_auditoria
-        eliminadas_reglas <- self$sbj_eliminadas_regla
+      marcar_registros_eliminados = function(con) {
+        marcas <- self$marcas_eliminacion
 
-        eliminadas_auditoria <- eliminadas_auditoria %||% numeric()
-        eliminadas_reglas <- eliminadas_reglas %||% numeric()
+        if (is.null(marcas) || nrow(marcas) == 0) {
+          message("- No hay registros evaluados para sincronizar eliminaciones.")
+          return(invisible(self))
+        }
+
+        # Validar que los IDs sean numéricos y finitos antes de usarlos en el join.
+        private$validar_ids_sql(marcas$SbjNum, "marcas_eliminacion$SbjNum")
 
         nombre_snapshot <- glue::glue("snapshot_id_{self$opinometro_id}")
-        filas_afectadas_total <- 0
+        nombre_temp     <- "#marcas_eliminacion_temp"
 
-        # --- Actualizar eliminadas por auditoría ---
-        if (length(eliminadas_auditoria) > 0) {
-          query_auditoria <- glue::glue(
-            "UPDATE {nombre_snapshot}
-       SET eliminada_auditoria = 1
-       WHERE SbjNum IN ({paste(eliminadas_auditoria, collapse = ', ')})"
-          )
-          filas <- DBI::dbExecute(self$pool, query_auditoria)
+        DBI::dbWriteTable(con, name = nombre_temp, value = marcas,
+                          temporary = TRUE, overwrite = TRUE)
+
+        # Sincronización en ambas direcciones (0 -> 1 y 1 -> 0), acotada a los
+        # SbjNum evaluados en esta corrida. Marcar sólo con SET = 1 dejaba las
+        # eliminaciones como irreversibles: borrar una regla equivocada no
+        # restauraba las entrevistas ya marcadas.
+        sql_sync <- glue::glue(
+          "
+UPDATE target
+SET
+    eliminada_auditoria = mods.eliminada_auditoria,
+    eliminada_regla     = mods.eliminada_regla
+FROM {nombre_snapshot} AS target
+INNER JOIN {nombre_temp} AS mods
+    ON target.SbjNum = mods.SbjNum
+WHERE
+    ISNULL(target.eliminada_auditoria, -1) <> mods.eliminada_auditoria
+    OR ISNULL(target.eliminada_regla, -1) <> mods.eliminada_regla;
+"
+        )
+
+        filas <- DBI::dbExecute(con, sql_sync)
+        message(glue::glue(
+          "- Flags de eliminación sincronizados: {filas} filas actualizadas ",
+          "({length(self$sbj_eliminadas_auditoria)} por auditoría, ",
+          "{length(self$sbj_eliminadas_regla)} por regla)."
+        ))
+
+        # Los registros que entraron al snapshot por la vía de eliminadas no
+        # pasan por el cálculo de eliminada_proceso y quedan en NULL; en SQL,
+        # filtros como `eliminada_proceso != 1` descartan NULL silenciosamente.
+        filas_proceso <- DBI::dbExecute(con, glue::glue(
+          "UPDATE {nombre_snapshot}
+           SET eliminada_proceso = 0
+           WHERE eliminada_proceso IS NULL"
+        ))
+        if (filas_proceso > 0) {
           message(glue::glue(
-            "- Se marcaron {filas} entrevistas como eliminadas por auditoría."
+            "- Se normalizó eliminada_proceso NULL -> 0 en {filas_proceso} filas."
           ))
-          filas_afectadas_total <- filas_afectadas_total + filas
-        }
-
-        # --- Actualizar eliminadas por reglas ---
-        if (length(eliminadas_reglas) > 0) {
-          query_reglas <- glue::glue(
-            "UPDATE {nombre_snapshot}
-       SET eliminada_regla = 1
-       WHERE SbjNum IN ({paste(eliminadas_reglas, collapse = ', ')})"
-          )
-          filas <- DBI::dbExecute(self$pool, query_reglas)
-          message(glue::glue(
-            "- Se marcaron {filas} entrevistas como eliminadas por reglas."
-          ))
-          filas_afectadas_total <- filas_afectadas_total + filas
-        }
-
-        if (filas_afectadas_total == 0) {
-          message("- No se marcaron registros como eliminados.")
         }
 
         return(invisible(self))
@@ -652,7 +867,46 @@ Preproceso <-
       #' Toma los datos del campo `self$nuevos_registros_cluster`, los sube
       #' a una tabla temporal y ejecuta un UPDATE masivo en la tabla snapshot
       #' para reflejar los clústeres corregidos.
-      actualizar_clusters_corregidos = function() {
+      #' @description Valida que `opinometro_id` sea un entero positivo finito.
+      #' @details Se llama al inicio de cualquier método que construya un nombre
+      #'   de tabla con ese valor. Lanza un error descriptivo si la validación falla.
+      validar_opinometro_id = function() {
+        id <- self$opinometro_id
+        if (
+          is.null(id) ||
+          length(id) != 1 ||
+          !is.numeric(id) ||
+          !is.finite(id) ||
+          id != trunc(id) ||
+          id <= 0
+        ) {
+          stop(glue::glue(
+            "opinometro_id debe ser un entero positivo finito; ",
+            "valor recibido: {deparse(id)}"
+          ))
+        }
+        invisible(TRUE)
+      },
+      #' @description Valida que un vector de IDs sea numérico antes de interpolarlo en SQL.
+      #' @param ids Vector a validar.
+      #' @param nombre Nombre del campo (para el mensaje de error).
+      validar_ids_sql = function(ids, nombre) {
+        if (length(ids) == 0) return(invisible(TRUE))
+        if (!is.numeric(ids)) {
+          stop(glue::glue(
+            "'{nombre}' debe ser un vector numérico para poder interpolarlo ",
+            "en SQL; clase recibida: {class(ids)[1]}"
+          ))
+        }
+        if (any(!is.finite(ids))) {
+          stop(glue::glue(
+            "'{nombre}' contiene valores NA o infinitos que no pueden ",
+            "interpolarse en SQL: {paste(ids[!is.finite(ids)], collapse = ', ')}"
+          ))
+        }
+        invisible(TRUE)
+      },
+      actualizar_clusters_corregidos = function(con) {
         correcciones <- self$nuevos_registros_cluster
 
         if (is.null(correcciones) || nrow(correcciones) == 0) {
@@ -660,45 +914,41 @@ Preproceso <-
           return(invisible(self))
         }
 
-        # Nombres de tabla snapshot y tabla temporal
         nombre_snapshot <- glue::glue("snapshot_id_{self$opinometro_id}")
-        nombre_temp <- "#cluster_corregido_temp"
+        nombre_temp     <- "#cluster_corregido_temp"
 
-        tryCatch(
-          {
-            # Subir datos a la tabla temporal
-            DBI::dbWriteTable(
-              self$pool,
-              name = nombre_temp,
-              value = correcciones,
-              temporary = TRUE,
-              overwrite = TRUE
-            )
-
-            # Query para actualizar desde la tabla temporal
-            sql_update <- glue::glue(
-              "
-      UPDATE target
-      SET
-          cluster = mods.nueva,
-          corregida = 1
-      FROM {nombre_snapshot} AS target
-      INNER JOIN {nombre_temp} AS mods
-          ON target.SbjNum = mods.SbjNum
-      WHERE
-          ISNULL(target.cluster, '') <> mods.nueva;
-    "
-            )
-
-            filas <- DBI::dbExecute(self$pool, sql_update)
-            message(glue::glue(
-              "- Clústeres corregidos: {filas} filas afectadas."
-            ))
-          },
-          error = function(e) {
-            stop(glue::glue("Falló la actualización de clústeres: {e$message}"))
-          }
+        sql_add_col <- glue::glue(
+          "
+IF COL_LENGTH('{nombre_snapshot}', 'cluster_original') IS NULL
+BEGIN
+  ALTER TABLE {nombre_snapshot}
+  ADD cluster_original NVARCHAR(255) NULL;
+END
+"
         )
+
+        DBI::dbExecute(con, sql_add_col)
+
+        DBI::dbWriteTable(con, name = nombre_temp, value = correcciones,
+                          temporary = TRUE, overwrite = TRUE)
+
+        sql_update <- glue::glue(
+          "
+UPDATE target
+SET
+    cluster_corregida = target.cluster,
+    cluster = mods.nueva,
+    corregida = 1
+FROM {nombre_snapshot} AS target
+INNER JOIN {nombre_temp} AS mods
+    ON target.SbjNum = mods.SbjNum
+WHERE
+    ISNULL(CONVERT(NVARCHAR(255), target.cluster), '') <> ISNULL(CONVERT(NVARCHAR(255), mods.nueva), '');
+"
+        )
+
+        filas <- DBI::dbExecute(con, sql_update)
+        message(glue::glue("- Clústeres corregidos: {filas} filas afectadas."))
 
         return(invisible(self))
       }

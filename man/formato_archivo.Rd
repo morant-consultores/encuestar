@@ -6,9 +6,6 @@
 \usage{
 formato_archivo(nombre, extension, tolerancia = 10)
 }
-\arguments{
-\item{tolerancia}{}
-}
 \description{
 Title
 }

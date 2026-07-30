@@ -6,9 +6,6 @@
 \usage{
 aspectos_dicc(dicc)
 }
-\arguments{
-\item{dicc}{}
-}
 \description{
 Title
 }

@@ -1,0 +1,99 @@
+---
+title: "DR-MNAR 3: Diagnóstico de no ignorabilidad y árbol de decisión"
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
+vignette: >
+  %\VignetteIndexEntry{DR-MNAR 3: Diagnóstico de no ignorabilidad y árbol de decisión}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, message=FALSE, echo=FALSE}
+library(encuestar)
+library(dplyr)
+library(survey)
+set.seed(2026)
+```
+<div class = "watermark">
+<img src = "./Manual-diccionario/morant.png">
+</div>
+
+## La regla de decisión (Sección 5 del Anexo Técnico)
+
+El proceso es de **dos etapas**:
+
+1. Con el instrumento aleatorizado se estima $\gamma_Y$ por pregunta (y por
+   subgrupo) y se prueba $H_0: \gamma_Y = 0$ (ignorabilidad).
+2. **Si el IC 95% incluye el 0** → la no respuesta es ignorable (MAR) →
+   se conserva el **Raking** tradicional, que es más eficiente (los modelos
+   MNAR tienen mucha mayor varianza; usarlos sin necesidad solo agrega ruido).
+   **Si el IC excluye el 0** → no respuesta **no ignorable** → se abandona
+   el raking para ese estimando y se activa el **DR-MNAR**.
+
+Raking y DR-MNAR son **mutuamente excluyentes por estimando**. Y el
+diagnóstico corre también **por subgrupo**: el sesgo puede diluirse a nivel
+global y ser severo dentro de un municipio o segmento.
+
+## Ejemplo ejecutable (datos sintéticos con MNAR conocido)
+
+```{r ejemplo, fig.width=9, fig.height=5}
+n <- 8000
+x <- rbinom(n, 1, 0.5)
+z <- rbinom(n, 1, 0.5)                       # brazo aleatorizado
+y <- rbinom(n, 1, plogis(-0.2 + 0.8 * x))    # opinión verdadera
+# los Y=1 responden MÁS (gamma = 2): no respuesta NO ignorable
+r <- rbinom(n, 1, plogis(-0.25 + 1.5 * z + 0.5 * x + 2 * y))
+
+datos <- tibble::tibble(
+  drmnar_z = z, drmnar_r = r, x = x,
+  conoce_cand = ifelse(r == 1, ifelse(y == 1, "Sí", "No"), NA),
+  peso = 1, upm = seq_len(n)
+)
+diseno <- survey::svydesign(ids = ~upm, weights = ~peso, data = datos)
+
+diagnostico <- diagnosticar_norespuesta(
+  diseno = diseno,
+  preguntas = list("conoce_cand" = "Sí"),
+  covariables = "x",
+  instrumento = "drmnar_z"
+)
+diagnostico |>
+  select(pregunta, gamma_y, inf, sup, no_ignorable, decision,
+         est_rake, est_drmnar, diferencia)
+```
+
+La media verdadera es `r round(mean(y), 3)`: el rake queda sesgado hacia
+arriba y el DR-MNAR la recupera.
+
+```{r caterpillar, fig.width=9, fig.height=4}
+graficar_diagnostico_norespuesta(diagnostico)
+```
+
+## Cómo leer el caterpillar
+
+* Cada punto es el $\gamma_Y$ estimado de una pregunta (por subconjunto);
+  la barra es su IC 95% y la línea punteada marca el 0.
+* **Rojo Morant** = IC excluye el 0 → DR-MNAR. **Gris** = Raking.
+* $\gamma_Y > 0$: quienes tienen la opinión analizada **responden más** (la
+  estimación cruda queda inflada); $\gamma_Y < 0$: responden menos.
+
+## Por subgrupos y resumen
+
+```{r, eval=FALSE}
+diagnosticar_norespuesta(
+  diseno, preguntas, covariables,
+  subconjuntos = list(
+    "Estado" = NULL,
+    "Juárez" = datos$municipio == "JUAREZ",
+    "Capital" = datos$municipio == "CHIHUAHUA"
+  )
+) |>
+  resumen_decision_norespuesta()
+```
+
+Los subgrupos con pocas observaciones pueden no converger o dar covariables
+sin variación: la fila queda como `"Sin estimación"` con un aviso, y la
+decisión de la pregunta se toma con los subconjuntos estimables.
+
+Continúa en **DR-MNAR 4: Estimación doblemente robusta**.

@@ -11,9 +11,6 @@ generarGlosario_preguntaAbierta(
   variable
 )
 }
-\arguments{
-\item{variable}{}
-}
 \description{
 Title
 }

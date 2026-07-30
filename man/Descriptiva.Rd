@@ -9,304 +9,297 @@ más básicos relacionados a la encuesta como graficas de barras de estimaciones
 o graficas tipo \code{gauge} que muestan el porcentaje de uno de los valores una variable binaria.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{encuesta}}{Clase de jerarquía superior. Se requiere para extraer el diseno de la encuesta.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{encuesta}}{Clase de jerarquía superior. Se requiere para extraer el diseno de la encuesta.}
 
-\item{\code{diseno}}{Objeto tipo \link{design} de la paquetería \link{survey} relacionado con el diseno de la
+    \item{\code{diseno}}{Objeto tipo \link{design} de la paquetería \link{survey} relacionado con el diseno de la
 encuesta.}
 
-\item{\code{diccionario}}{Diccionario de procesamiento de la encuesta.}
+    \item{\code{diccionario}}{Diccionario de procesamiento de la encuesta.}
 
-\item{\code{tema}}{Objeto tipo \link{theme} de la paquetería \link{ggplot2}}
+    \item{\code{tema}}{Objeto tipo \link[ggplot2:theme]{theme} de la paquetería \link[ggplot2:ggplot2]{ggplot2}}
 
-\item{\code{graficadas}}{Campo heredado por la clase \code{Resultados}.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{graficadas}}{Campo heredado por la clase \code{Resultados}.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-Descriptiva-new}{\code{Descriptiva$new()}}
-\item \href{#method-Descriptiva-barras_categorica}{\code{Descriptiva$barras_categorica()}}
-\item \href{#method-Descriptiva-barras_aspectos}{\code{Descriptiva$barras_aspectos()}}
-\item \href{#method-Descriptiva-barras_multirespuesta}{\code{Descriptiva$barras_multirespuesta()}}
-\item \href{#method-Descriptiva-gauge_numerica}{\code{Descriptiva$gauge_numerica()}}
-\item \href{#method-Descriptiva-gauge_categorica}{\code{Descriptiva$gauge_categorica()}}
-\item \href{#method-Descriptiva-intervalo_numerica}{\code{Descriptiva$intervalo_numerica()}}
-\item \href{#method-Descriptiva-lollipops_categorica}{\code{Descriptiva$lollipops_categorica()}}
-\item \href{#method-Descriptiva-lollipops_multirespuesta}{\code{Descriptiva$lollipops_multirespuesta()}}
-\item \href{#method-Descriptiva-clone}{\code{Descriptiva$clone()}}
-}
+  \itemize{
+    \item \href{#method-Descriptiva-initialize}{\code{Descriptiva$new()}}
+    \item \href{#method-Descriptiva-barras_categorica}{\code{Descriptiva$barras_categorica()}}
+    \item \href{#method-Descriptiva-barras_aspectos}{\code{Descriptiva$barras_aspectos()}}
+    \item \href{#method-Descriptiva-barras_multirespuesta}{\code{Descriptiva$barras_multirespuesta()}}
+    \item \href{#method-Descriptiva-gauge_numerica}{\code{Descriptiva$gauge_numerica()}}
+    \item \href{#method-Descriptiva-gauge_categorica}{\code{Descriptiva$gauge_categorica()}}
+    \item \href{#method-Descriptiva-intervalo_numerica}{\code{Descriptiva$intervalo_numerica()}}
+    \item \href{#method-Descriptiva-lollipops_categorica}{\code{Descriptiva$lollipops_categorica()}}
+    \item \href{#method-Descriptiva-lollipops_multirespuesta}{\code{Descriptiva$lollipops_multirespuesta()}}
+    \item \href{#method-Descriptiva-clone}{\code{Descriptiva$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Descriptiva-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Descriptiva-new}{}}}
-\subsection{Method \code{new()}}{
-Define los insumos necesarios para preparar los métodos que producen los resultados
+\if{html}{\out{<a id="method-Descriptiva-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-Descriptiva-initialize}{}}}
+\subsection{\code{Descriptiva$new()}}{
+  Define los insumos necesarios para preparar los métodos que producen los resultados
 más básicos de la paquetería.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Descriptiva$new(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Descriptiva$new(
   encuesta = NULL,
   diseno = NULL,
   diccionario = NULL,
   tema,
   graficadas = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{encuesta}}{Clase de jerarquía superior. Es el formato de la paquetería \code{encuestar}. Contiene
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{encuesta}}{Clase de jerarquía superior. Es el formato de la paquetería \code{encuestar}. Contiene
 el diseno muestral de la encuesta.}
-
-\item{\code{diseno}}{Objeto tipo \link{design} de la paquetería \link{survey}. No se espera que los parametros
+      \item{\code{diseno}}{Objeto tipo \link{design} de la paquetería \link{survey}. No se espera que los parametros
 \code{encuesta} y \code{diseno} sean no nullos. El segundo sobreescribe el primero.}
-
-\item{\code{diccionario}}{Diccionario (o codebook) del cuestionario de la encuesta.}
-
-\item{\code{tema}}{Objeto tipo \link{theme} de la paquetería \link{ggplot2}.}
-
-\item{\code{graficadas}}{Parametro heredado de la clase \code{Resultados}.}
+      \item{\code{diccionario}}{Diccionario (o codebook) del cuestionario de la encuesta.}
+      \item{\code{tema}}{Objeto tipo \link[ggplot2:theme]{theme} de la paquetería \link[ggplot2:ggplot2]{ggplot2}.}
+      \item{\code{graficadas}}{Parametro heredado de la clase \code{Resultados}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Descriptiva-barras_categorica"></a>}}
 \if{latex}{\out{\hypertarget{method-Descriptiva-barras_categorica}{}}}
-\subsection{Method \code{barras_categorica()}}{
-Calcula las estimaciones de una variable y muestra los resultados en una
+\subsection{\code{Descriptiva$barras_categorica()}}{
+  Calcula las estimaciones de una variable y muestra los resultados en una
 gráfica de barras ordenadas de mayor a menor de forma vertical de acuerdo a las esitmaciones.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Descriptiva$barras_categorica(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Descriptiva$barras_categorica(
   codigo,
   salto = 20,
   porcentajes_fuera = F,
   desplazar_porcentajes = 0,
   pct_otros = 0.01,
-  orden_respuestas = NA
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{codigo}}{Valor tipo caracter. Nombre de la variable que se va a analizar.}
-
-\item{\code{salto}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
-Aplica la función \code{\link[=str_wrap]{str_wrap()}} de la paquetería \link{stringr} a los valores únicos de la
+  orden_respuestas = NA,
+  text_size = 8
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{codigo}}{Valor tipo caracter. Nombre de la variable que se va a analizar.}
+      \item{\code{salto}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
+Aplica la función \code{\link[stringr:str_wrap]{str_wrap()}} de la paquetería \link[stringr:stringr]{stringr} a los valores únicos de la
 variable de interés.}
-
-\item{\code{porcentajes_fuera}}{\code{LOGICAL}. Visualiza las labels que muestran las estimaciones dentro
+      \item{\code{porcentajes_fuera}}{\code{LOGICAL}. Visualiza las labels que muestran las estimaciones dentro
 o fuera de la barra. Útil para cuando hay muchas categorías.}
-
-\item{\code{desplazar_porcentajes}}{Valor real. Parámetro \link{nudge_y} de la función \link{geom_text}. Aplica
+      \item{\code{desplazar_porcentajes}}{Valor real. Parámetro \link{nudge_y} de la función \link[ggplot2:geom_text]{geom_text}. Aplica
 sólo si \code{porcentajes_fuera} es \code{TRUE}.}
-
-\item{\code{pct_otros}}{Valor real definido entre 0 y 1. A las categorias cuyas estimaciones sean menor
+      \item{\code{pct_otros}}{Valor real definido entre 0 y 1. A las categorias cuyas estimaciones sean menor
 o igual que \code{pct_otros} las agrupa, las suma y las muestra en \code{Otros}.}
+      \item{\code{orden_respuestas}}{Vector tipo caracter que contiene, de manera ordenada, los valores únicos
+de la variable de interés y reordena las barras de la gráfica de barras de acuerdo a ese orden.
+@param text_size Valor tipo entero. Corresponde al tamaño de los porcentajes contenidos en la gráfica de barras.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{orden_respuestas}}{Vector tipo caracter que contiene, de manera ordenada, los valores únicos
-de la variable de interés y reordena las barras de la gráfica de barras de acuerdo a ese orden.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Descriptiva-barras_aspectos"></a>}}
 \if{latex}{\out{\hypertarget{method-Descriptiva-barras_aspectos}{}}}
-\subsection{Method \code{barras_aspectos()}}{
-Calcula las estimaciones de varias variables cuyos nombres inician con el mismo
+\subsection{\code{Descriptiva$barras_aspectos()}}{
+  Calcula las estimaciones de varias variables cuyos nombres inician con el mismo
 patron de caracteres. Las variables tienen que contener al menos un valor común entre todas.
 El formato esperado de los nombres de las variables son patron_inicial_aspecto1, patron_inicial_aspecto2
 patron_inicial_aspecto3 etc.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Descriptiva$barras_aspectos(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Descriptiva$barras_aspectos(
   patron_inicial,
   aspectos = NULL,
   salto = 20,
   filtro = "respuesta == 'Sí'",
   porcentajes_fuera = F,
-  desplazar_porcentajes = 0
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{patron_inicial}}{Valor tipo caracter. Es el patron inicial de caracteres que comparten
+  desplazar_porcentajes = 0,
+  text_size = 8
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{patron_inicial}}{Valor tipo caracter. Es el patron inicial de caracteres que comparten
 los nombres de las variables.}
-
-\item{\code{aspectos}}{Vector tipo caracter que identifica a las diferentes variables a procesar. De
+      \item{\code{aspectos}}{Vector tipo caracter que identifica a las diferentes variables a procesar. De
 acuerdo al método, el ejemplo sería c("aspecto1", "aspecto2", "aspecto3").}
-
-\item{\code{salto}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
-Aplica la función \code{\link[=str_wrap]{str_wrap()}} de la paquetería \link{stringr} a las labels del eje x.}
-
-\item{\code{filtro}}{Valor tipo caracter. Operación de identidad que se aplica como filtro entre los
+      \item{\code{salto}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
+Aplica la función \code{\link[stringr:str_wrap]{str_wrap()}} de la paquetería \link[stringr:stringr]{stringr} a las labels del eje x.}
+      \item{\code{filtro}}{Valor tipo caracter. Operación de identidad que se aplica como filtro entre los
 resultados de las variables de interés. Por defecto, la variable que contiene los valores
 únicos se llama "respuesta" por lo que el filtro aplica sobre esa variable muda. por ejemplo
 filtro = "respuesta == 'azul'".}
-
-\item{\code{porcentajes_fuera}}{\code{LOGICAL}. Visualiza las labels que muestran las estimaciones dentro
+      \item{\code{porcentajes_fuera}}{\code{LOGICAL}. Visualiza las labels que muestran las estimaciones dentro
 o fuera de la barra. Útil para cuando hay muchas categorías.}
-
-\item{\code{desplazar_porcentajes}}{Valor real. Parámetro \link{nudge_y} de la función \link{geom_text}. Aplica
+      \item{\code{desplazar_porcentajes}}{Valor real. Parámetro \link{nudge_y} de la función \link[ggplot2:geom_text]{geom_text}. Aplica
 sólo si \code{porcentajes_fuera} es \code{TRUE}.}
+      \item{\code{text_size}}{Valor tipo entero. Corresponde al tamaño de los porcentajes contenidos en la gráfica de barras.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Descriptiva-barras_multirespuesta"></a>}}
 \if{latex}{\out{\hypertarget{method-Descriptiva-barras_multirespuesta}{}}}
-\subsection{Method \code{barras_multirespuesta()}}{
-Calcula las estimaciones de varias variables cuyos nombres inician con el mismo
+\subsection{\code{Descriptiva$barras_multirespuesta()}}{
+  Calcula las estimaciones de varias variables cuyos nombres inician con el mismo
 patrón de caracteres. Dichas variables representan un conjunto de preguntar multirespuesta.
 Muestra los resultados en un gráfico tipo gráfica de barras.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Descriptiva$barras_multirespuesta(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Descriptiva$barras_multirespuesta(
   patron_inicial,
   salto = 20,
   porcentajes_fuera = F,
-  desplazar_porcentajes = 0
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{patron_inicial}}{Valor tipo caracter. Es el patron inicial de caracteres que comparten
+  desplazar_porcentajes = 0,
+  text_size = 8
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{patron_inicial}}{Valor tipo caracter. Es el patron inicial de caracteres que comparten
 los nombres de las variables.}
-
-\item{\code{salto}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
-Aplica la función \code{\link[=str_wrap]{str_wrap()}} de la paquetería \link{stringr} a las labels del eje x.}
-
-\item{\code{porcentajes_fuera}}{\code{LOGICAL}. Visualiza las labels que muestran las estimaciones dentro
+      \item{\code{salto}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
+Aplica la función \code{\link[stringr:str_wrap]{str_wrap()}} de la paquetería \link[stringr:stringr]{stringr} a las labels del eje x.}
+      \item{\code{porcentajes_fuera}}{\code{LOGICAL}. Visualiza las labels que muestran las estimaciones dentro
 o fuera de la barra. Útil para cuando hay muchas categorías.}
-
-\item{\code{desplazar_porcentajes}}{Valor real. Parámetro \link{nudge_y} de la función \link{geom_text}. Aplica
+      \item{\code{desplazar_porcentajes}}{Valor real. Parámetro \link{nudge_y} de la función \link[ggplot2:geom_text]{geom_text}. Aplica
 sólo si \code{porcentajes_fuera} es \code{TRUE}.}
+      \item{\code{text_size}}{Valor tipo entero. Corresponde al tamaño de los porcentajes contenidos en la gráfica de barras.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Descriptiva-gauge_numerica"></a>}}
 \if{latex}{\out{\hypertarget{method-Descriptiva-gauge_numerica}{}}}
-\subsection{Method \code{gauge_numerica()}}{
-Calcula las estimaciones de una única variable que representa una pregunta
+\subsection{\code{Descriptiva$gauge_numerica()}}{
+  Calcula las estimaciones de una única variable que representa una pregunta
 cuyas respuestas son únicamente del tipo numérica.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Descriptiva$gauge_numerica(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Descriptiva$gauge_numerica(
   codigo,
   color = "#850D2D",
   escala = c(0, 10),
   size_text_pct = 14
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{codigo}}{Valor tipo caracter. Nombre de la variable que se va a analizar.}
-
-\item{\code{color}}{Valor tipo caracter. Color en formato \code{HEX}. Es ekl color con el que se 'rellena'
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{codigo}}{Valor tipo caracter. Nombre de la variable que se va a analizar.}
+      \item{\code{color}}{Valor tipo caracter. Color en formato \code{HEX}. Es ekl color con el que se 'rellena'
 el gráfico tipo gauge.}
-
-\item{\code{escala}}{Dupla tipo numérica. Son los posibles valores mínimos y máximos posibles asociados
+      \item{\code{escala}}{Dupla tipo numérica. Son los posibles valores mínimos y máximos posibles asociados
 a la pregunta que representa la variable.}
+      \item{\code{size_text_pct}}{Valor entero. Determina el tamano del dentro dento del gráfico. Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{size_text_pct}}{Valor entero. Determina el tamano del dentro dento del gráfico. Es el parámetro
-\link{size} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Descriptiva-gauge_categorica"></a>}}
 \if{latex}{\out{\hypertarget{method-Descriptiva-gauge_categorica}{}}}
-\subsection{Method \code{gauge_categorica()}}{
-Calcula las estimaciones de un valor único de una única variable y lo muestra en
+\subsection{\code{Descriptiva$gauge_categorica()}}{
+  Calcula las estimaciones de un valor único de una única variable y lo muestra en
 una gráfica tipo gauge.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Descriptiva$gauge_categorica(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Descriptiva$gauge_categorica(
   codigo,
   filtro,
   color = "#850D2D",
   escala = c(0, 1),
   size_text_pct = 14
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{codigo}}{Valor tipo caracter. Nombre de la variable que se va a analizar.}
-
-\item{\code{filtro}}{Valor tipo caracter. Operación de identidad que se aplica como filtro entre los
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{codigo}}{Valor tipo caracter. Nombre de la variable que se va a analizar.}
+      \item{\code{filtro}}{Valor tipo caracter. Operación de identidad que se aplica como filtro entre los
 resultados de la variable de interés. Por ejemplo filtro = "respuesta == 'azul'".}
-
-\item{\code{color}}{Valor tipo caracter. Color en formato \code{HEX}. Es el color con el que se 'rellena'
+      \item{\code{color}}{Valor tipo caracter. Color en formato \code{HEX}. Es el color con el que se 'rellena'
 el gráfico tipo gauge.}
+      \item{\code{escala}}{Dupla tipo numérica. Por lo general, la escala es porcentual.}
+      \item{\code{size_text_pct}}{Valor entero. Determina el tamano del dentro dento del gráfico. Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{escala}}{Dupla tipo numérica. Por lo general, la escala es porcentual.}
-
-\item{\code{size_text_pct}}{Valor entero. Determina el tamano del dentro dento del gráfico. Es el parámetro
-\link{size} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Descriptiva-intervalo_numerica"></a>}}
 \if{latex}{\out{\hypertarget{method-Descriptiva-intervalo_numerica}{}}}
-\subsection{Method \code{intervalo_numerica()}}{
-Calcula las estimaciones de varias variables cuyos nombres inician con el mismo
+\subsection{\code{Descriptiva$intervalo_numerica()}}{
+  Calcula las estimaciones de varias variables cuyos nombres inician con el mismo
 patrón de caractere, cuyas respuestas son del tipo numérico y lo muestra en una gráfica única
-usando un \link[ggplot2:geom_linerange]{ggplot2::geom_pointrange} para cada variable. Por ejemplo calificacion_nombre1,
+usando un \link[ggplot2:geom_pointrange]{ggplot2::geom_pointrange} para cada variable. Por ejemplo calificacion_nombre1,
 calificacion_nombre2, calificacion_nombre3
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Descriptiva$intervalo_numerica(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Descriptiva$intervalo_numerica(
   patron,
   aspectos,
   escala = c(0, 10),
   point_size = 1,
   text_point_size = 8
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{patron}}{Valor tipo caracter. Es el patron inicial de caracteres que comparten
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{patron}}{Valor tipo caracter. Es el patron inicial de caracteres que comparten
 los nombres de las variables. De acuerdo al método sería "calificacion"}
-
-\item{\code{aspectos}}{Vector tipo caracter que identifica a las diferentes variables a procesar. De
+      \item{\code{aspectos}}{Vector tipo caracter que identifica a las diferentes variables a procesar. De
 acuerdo al ejemplo del método sería c("nombre1", "nombre2", "nombre3").}
-
-\item{\code{escala}}{Dupla tipo numérica. Son los posibles valores mínimos y máximos posibles asociados
+      \item{\code{escala}}{Dupla tipo numérica. Son los posibles valores mínimos y máximos posibles asociados
 a la pregunta que representa la variable.}
+      \item{\code{point_size}}{valor tipo entero. Determina el tamano del punto en la visuaización. Es
+el parámetro \link[ggplot2:size]{size} de la funcion \code{\link[ggplot2:geom_pointrange]{ggplot2::geom_pointrange()}}}
+      \item{\code{text_point_size}}{valor tipo entero. Determina el tamano del texto mostrado arriba del
+punto. Es el parámetro \link[ggplot2:size]{size} de la funcion \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{point_size}}{valor tipo entero. Determina el tamano del punto en la visuaización. Es
-el parámetro \link{size} de la funcion \code{\link[ggplot2:geom_linerange]{ggplot2::geom_pointrange()}}}
-
-\item{\code{text_point_size}}{valor tipo entero. Determina el tamano del texto mostrado arriba del
-punto. Es el parámetro \link{size} de la funcion \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Descriptiva-lollipops_categorica"></a>}}
 \if{latex}{\out{\hypertarget{method-Descriptiva-lollipops_categorica}{}}}
-\subsection{Method \code{lollipops_categorica()}}{
-Calcula las estimaciones de una variable y muestra los resultados en una
+\subsection{\code{Descriptiva$lollipops_categorica()}}{
+  Calcula las estimaciones de una variable y muestra los resultados en una
 gráfica tipo lollipops ordenadas de mayor a menor de forma vertical de acuerdo a las esitmaciones.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Descriptiva$lollipops_categorica(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Descriptiva$lollipops_categorica(
   codigo,
   orden = NULL,
   limits = c(0, 1),
@@ -314,92 +307,86 @@ gráfica tipo lollipops ordenadas de mayor a menor de forma vertical de acuerdo 
   size = 3,
   size_pct = 6,
   pct_otros = 0.01
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{codigo}}{Valor tipo caracter. Nombre de la variable que se va a analizar.}
-
-\item{\code{orden}}{Vector tipo caracter que contiene, de manera ordenada, los valores únicos de
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{codigo}}{Valor tipo caracter. Nombre de la variable que se va a analizar.}
+      \item{\code{orden}}{Vector tipo caracter que contiene, de manera ordenada, los valores únicos de
 la variable de interés y reordena las barras de la gráfica de barras de acuerdo a ese orden.}
-
-\item{\code{limits}}{Dupla tipo numérica. Delimita el límite inferior y superior del gráfico. Es el
-parámetro \link{limits} de la función \code{\link[ggplot2:scale_continuous]{ggplot2::scale_y_continuous()}}.}
-
-\item{\code{width_cats}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
-Aplica la función \code{\link[=str_wrap]{str_wrap()}} de la paquetería \link{stringr} a las labels del eje x.}
-
-\item{\code{size}}{Valor tipo entero. define el grueso de la linea del gráfico tipo lollipop. Es el
+      \item{\code{limits}}{Dupla tipo numérica. Delimita el límite inferior y superior del gráfico. Es el
+parámetro \link[ggplot2:limits]{limits} de la función \code{\link[ggplot2:scale_y_continuous]{ggplot2::scale_y_continuous()}}.}
+      \item{\code{width_cats}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
+Aplica la función \code{\link[stringr:str_wrap]{str_wrap()}} de la paquetería \link[stringr:stringr]{stringr} a las labels del eje x.}
+      \item{\code{size}}{Valor tipo entero. define el grueso de la linea del gráfico tipo lollipop. Es el
 argumento \link{linewidth} de la función \code{\link[ggplot2:geom_segment]{ggplot2::geom_segment()}}}
-
-\item{\code{size_pct}}{Valor entero. Determina el tamano del dentro dento del gráfico. Es el parámetro
-\link{size} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
-
-\item{\code{pct_otros}}{Valor real definido entre 0 y 1. A las categorias cuyas estimaciones sean menor
+      \item{\code{size_pct}}{Valor entero. Determina el tamano del dentro dento del gráfico. Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
+      \item{\code{pct_otros}}{Valor real definido entre 0 y 1. A las categorias cuyas estimaciones sean menor
 o igual que \code{pct_otros} las agrupa, las suma y las muestra en \code{Otros}.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Descriptiva-lollipops_multirespuesta"></a>}}
 \if{latex}{\out{\hypertarget{method-Descriptiva-lollipops_multirespuesta}{}}}
-\subsection{Method \code{lollipops_multirespuesta()}}{
-Calcula las estimaciones de varias variables cuyos nombres inician con el mismo
+\subsection{\code{Descriptiva$lollipops_multirespuesta()}}{
+  Calcula las estimaciones de varias variables cuyos nombres inician con el mismo
 patrón de caracteres. Dichas variables representan un conjunto de preguntar multirespuesta.
 Muestra los resultados en un gráfico tipo lollipops.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Descriptiva$lollipops_multirespuesta(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Descriptiva$lollipops_multirespuesta(
   patron_inicial,
   orden = NULL,
   limits = c(0, 1),
   width_cats = 15,
   size = 3,
   size_pct = 6
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{patron_inicial}}{Valor tipo caracter. Es el patron inicial de caracteres que comparten
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{patron_inicial}}{Valor tipo caracter. Es el patron inicial de caracteres que comparten
 los nombres de las variables.}
-
-\item{\code{orden}}{Vector tipo caracter que contiene, de manera ordenada, los valores únicos
+      \item{\code{orden}}{Vector tipo caracter que contiene, de manera ordenada, los valores únicos
 de la variable de interés y reordena las barras de la gráfica de barras de acuerdo a ese orden.}
-
-\item{\code{limits}}{Dupla tipo numérica. Son los posibles valores mínimos y máximos posibles asociados
+      \item{\code{limits}}{Dupla tipo numérica. Son los posibles valores mínimos y máximos posibles asociados
 a la pregunta que representa la variable.}
-
-\item{\code{width_cats}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
-Aplica la función \code{\link[=str_wrap]{str_wrap()}} de la paquetería \link{stringr} a las labels del eje x.}
-
-\item{\code{size}}{Valor tipo entero. define el grueso de la linea del gráfico tipo lollipop. Es el
+      \item{\code{width_cats}}{Valor tipo entero. Reduce o aumenta la longitud de las categorías en el eje x.
+Aplica la función \code{\link[stringr:str_wrap]{str_wrap()}} de la paquetería \link[stringr:stringr]{stringr} a las labels del eje x.}
+      \item{\code{size}}{Valor tipo entero. define el grueso de la linea del gráfico tipo lollipop. Es el
 argumento \link{linewidth} de la función \code{\link[ggplot2:geom_segment]{ggplot2::geom_segment()}}}
+      \item{\code{size_pct}}{Valor entero. Determina el tamano del dentro dento del gráfico. Es el parámetro
+\link[ggplot2:size]{size} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{size_pct}}{Valor entero. Determina el tamano del dentro dento del gráfico. Es el parámetro
-\link{size} de la función \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}.}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Descriptiva-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-Descriptiva-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Descriptiva$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{Descriptiva$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{Descriptiva$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

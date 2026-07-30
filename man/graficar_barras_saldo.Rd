@@ -14,15 +14,15 @@ graficar_barras_saldo(
   salto_respuestas,
   salto_tema,
   caption_opinion,
-  size_text_cat = 10,
+  size_text_cat = 12,
   size_pct,
   size_caption_opinion,
-  size_text_legend = 10,
+  size_text_legend = 12,
   tema = encuestar::tema_morant()
 )
 }
 \arguments{
-\item{bd}{\code{\link[=tibble]{tibble()}} que contiene las variables necesarias para generar la grafica}
+\item{bd}{\code{\link[tibble:tibble]{tibble()}} que contiene las variables necesarias para generar la grafica}
 
 \item{orden}{Vector ordenado tipo caracter usado para ordenar los valores del eje x}
 
@@ -40,19 +40,19 @@ graficar_barras_saldo(
 
 \item{caption_opinion}{Cadena de texto usada en el parametro \link{caption} de la funcion \code{\link[ggplot2:labs]{ggplot2::labs()}}}
 
-\item{size_text_cat}{Parametro \link{size} de la funcion \code{\link[ggplot2:element]{ggplot2::element_text()}} usado en el parametro \link{axis.text.x} en el tema particular del grafico}
+\item{size_text_cat}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggplot2:element_text]{ggplot2::element_text()}} usado en el parametro \link{axis.text.x} en el tema particular del grafico}
 
-\item{size_pct}{Parametro \link{size} de la funcion \code{\link[ggfittext:geom_fit_text]{ggfittext::geom_fit_text()}} que controla el tamano del texto que muestra el porcentaje dentro de las barras}
+\item{size_pct}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggfittext:geom_fit_text]{ggfittext::geom_fit_text()}} que controla el tamano del texto que muestra el porcentaje dentro de las barras}
 
-\item{size_caption_opinion}{Parametro \link{size} de la funcion \code{\link[ggplot2:element]{ggplot2::element_text()}} usado en el parametro \link{plot.caption} en el tema particular del grafico}
+\item{size_caption_opinion}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggplot2:element_text]{ggplot2::element_text()}} usado en el parametro \link{plot.caption} en el tema particular del grafico}
 
-\item{tema}{Tema grafico de \link{ggplot2}}
+\item{tema}{Tema grafico de \link[ggplot2:ggplot2]{ggplot2}}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica tipo barras horizontales
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica tipo barras horizontales
 diferenciando dos grupos principales: positivos y negativos. Los resultados mostrados omiten la
 categoria de No sabe No contesta
 }

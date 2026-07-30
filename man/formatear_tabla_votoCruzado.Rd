@@ -17,9 +17,6 @@ formatear_tabla_votoCruzado(
   salto
 )
 }
-\arguments{
-\item{salto}{}
-}
 \description{
 Title
 }

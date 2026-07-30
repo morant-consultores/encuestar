@@ -2,16 +2,15 @@
 % Please edit documentation in R/fct_opinometro.R
 \name{rectificar_respuestasOpinometro}
 \alias{rectificar_respuestasOpinometro}
-\title{Title}
+\title{rectificar_respuestasOpinometro}
 \usage{
 rectificar_respuestasOpinometro(
-  bd_respuestasOpinometro,
-  variables_cuestionario
+  bd_respuestas_raw,
+  variables_cuestionario,
+  var_ubicacion = "gps",
+  elim_na_ub = T
 )
 }
-\arguments{
-\item{variables_cuestionario}{}
-}
 \description{
-Title
+rectificar_respuestasOpinometro
 }

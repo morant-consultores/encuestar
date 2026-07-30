@@ -13,7 +13,10 @@ graficar_lolipop_diferencias(
   caption = "",
   wrap_y = 25,
   wrap_caption = 25,
-  limits = c(0, 0.75)
+  limits = c(0, 0.75),
+  traslape = F,
+  limite_dif_pct = 0.02,
+  ajuste_pos = 0.02
 )
 }
 \arguments{
@@ -25,7 +28,7 @@ graficar_lolipop_diferencias(
 
 \item{nudge_x}{Parametro \link{nudge_y} de la funcion \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}} que modifica la posicion del texto en el grafico}
 
-\item{size_geom_text}{Parametro \link{size} de la funcion \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}} que modifica la posicion del texto en el grafico}
+\item{size_geom_text}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}} que modifica la posicion del texto en el grafico}
 
 \item{caption}{Cadena de texto usada en el parametro \link{caption} de la funcion \code{\link[ggplot2:labs]{ggplot2::labs()}}}
 
@@ -34,12 +37,18 @@ graficar_lolipop_diferencias(
 \item{wrap_caption}{Valor entero usato como parametro en \code{\link[stringr:str_wrap]{stringr::str_wrap()}} aplicado al \link{caption} del grafico}
 
 \item{limits}{Vector numerico que indica los limites en escala porcentual natural del eje y}
+
+\item{traslape}{Valor bopoleano. En caso de ser TRUE, realiza un factor de ajuste para los porcentajes presentados por \code{\link[ggplot2:geom_text]{ggplot2::geom_text()}}. Solo afecta a los valores cuya diferencia máxima y mínima se menor que el factor de tolerancia \link{limite_dif_pct}.  Por defecto tiene valor FALSE.}
+
+\item{limite_dif_pct}{Valor de tipo decimal. Es el factor o nivel de tolerencia para la diferencia entre dos puntos que al graficar sus porcentajes tienen un nivel de traslape. Solo se efectua si \link{traslape} es TRUE. Por defecto su valor es 0.02.}
+
+\item{ajuste_pos}{Valor de tipo decimal. Es el factor de ajuste de posición que los porcentajes graficados tomarán en caso de traslaparse. El porcentaje menor se despalzará la izquierda, y el mayor a la derecha. Solo se efectua si \link{traslape} es TRUE. Por defecto su valor es 0.02.}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica tipo lolipo
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica tipo lolipo
 que resalta las diferencias entre dos categorias
 }
 \examples{

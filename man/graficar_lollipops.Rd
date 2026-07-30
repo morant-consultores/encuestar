@@ -9,28 +9,28 @@ graficar_lollipops(
   orden = NULL,
   limits = c(0, 1),
   width_cats = 15,
-  size = 3,
+  size = 2,
   size_pct = 6
 )
 }
 \arguments{
-\item{bd}{\code{\link[=tibble]{tibble()}} que contiene las variables necesarias para}
+\item{bd}{\code{\link[tibble:tibble]{tibble()}} que contiene las variables necesarias para}
 
 \item{orden}{Vector ordenado tipo caracter que define el orden de las categorias en el eje x}
 
-\item{limits}{Vector numerico de longitud dos que indica los limites en escala porcentual natural del eje y usando el parametro \link{limits} de la funcion \code{\link[ggplot2:scale_continuous]{ggplot2::scale_y_continuous()}}}
+\item{limits}{Vector numerico de longitud dos que indica los limites en escala porcentual natural del eje y usando el parametro \link[ggplot2:limits]{limits} de la funcion \code{\link[ggplot2:scale_y_continuous]{ggplot2::scale_y_continuous()}}}
 
 \item{width_cats}{Valor entero usato como parametro en \code{\link[stringr:str_wrap]{stringr::str_wrap()}} aplicado a las filas del eje x}
 
-\item{size}{Parametro \link{size} de la funcion \code{\link[ggfittext:geom_segment]{ggfittext::geom_segment()}} y \code{\link[ggfittext:geom_point]{ggfittext::geom_point()}} que controla el tamano del texto que define el tamaño de la linea y el punto de la grafica}
+\item{size}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggfittext:geom_segment]{ggfittext::geom_segment()}} y \code{\link[ggfittext:geom_point]{ggfittext::geom_point()}} que controla el tamano del texto que define el tamaño de la linea y el punto de la grafica}
 
-\item{size_pct}{Parametro \link{size} de la funcion \code{\link[ggfittext:geom_text]{ggfittext::geom_text()}} que controla el tamano del texto que muestra el porcentaje fuera de las lolipos}
+\item{size_pct}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggfittext:geom_text]{ggfittext::geom_text()}} que controla el tamano del texto que muestra el porcentaje fuera de las lolipos}
 }
 \value{
-Objeto tipo \link{ggplot}
+Objeto tipo \link[ggplot2:ggplot]{ggplot}
 }
 \description{
-Recibe un \code{\link[=tibble]{tibble()}} y genera un objeto tipo \link{ggplot}. El producto es una grafica de barras
+Recibe un \code{\link[tibble:tibble]{tibble()}} y genera un objeto tipo \link[ggplot2:ggplot]{ggplot}. El producto es una grafica de barras
 ordenadas de acuerdo al criterio indicado.
 }
 \examples{

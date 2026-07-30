@@ -1,0 +1,96 @@
+---
+title: "DR-MNAR 1: Protocolo y preparación de variables"
+output:
+  html_vignette:
+    css: ./Manual-diccionario/corp-styles_B.css
+vignette: >
+  %\VignetteIndexEntry{DR-MNAR 1: Protocolo y preparación de variables}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, message=FALSE, echo=FALSE}
+library(encuestar)
+library(dplyr)
+```
+<div class = "watermark">
+<img src = "./Manual-diccionario/morant.png">
+</div>
+
+Esta serie de viñetas documenta el módulo **DR-MNAR** (estimación doblemente
+robusta bajo no respuesta no ignorable) de `encuestar`, basado en Bailey
+(2023, *Political Analysis*) y el Anexo Técnico Metodológico de Morant.
+
+## El problema
+
+El raking tradicional corrige la no respuesta **solo si es ignorable (MAR)**:
+asume que, dentro de cada celda demográfica, quienes responden opinan igual
+que quienes no. Si la disposición a responder depende de la **opinión misma**
+(MNAR), el raking no corrige el sesgo. El parámetro crítico es
+$\gamma_Y$: si $\gamma_Y \neq 0$, la no respuesta es **no ignorable**.
+
+## El instrumento aleatorizado en campo
+
+Para identificar $\gamma_Y$ la app de campo aleatoriza dos brazos:
+
+* **Control** (`z = 0`): cuestionario político directo. En el snapshot, la
+  pregunta aleatoria del filtro queda **NA**.
+* **Tratamiento** (`z = 1`): se muestra primero un **filtro temático**
+  (p. ej. `gustos_aleatorio_50`: Películas / Política / Salud / Deportes /
+  Ninguno / Otro / Ns/Nc). Solo quien elige **Política** continúa el módulo
+  político; el resto se clasifica como **no respuesta del módulo** y se
+  registra el rescate mínimo (sección electoral, GPS, demográficos).
+
+## Contrato de datos en el snapshot
+
+`preparar_variables_drmnar()` formaliza el contrato al final del
+preprocesamiento (en AppAuditoria se llama automáticamente entre
+`procesar_nuevas_entradas()` y `actualizar_bd()` cuando el proyecto define
+`drmnar_instrumento_campo`):
+
+```{r, eval=FALSE}
+snapshot <- preparar_variables_drmnar(
+  snapshot,
+  instrumento_campo = "gustos_aleatorio_50",
+  opcion_politica = "Política",
+  preguntas = list(
+    "conoce_cruz" = "Sí lo conoce",
+    "conoce_andrea" = "Sí lo conoce"
+  )
+)
+```
+
+Columnas creadas:
+
+| Columna | Significado |
+|---|---|
+| `drmnar_z` | Brazo del instrumento (0 control, 1 tratamiento) |
+| `drmnar_tema` | Tema elegido en el filtro (NA en control) |
+| `drmnar_r` | Respuesta del módulo político **bajo protocolo** |
+| `drmnar_y_<pregunta>` | Dicotómica por pregunta, reservada para los cálculos (NA si `drmnar_r = 0`) |
+
+**Importante (caso Chihuahua Ene-2026):** si el campo no interrumpe el
+cuestionario de los desertores del filtro, sus respuestas observadas se
+conservan en las columnas originales (sirven para validar el método), pero
+para los cálculos cuentan como **no respuesta** — por eso las
+`drmnar_y_*` van enmascaradas y los estimadores usan `drmnar_r`
+automáticamente cuando existe.
+
+## Flujo y descriptivos del experimento
+
+```{r, eval=FALSE}
+# Conteos del diagrama de flujo (Figure 2 de Bailey)
+flujo <- resumen_flujo_norespuesta(snapshot)
+graficar_flujo_norespuesta(flujo)
+
+# Descriptivos Z, R, R|Z=1, R|Z=0 y medias de las dicotómicas (Table A16)
+tabla_descriptivos_drmnar(
+  snapshot,
+  subconjuntos = list(
+    "Estado" = NULL,
+    "Juárez" = snapshot$municipio == "JUAREZ"
+  )
+)
+```
+
+Continúa en la viñeta **DR-MNAR 2: Covariables por sección electoral**.

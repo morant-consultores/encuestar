@@ -77,6 +77,17 @@ consultar_respuestas <- function(pool, codigos, encuesta_id) {
     ) |>
     collect()
 }
+#' Consulta y aplana las respuestas existentes de un cuestionario
+#'
+#' @description Obtiene todos los registros del cuestionario indicado desde la
+#'   base de datos, aplana el JSON de respuestas en columnas individuales y
+#'   adjunta el nombre del encuestador.
+#'
+#' @param pool Objeto `pool` con la conexión a la base de datos.
+#' @param id_cuestionario Entero. Identificador del cuestionario en Opinómetro.
+#'
+#' @return Un [tibble()] con una fila por registro y una columna por pregunta.
+#' @export
 consultar_respuestas_existentes <- function(pool, id_cuestionario) {
   respuestas_enLista <-
     tbl(src = pool, "Registros") |>

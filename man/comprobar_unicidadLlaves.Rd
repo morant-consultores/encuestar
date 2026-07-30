@@ -6,9 +6,6 @@
 \usage{
 comprobar_unicidadLlaves(diccionario)
 }
-\arguments{
-\item{diccionario}{}
-}
 \description{
 Title
 }

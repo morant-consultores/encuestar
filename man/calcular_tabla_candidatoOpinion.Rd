@@ -36,7 +36,7 @@ calcular_tabla_candidatoOpinion(
 \item{salto_respuestas}{Valor entero usato como parametro en \code{\link[stringr:str_wrap]{stringr::str_wrap()}} aplicado a todos los encabezados de la tabla}
 }
 \value{
-\code{\link[=tibble]{tibble()}} con las variables necesarias para la funcion \code{\link[=formatear_tabla_candidatoOpinion]{formatear_tabla_candidatoOpinion()}}
+\code{\link[tibble:tibble]{tibble()}} con las variables necesarias para la funcion \code{\link[=formatear_tabla_candidatoOpinion]{formatear_tabla_candidatoOpinion()}}
 }
 \description{
 Produce y ordena los resultados necesarios para la funcion \code{\link[=formatear_tabla_candidatoOpinion]{formatear_tabla_candidatoOpinion()}}

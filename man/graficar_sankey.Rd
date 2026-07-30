@@ -13,7 +13,7 @@ graficar_sankey(bd, variables, colores, size_text_cat, width_text = 15)
 
 \item{colores}{Argumento usado por scale_fill_manual y sclae_color_manual}
 
-\item{size_text_cat}{Parametro \link{size} de la funcion \code{\link[ggsankey:geom_sankey_label]{ggsankey::geom_sankey_text()}} que determina
+\item{size_text_cat}{Parametro \link[ggplot2:size]{size} de la funcion \code{\link[ggsankey:geom_sankey_text]{ggsankey::geom_sankey_text()}} que determina
 el tamano del texto de las etiquetas en cada nodo del gráfico}
 
 \item{width_text}{Salto de linea que se aplica a las categorias mostradas}
