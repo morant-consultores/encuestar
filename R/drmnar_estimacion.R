@@ -232,10 +232,31 @@ estimar_drmnar <- function(diseno, pregunta, covariables = NULL,
   y <- ifelse(r == 1, ins$y, 0)
 
   # ---- estimadores MNAR (núcleo de Bailey con pesos de diseño) ----
-  nuc <- ajustar_nucleo_drmnar(
-    z = ins$z, r = r, y = y, X = ins$X, w = w,
-    cluster = ins$cluster, estrato = ins$estrato,
-    gamma_inicial = gamma_inicial, intervalo_gamma = intervalo_gamma
+  # El núcleo es genérico y no sabe qué pregunta está ajustando, así que sus
+  # avisos ("uniroot no encontró raíz para gamma") llegaban al log sin decir de
+  # cuál hablaban: con 48 preguntas en un corte, un aviso anónimo no es
+  # accionable. Se re-emiten con la pregunta, la categoría y el subconjunto.
+  # Anotar aquí y no dentro del núcleo mantiene el núcleo reutilizable y cubre
+  # de una vez cualquier aviso que agregue en el futuro.
+  .ctx <- paste0(
+    "`", pregunta, "`",
+    if (!is.null(categoria)) {
+      paste0(" (", paste(categoria, collapse = " | "), ")")
+    } else {
+      ""
+    },
+    " en `", nombre_subconjunto, "`"
+  )
+  nuc <- withCallingHandlers(
+    ajustar_nucleo_drmnar(
+      z = ins$z, r = r, y = y, X = ins$X, w = w,
+      cluster = ins$cluster, estrato = ins$estrato,
+      gamma_inicial = gamma_inicial, intervalo_gamma = intervalo_gamma
+    ),
+    warning = function(w) {
+      warning(.ctx, ": ", conditionMessage(w), call. = FALSE)
+      invokeRestart("muffleWarning")
+    }
   )
 
   # ---- estimadores MAR (gamma = 0) ----
