@@ -108,3 +108,56 @@ graficar_precision_drmnar <- function(estimaciones) {
     tema_morant() +
     theme(legend.position = "bottom")
 }
+
+#' Detecciones antes y después del control de multiplicidad
+#'
+#' Barras del número de detecciones crudas contra las que sobreviven al ajuste
+#' de [ajustar_multiplicidad_norespuesta()], con la nota de cuántas señales se
+#' esperan por azar. Es la lámina de cautela del deck: sin ella, un conteo crudo
+#' de detecciones invita a leerlas todas como hallazgos firmes.
+#'
+#' @param tabla Salida de [ajustar_multiplicidad_norespuesta()].
+#' @param alfa Nivel de significancia usado (default 0.05).
+#' @return Objeto [ggplot2::ggplot], o `NULL` si no hay pruebas estimables.
+#' @export
+graficar_multiplicidad_norespuesta <- function(tabla, alfa = 0.05) {
+  n_pruebas <- sum(is.finite(tabla$p_valor))
+  if (n_pruebas == 0) return(NULL)
+
+  metodo <- attr(tabla, "metodo") %||% "BH"
+  n_crudo <- sum(tabla$p_valor < alfa, na.rm = TRUE)
+  n_ajustado <- sum(tabla$sobrevive, na.rm = TRUE)
+  esperados <- round(n_pruebas * alfa, 1)
+
+  niveles <- c("Sin ajuste", paste0("Ajustado (", metodo, ")"))
+  bd <- tibble::tibble(
+    criterio = factor(niveles, levels = niveles),
+    n = c(n_crudo, n_ajustado)
+  )
+
+  ggplot(bd, aes(x = .data$criterio, y = .data$n, fill = .data$criterio)) +
+    geom_col(width = 0.5) +
+    geom_hline(yintercept = esperados, linetype = "dashed",
+               color = COLOR_NEUTRO) +
+    geom_text(aes(label = .data$n), vjust = -0.4, size = 6, fontface = "bold") +
+    scale_fill_manual(
+      values = stats::setNames(c(COLOR_NEUTRO, COLOR_MORANT), niveles),
+      guide = "none"
+    ) +
+    scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.18))) +
+    labs(
+      x = NULL, y = "detecciones",
+      subtitle = stringr::str_wrap(sprintf(
+        paste0("Con %d pruebas a alfa = %s se esperan ~%s señales por azar ",
+               "(línea punteada). Sobreviven %d al ajuste por multiplicidad ",
+               "(%s). Solo esas deben leerse como sesgo estructural; el resto ",
+               "se confirma con más muestra en olas posteriores."),
+        n_pruebas, alfa, esperados, n_ajustado, metodo), 95)
+    ) +
+    tema_morant()
+}
+
+# El paquete declara R (>= 2.10), así que no se puede asumir el `%||%` de base
+# (llegó en R 4.4). Se define aquí porque el módulo lo usa en cada default que
+# sale del bundle o de un atributo.
+`%||%` <- function(a, b) if (is.null(a)) b else a
