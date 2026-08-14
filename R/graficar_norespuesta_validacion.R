@@ -64,3 +64,47 @@ graficar_impacto_drmnar <- function(diagnostico) {
     tema_morant() +
     theme(legend.position = "bottom")
 }
+
+#' Costo en precisión de los estimadores MNAR
+#'
+#' Barras del error estándar (sándwich, agrupado por UPM y estrato) de cada uno
+#' de los siete estimadores de [estimar_drmnar()]. Corregir el sesgo de
+#' selección no sale gratis: la estimación en dos etapas del modelo MNAR agrega
+#' variabilidad, y esta lámina la deja explícita para que el intervalo del
+#' reporte no se lea con más confianza de la que tiene.
+#'
+#' @param estimaciones Tibble de [estimar_drmnar()] (una pregunta).
+#' @return Objeto [ggplot2::ggplot], o `NULL` si ningún error estándar es
+#'   finito.
+#' @export
+graficar_precision_drmnar <- function(estimaciones) {
+  orden <- c("Observado", "Weights-MAR", "Imput-MAR", "DR-MAR",
+             "Weights-MNAR", "Imput-MNAR", "DR-MNAR")
+  bd <- estimaciones |> dplyr::filter(is.finite(.data$ee))
+  if (nrow(bd) == 0) return(NULL)
+
+  bd <- bd |>
+    dplyr::mutate(
+      modelo = factor(.data$modelo, levels = rev(orden)),
+      tipo = ifelse(grepl("MNAR", .data$modelo), "MNAR", "MAR/Observado")
+    )
+
+  ggplot(bd, aes(x = .data$modelo, y = .data$ee, fill = .data$tipo)) +
+    geom_col(width = 0.6) +
+    geom_text(
+      aes(label = scales::percent(.data$ee, accuracy = 0.01)),
+      hjust = -0.15, size = 4.3
+    ) +
+    scale_fill_manual(
+      values = c("MAR/Observado" = COLOR_NEUTRO, "MNAR" = COLOR_MORANT),
+      name = NULL
+    ) +
+    scale_y_continuous(
+      labels = scales::percent,
+      expand = ggplot2::expansion(mult = c(0, 0.18))
+    ) +
+    coord_flip() +
+    labs(x = NULL, y = "Error estándar sándwich (agrupado por UPM y estrato)") +
+    tema_morant() +
+    theme(legend.position = "bottom")
+}

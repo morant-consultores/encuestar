@@ -31,3 +31,24 @@ test_that("graficar_impacto_drmnar devuelve NULL sin filas DR-MNAR", {
   solo_raking <- fixture_impacto()[3, ]
   expect_null(graficar_impacto_drmnar(solo_raking))
 })
+
+test_that("graficar_precision_drmnar ordena los 7 estimadores y marca los MNAR", {
+  sint <- crear_diseno_sintetico(n = 6000, gamma_y = 2, semilla = 41)
+  est <- estimar_drmnar(
+    diseno = sint$diseno, pregunta = "conoce_cand", covariables = "x",
+    categoria = "Sí lo conoce", instrumento = "drmnar_z"
+  )
+  g <- graficar_precision_drmnar(est)
+  expect_s3_class(g, "ggplot")
+  expect_equal(nrow(g$data), 7)
+  expect_true("tipo" %in% names(g$data))
+  expect_setequal(unique(g$data$tipo), c("MAR/Observado", "MNAR"))
+})
+
+test_that("graficar_precision_drmnar devuelve NULL sin errores estándar finitos", {
+  est <- tibble::tibble(
+    modelo = "DR-MNAR", est = 0.5, ee = NA_real_,
+    pregunta = "x", categoria = "a", subconjunto = "Estado"
+  )
+  expect_null(graficar_precision_drmnar(est))
+})
