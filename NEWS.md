@@ -1,3 +1,38 @@
+# encuestar 2.2.0
+
+## Deck de diagnóstico DR-MNAR reutilizable
+
+El armado del deck no vivía en el paquete: cada estudio portaba su propio script
+de ~230 líneas, ya divergidos entre sí, y dos láminas se armaban con `officer`
+inline fuera del contrato de que todo el graficado sale de `encuestar`.
+
+- `armar_deck_norespuesta()` arma el deck completo desde el paquete. El script de
+  cada estudio queda en ~20 líneas de configuración y una encuesta nueva obtiene
+  el deck sin portar nada. Las láminas sin insumo se omiten en vez de reventar.
+- `lectura_norespuesta()` traduce `gamma` a lenguaje de negocio en tres estados:
+  sobre-representación (el raking sobreestima), ocultamiento (subestima) e
+  ignorable (el raking es adecuado y más eficiente).
+- `graficar_impacto_drmnar()` grafica cuánto se mueve la estimación al corregir,
+  con `est_rake` y `est_drmnar` que el diagnóstico ya calculaba y nadie usaba.
+- `graficar_precision_drmnar()` reporta el error estándar sándwich por
+  estimador: corregir el sesgo ensancha el intervalo, y el deck no lo decía.
+- `ajustar_multiplicidad_norespuesta()` y `graficar_multiplicidad_norespuesta()`
+  controlan por multiplicidad (BH o Holm) las detecciones de no ignorabilidad. El
+  método se expone porque BH controla FDR y Holm FWER, y la diferencia importa.
+- `comparar_desertores_norespuesta()` y `graficar_desertores_norespuesta()`
+  validan los `gamma` contra los desertores del filtro temático, sin modelo de
+  propensión, y marcan coincidencia o discrepancia de signo por pregunta.
+- `evaluar_instrumento_norespuesta()` y `graficar_balance_instrumento()`
+  documentan el balance de covariables por brazo (supuesto de exclusión).
+- `graficar_heterogeneidad_norespuesta()` destaca las preguntas cuyo `gamma`
+  cambia de signo entre subgrupos, donde el sesgo se cancela en la población
+  general y el diagnóstico global las declara ignorables por la razón equivocada.
+- `graficar_decision_norespuesta()` reemplaza la lámina de decisiones que cada
+  estudio armaba con `officer` inline.
+- La clase R6 `NoRespuesta` gana `$lectura()`, `$grafica_impacto()`,
+  `$grafica_precision()`, `$multiplicidad()`, `$grafica_balance()` y
+  `$grafica_desertores()`.
+
 # encuestar 2.1.1
 
 ## Snapshot: conserva los registros NO efectivos y el detalle por intento
