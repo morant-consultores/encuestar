@@ -13,7 +13,14 @@
 #' dicotomiza la pregunta, deriva el indicador de respuesta por ítem y
 #' recorta al subconjunto solicitado.
 #'
+#' El `importFrom` de survey no es decorativo: el paquete declaraba survey en
+#' `Imports:` del DESCRIPTION pero no importaba NADA de él en el NAMESPACE, así
+#' que su namespace no se cargaba al cargar encuestar y el método S3
+#' `weights.survey.design` quedaba sin registrar. `stats::weights()` sobre el
+#' diseño caía entonces a `weights.default` y devolvía NULL en silencio.
+#'
 #' @keywords internal
+#' @importFrom survey svydesign
 #' @noRd
 extraer_insumos_drmnar <- function(diseno, pregunta, covariables,
                                    instrumento, respuesta_ind,
@@ -95,7 +102,21 @@ extraer_insumos_drmnar <- function(diseno, pregunta, covariables,
     X <- stats::model.matrix(~., data = bd_cov)
   }
 
+  # `stats::weights()` sobre un survey.design NO falla cuando el método S3 de
+  # survey no está registrado: cae a weights.default, devuelve NULL y de aquí
+  # sale numeric(0). Con w vacío el núcleo llega al glm interno sin filas y
+  # revienta con "argument mu must be a non-empty numeric vector" veinte
+  # llamadas más abajo, sin mencionar el peso ni una sola vez.
   w <- as.numeric(stats::weights(diseno))
+  if (length(w) != nrow(vars)) {
+    stop(
+      "El diseño devolvió ", length(w), " pesos para ", nrow(vars),
+      " registros. Suele significar que el namespace de `survey` no está ",
+      "cargado y `weights()` cayó al método default; corre `library(survey)` ",
+      "o revisa que el diseño traiga `prob`.",
+      call. = FALSE
+    )
+  }
   cluster <- as.character(diseno$cluster[[1]])
   estrato <- if (!is.null(diseno$strata)) {
     as.character(diseno$strata[[1]])
