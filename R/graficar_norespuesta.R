@@ -232,6 +232,50 @@ graficar_tabla_covariables <- function(doc, n_ef, umbral, ricas) {
                                       margin = ggplot2::margin(t = 14)))
 }
 
+#' Resumen de decisiones DR-MNAR vs Raking (lámina de cierre del deck)
+#'
+#' Barras del conteo de preguntas por decisión metodológica
+#' ([resumen_decision_norespuesta()]) con una nota de multiple testing: a
+#' cuántas señales por azar da lugar el número de pruebas corridas a `alfa`,
+#' para leer las detecciones DR-MNAR del corte con cautela. Se movió aquí
+#' (antes vivía inline en el script `press_norespuesta` de cada proyecto)
+#' para que el deck use puras funciones del paquete.
+#'
+#' @param diagnostico Tibble de [diagnosticar_norespuesta()].
+#' @param alfa Nivel de significancia usado en el diagnóstico (default 0.05).
+#' @return Objeto [ggplot2::ggplot].
+#' @export
+graficar_decision_norespuesta <- function(diagnostico, alfa = 0.05) {
+  decision <- resumen_decision_norespuesta(diagnostico)
+  preguntas_dr <- decision$pregunta[decision$decision == "DR-MNAR"]
+  n_no_estimable <- sum(!is.finite(diagnostico$gamma_y))
+  esperados_fp <- round(nrow(decision) * alfa, 1)
+
+  decision |>
+    dplyr::count(decision) |>
+    ggplot(aes(x = decision, y = n, fill = decision)) +
+    geom_col(width = 0.5) +
+    geom_text(aes(label = n), vjust = -0.4, size = 6, fontface = "bold") +
+    scale_fill_manual(
+      values = c("DR-MNAR" = COLOR_MORANT, "Raking" = COLOR_NEUTRO),
+      guide = "none"
+    ) +
+    labs(
+      x = NULL, y = "preguntas",
+      subtitle = stringr::str_wrap(sprintf(
+        paste0(
+          "Con %d pruebas a alfa = %s se esperan ~%s señales por azar: ",
+          "las %d detecciones DR-MNAR de este corte (%s) deben ",
+          "confirmarse con más muestra antes de leerse como sesgo real. ",
+          "%d pregunta(s) sin gamma estimable al corte."
+        ),
+        nrow(decision), alfa, esperados_fp, length(preguntas_dr),
+        paste(preguntas_dr, collapse = ", "), n_no_estimable
+      ), 90)
+    ) +
+    tema_morant()
+}
+
 # Clase R6 -----------------------------------------------------------------
 
 #' Análisis de no respuesta no ignorable (DR-MNAR)
@@ -342,6 +386,56 @@ NoRespuesta <- R6::R6Class(
     #' @param subconjuntos Lista nombrada de vectores lógicos.
     descriptivos = function(subconjuntos = list("Todos" = NULL)) {
       tabla_descriptivos_drmnar(self$diseno$variables, subconjuntos)
+    },
+    #' @description Lectura de gamma en lenguaje de negocio
+    #'  ([lectura_norespuesta()]).
+    #' @param diagnostico Diagnóstico (default: el último cacheado).
+    lectura = function(diagnostico = NULL) {
+      bd <- if (is.null(diagnostico)) self$ultimo_diagnostico else diagnostico
+      if (is.null(bd)) stop("Corre primero $diagnostico(preguntas = ...).")
+      lectura_norespuesta(bd)
+    },
+    #' @description Impacto práctico ([graficar_impacto_drmnar()]).
+    #' @param diagnostico Diagnóstico (default: el último cacheado).
+    grafica_impacto = function(diagnostico = NULL) {
+      bd <- if (is.null(diagnostico)) self$ultimo_diagnostico else diagnostico
+      if (is.null(bd)) stop("Corre primero $diagnostico(preguntas = ...).")
+      graficar_impacto_drmnar(bd)
+    },
+    #' @description Costo en precisión ([graficar_precision_drmnar()]).
+    #' @param pregunta Pregunta a estimar.
+    #' @param categoria Categoría que define y = 1.
+    #' @param ... Argumentos para `$estimacion()`.
+    grafica_precision = function(pregunta, categoria = NULL, ...) {
+      graficar_precision_drmnar(
+        self$estimacion(pregunta = pregunta, categoria = categoria, ...)
+      )
+    },
+    #' @description Control de multiplicidad
+    #'  ([ajustar_multiplicidad_norespuesta()]).
+    #' @param metodo Método de [stats::p.adjust()].
+    #' @param diagnostico Diagnóstico (default: el último cacheado).
+    multiplicidad = function(metodo = "BH", diagnostico = NULL) {
+      bd <- if (is.null(diagnostico)) self$ultimo_diagnostico else diagnostico
+      if (is.null(bd)) stop("Corre primero $diagnostico(preguntas = ...).")
+      ajustar_multiplicidad_norespuesta(bd, metodo = metodo)
+    },
+    #' @description Balance del instrumento ([graficar_balance_instrumento()]).
+    #' @param covariables Covariables (default las de la clase).
+    grafica_balance = function(covariables = self$covariables) {
+      graficar_balance_instrumento(
+        evaluar_instrumento_norespuesta(self$diseno$variables, covariables)
+      )
+    },
+    #' @description Validación con desertores
+    #'  ([graficar_desertores_norespuesta()]).
+    #' @param preguntas Lista nombrada `list(pregunta = categoria)`.
+    #' @param diagnostico Diagnóstico (default: el último cacheado).
+    grafica_desertores = function(preguntas, diagnostico = NULL) {
+      bd <- if (is.null(diagnostico)) self$ultimo_diagnostico else diagnostico
+      graficar_desertores_norespuesta(
+        comparar_desertores_norespuesta(self$diseno$variables, preguntas), bd
+      )
     }
   )
 )
