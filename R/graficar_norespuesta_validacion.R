@@ -271,6 +271,60 @@ graficar_balance_instrumento <- function(tabla, umbral = 0.1) {
     theme(legend.position = "bottom")
 }
 
+#' Heterogeneidad de gamma entre subgrupos
+#'
+#' Compara `gamma_y` por subconjunto para cada pregunta y destaca las que
+#' CAMBIAN DE SIGNO entre subgrupos. Bailey documenta que la no respuesta no
+#' ignorable suele ser heterogénea: los sesgos de grupos opuestos se cancelan y
+#' la población general da `gamma ~ 0` aunque dentro de cada grupo sea severo.
+#'
+#' @param diagnostico Tibble de [diagnosticar_norespuesta()] corrido con
+#'   `subconjuntos`.
+#' @return Objeto [ggplot2::ggplot], o `NULL` si hay un solo subconjunto.
+#' @export
+graficar_heterogeneidad_norespuesta <- function(diagnostico) {
+  bd <- diagnostico |> dplyr::filter(is.finite(.data$gamma_y))
+  if (nrow(bd) == 0 || length(unique(bd$subconjunto)) < 2) return(NULL)
+
+  bd <- bd |>
+    dplyr::group_by(.data$pregunta) |>
+    dplyr::mutate(
+      cambia_signo = dplyr::n_distinct(sign(.data$gamma_y)) > 1
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(
+      etiqueta = stringr::str_wrap(
+        ifelse(is.na(.data$categoria), .data$pregunta,
+               paste0(.data$pregunta, ": ", .data$categoria)), 28)
+    )
+
+  n_cambia <- dplyr::n_distinct(bd$pregunta[bd$cambia_signo])
+
+  ggplot(bd, aes(x = .data$gamma_y,
+                 y = stats::reorder(.data$etiqueta, .data$gamma_y))) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = COLOR_NEUTRO) +
+    geom_line(aes(group = .data$etiqueta, color = .data$cambia_signo),
+              linewidth = 1) +
+    geom_point(aes(shape = .data$subconjunto, color = .data$cambia_signo),
+               size = 3.6) +
+    scale_color_manual(
+      values = c("FALSE" = COLOR_NEUTRO, "TRUE" = COLOR_MORANT),
+      labels = c("FALSE" = "Mismo signo", "TRUE" = "Cambia de signo"),
+      name = NULL
+    ) +
+    scale_shape_discrete(name = NULL) +
+    labs(
+      x = expression(gamma[Y] ~ "por subgrupo"), y = NULL,
+      subtitle = stringr::str_wrap(sprintf(
+        paste0("%d pregunta(s) cambian de signo entre subgrupos: ahí el sesgo ",
+               "se cancela en la población general y el diagnóstico global la ",
+               "declara ignorable aunque dentro de cada grupo no lo sea."),
+        n_cambia), 95)
+    ) +
+    tema_morant() +
+    theme(legend.position = "bottom", legend.box = "vertical")
+}
+
 # El paquete declara R (>= 2.10), así que no se puede asumir el `%||%` de base
 # (llegó en R 4.4). Se define aquí porque el módulo lo usa en cada default que
 # sale del bundle o de un atributo.

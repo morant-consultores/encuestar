@@ -52,3 +52,26 @@ test_that("graficar_precision_drmnar devuelve NULL sin errores estándar finitos
   )
   expect_null(graficar_precision_drmnar(est))
 })
+
+test_that("graficar_heterogeneidad_norespuesta marca los cambios de signo", {
+  diag <- tibble::tibble(
+    pregunta = rep(c("aprob_pm", "chapulineo"), each = 2),
+    categoria = "Sí",
+    subconjunto = rep(c("Morena", "Oposición"), 2),
+    gamma_y = c(1.2, -0.9, 0.4, 0.5),
+    inf = c(0.6, -1.5, -0.2, -0.1),
+    sup = c(1.8, -0.3, 1.0, 1.1),
+    no_ignorable = c(TRUE, TRUE, FALSE, FALSE),
+    decision = c("DR-MNAR", "DR-MNAR", "Raking", "Raking")
+  )
+  g <- graficar_heterogeneidad_norespuesta(diag)
+  expect_s3_class(g, "ggplot")
+  expect_equal(nrow(g$data), 4)
+  # aprob_pm cambia de signo entre subgrupos, chapulineo no
+  expect_true(all(g$data$cambia_signo[g$data$pregunta == "aprob_pm"]))
+  expect_false(any(g$data$cambia_signo[g$data$pregunta == "chapulineo"]))
+})
+
+test_that("graficar_heterogeneidad_norespuesta devuelve NULL con un solo subconjunto", {
+  expect_null(graficar_heterogeneidad_norespuesta(fixture_impacto()))
+})
