@@ -97,6 +97,35 @@ test_that("graficar_decision_norespuesta resume DR-MNAR vs Raking con nota de mu
   expect_match(g$labels$subtitle, "0 pregunta\\(s\\) sin gamma estimable")
 })
 
+test_that("NoRespuesta delega las funciones de validación", {
+  sint <- crear_diseno_sintetico(n = 7000, gamma_y = 2, semilla = 43)
+  nr <- NoRespuesta$new(
+    diseno = sint$diseno, covariables = "x", instrumento = "drmnar_z"
+  )
+  nr$diagnostico(preguntas = list("conoce_cand" = "Sí lo conoce"))
+
+  lec <- nr$lectura()
+  expect_true(all(c("estado", "texto") %in% names(lec)))
+  expect_equal(lec$estado[1], "sobre_representacion")
+
+  mult <- nr$multiplicidad()
+  expect_true(all(c("p_valor", "p_ajustado", "sobrevive") %in% names(mult)))
+
+  expect_s3_class(nr$grafica_balance(), "ggplot")
+  expect_s3_class(
+    nr$grafica_precision(pregunta = "conoce_cand", categoria = "Sí lo conoce"),
+    "ggplot"
+  )
+})
+
+test_that("los delegadores exigen un diagnóstico previo", {
+  sint <- crear_diseno_sintetico(n = 3000, gamma_y = 0, semilla = 44)
+  nr <- NoRespuesta$new(
+    diseno = sint$diseno, covariables = "x", instrumento = "drmnar_z"
+  )
+  expect_error(nr$lectura(), "diagnostico")
+})
+
 test_that("graficar_tabla_covariables arma la lámina de covariables", {
   doc <- data.frame(
     covariable = c("sexo", "rango_edad"),

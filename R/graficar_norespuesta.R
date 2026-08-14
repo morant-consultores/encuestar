@@ -386,6 +386,56 @@ NoRespuesta <- R6::R6Class(
     #' @param subconjuntos Lista nombrada de vectores lógicos.
     descriptivos = function(subconjuntos = list("Todos" = NULL)) {
       tabla_descriptivos_drmnar(self$diseno$variables, subconjuntos)
+    },
+    #' @description Lectura de gamma en lenguaje de negocio
+    #'  ([lectura_norespuesta()]).
+    #' @param diagnostico Diagnóstico (default: el último cacheado).
+    lectura = function(diagnostico = NULL) {
+      bd <- if (is.null(diagnostico)) self$ultimo_diagnostico else diagnostico
+      if (is.null(bd)) stop("Corre primero $diagnostico(preguntas = ...).")
+      lectura_norespuesta(bd)
+    },
+    #' @description Impacto práctico ([graficar_impacto_drmnar()]).
+    #' @param diagnostico Diagnóstico (default: el último cacheado).
+    grafica_impacto = function(diagnostico = NULL) {
+      bd <- if (is.null(diagnostico)) self$ultimo_diagnostico else diagnostico
+      if (is.null(bd)) stop("Corre primero $diagnostico(preguntas = ...).")
+      graficar_impacto_drmnar(bd)
+    },
+    #' @description Costo en precisión ([graficar_precision_drmnar()]).
+    #' @param pregunta Pregunta a estimar.
+    #' @param categoria Categoría que define y = 1.
+    #' @param ... Argumentos para `$estimacion()`.
+    grafica_precision = function(pregunta, categoria = NULL, ...) {
+      graficar_precision_drmnar(
+        self$estimacion(pregunta = pregunta, categoria = categoria, ...)
+      )
+    },
+    #' @description Control de multiplicidad
+    #'  ([ajustar_multiplicidad_norespuesta()]).
+    #' @param metodo Método de [stats::p.adjust()].
+    #' @param diagnostico Diagnóstico (default: el último cacheado).
+    multiplicidad = function(metodo = "BH", diagnostico = NULL) {
+      bd <- if (is.null(diagnostico)) self$ultimo_diagnostico else diagnostico
+      if (is.null(bd)) stop("Corre primero $diagnostico(preguntas = ...).")
+      ajustar_multiplicidad_norespuesta(bd, metodo = metodo)
+    },
+    #' @description Balance del instrumento ([graficar_balance_instrumento()]).
+    #' @param covariables Covariables (default las de la clase).
+    grafica_balance = function(covariables = self$covariables) {
+      graficar_balance_instrumento(
+        evaluar_instrumento_norespuesta(self$diseno$variables, covariables)
+      )
+    },
+    #' @description Validación con desertores
+    #'  ([graficar_desertores_norespuesta()]).
+    #' @param preguntas Lista nombrada `list(pregunta = categoria)`.
+    #' @param diagnostico Diagnóstico (default: el último cacheado).
+    grafica_desertores = function(preguntas, diagnostico = NULL) {
+      bd <- if (is.null(diagnostico)) self$ultimo_diagnostico else diagnostico
+      graficar_desertores_norespuesta(
+        comparar_desertores_norespuesta(self$diseno$variables, preguntas), bd
+      )
     }
   )
 )

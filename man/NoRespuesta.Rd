@@ -40,6 +40,12 @@ variables del diseño incluyan el instrumento aleatorizado
     \item \href{#method-NoRespuesta-flujo}{\code{NoRespuesta$flujo()}}
     \item \href{#method-NoRespuesta-grafica_flujo}{\code{NoRespuesta$grafica_flujo()}}
     \item \href{#method-NoRespuesta-descriptivos}{\code{NoRespuesta$descriptivos()}}
+    \item \href{#method-NoRespuesta-lectura}{\code{NoRespuesta$lectura()}}
+    \item \href{#method-NoRespuesta-grafica_impacto}{\code{NoRespuesta$grafica_impacto()}}
+    \item \href{#method-NoRespuesta-grafica_precision}{\code{NoRespuesta$grafica_precision()}}
+    \item \href{#method-NoRespuesta-multiplicidad}{\code{NoRespuesta$multiplicidad()}}
+    \item \href{#method-NoRespuesta-grafica_balance}{\code{NoRespuesta$grafica_balance()}}
+    \item \href{#method-NoRespuesta-grafica_desertores}{\code{NoRespuesta$grafica_desertores()}}
     \item \href{#method-NoRespuesta-clone}{\code{NoRespuesta$clone()}}
   }
 }
@@ -210,6 +216,127 @@ variables del diseño incluyan el instrumento aleatorizado
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{subconjuntos}}{Lista nombrada de vectores lógicos.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NoRespuesta-lectura"></a>}}
+\if{latex}{\out{\hypertarget{method-NoRespuesta-lectura}{}}}
+\subsection{\code{NoRespuesta$lectura()}}{
+  Lectura de gamma en lenguaje de negocio
+(\code{\link[=lectura_norespuesta]{lectura_norespuesta()}}).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NoRespuesta$lectura(diagnostico = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{diagnostico}}{Diagnóstico (default: el último cacheado).}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NoRespuesta-grafica_impacto"></a>}}
+\if{latex}{\out{\hypertarget{method-NoRespuesta-grafica_impacto}{}}}
+\subsection{\code{NoRespuesta$grafica_impacto()}}{
+  Impacto práctico (\code{\link[=graficar_impacto_drmnar]{graficar_impacto_drmnar()}}).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NoRespuesta$grafica_impacto(diagnostico = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{diagnostico}}{Diagnóstico (default: el último cacheado).}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NoRespuesta-grafica_precision"></a>}}
+\if{latex}{\out{\hypertarget{method-NoRespuesta-grafica_precision}{}}}
+\subsection{\code{NoRespuesta$grafica_precision()}}{
+  Costo en precisión (\code{\link[=graficar_precision_drmnar]{graficar_precision_drmnar()}}).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NoRespuesta$grafica_precision(pregunta, categoria = NULL, ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{pregunta}}{Pregunta a estimar.}
+      \item{\code{categoria}}{Categoría que define y = 1.}
+      \item{\code{...}}{Argumentos para \verb{$estimacion()}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NoRespuesta-multiplicidad"></a>}}
+\if{latex}{\out{\hypertarget{method-NoRespuesta-multiplicidad}{}}}
+\subsection{\code{NoRespuesta$multiplicidad()}}{
+  Control de multiplicidad
+(\code{\link[=ajustar_multiplicidad_norespuesta]{ajustar_multiplicidad_norespuesta()}}).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NoRespuesta$multiplicidad(metodo = "BH", diagnostico = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{metodo}}{Método de \code{\link[stats:p.adjust]{stats::p.adjust()}}.}
+      \item{\code{diagnostico}}{Diagnóstico (default: el último cacheado).}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NoRespuesta-grafica_balance"></a>}}
+\if{latex}{\out{\hypertarget{method-NoRespuesta-grafica_balance}{}}}
+\subsection{\code{NoRespuesta$grafica_balance()}}{
+  Balance del instrumento (\code{\link[=graficar_balance_instrumento]{graficar_balance_instrumento()}}).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NoRespuesta$grafica_balance(covariables = self$covariables)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{covariables}}{Covariables (default las de la clase).}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-NoRespuesta-grafica_desertores"></a>}}
+\if{latex}{\out{\hypertarget{method-NoRespuesta-grafica_desertores}{}}}
+\subsection{\code{NoRespuesta$grafica_desertores()}}{
+  Validación con desertores
+(\code{\link[=graficar_desertores_norespuesta]{graficar_desertores_norespuesta()}}).
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{NoRespuesta$grafica_desertores(preguntas, diagnostico = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{preguntas}}{Lista nombrada \code{list(pregunta = categoria)}.}
+      \item{\code{diagnostico}}{Diagnóstico (default: el último cacheado).}
     }
     \if{html}{\out{</div>}}
   }
