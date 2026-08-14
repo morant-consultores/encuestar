@@ -223,6 +223,54 @@ graficar_desertores_norespuesta <- function(tabla, diagnostico = NULL) {
     theme(legend.position = "bottom", legend.box = "vertical")
 }
 
+#' Love plot del balance del instrumento aleatorizado
+#'
+#' Diferencias de medias estandarizadas por nivel de covariable, con la banda de
+#' referencia +/- `umbral`. Todo dentro de la banda respalda que el brazo se
+#' asignó al azar; lo que se sale hay que explicarlo antes de leer cualquier
+#' `gamma_y` estimado con ese instrumento.
+#'
+#' @param tabla Salida de [evaluar_instrumento_norespuesta()].
+#' @param umbral Banda de referencia (default 0.1).
+#' @return Objeto [ggplot2::ggplot], o `NULL` si la tabla viene vacía.
+#' @export
+graficar_balance_instrumento <- function(tabla, umbral = 0.1) {
+  if (nrow(tabla) == 0) return(NULL)
+
+  bd <- tabla |>
+    dplyr::mutate(
+      etiqueta = paste0(.data$covariable, ": ", .data$nivel),
+      fuera = abs(.data$dme) > umbral
+    )
+  n_fuera <- sum(bd$fuera)
+
+  ggplot(bd, aes(x = .data$dme,
+                 y = stats::reorder(.data$etiqueta, .data$dme),
+                 color = .data$fuera)) +
+    geom_vline(xintercept = 0, color = COLOR_NEUTRO) +
+    geom_vline(xintercept = c(-umbral, umbral), linetype = "dashed",
+               color = COLOR_NEUTRO) +
+    geom_point(size = 4) +
+    scale_color_manual(
+      values = c("FALSE" = COLOR_NEUTRO, "TRUE" = COLOR_MORANT),
+      labels = c("FALSE" = "Balanceada", "TRUE" = "Fuera de banda"),
+      name = NULL
+    ) +
+    labs(
+      x = "Diferencia de medias estandarizada (tratamiento - control)",
+      y = NULL,
+      subtitle = stringr::str_wrap(sprintf(
+        paste0("El brazo se asigna al azar, así que las covariables deben ",
+               "quedar balanceadas: %d de %d niveles se salen de la banda de ",
+               "+/-%.2f. Una covariable fuera de banda significaría que el ",
+               "menú temático atrae selectivamente y que el instrumento no ",
+               "identifica gamma."),
+        n_fuera, nrow(bd), umbral), 95)
+    ) +
+    tema_morant() +
+    theme(legend.position = "bottom")
+}
+
 # El paquete declara R (>= 2.10), así que no se puede asumir el `%||%` de base
 # (llegó en R 4.4). Se define aquí porque el módulo lo usa en cada default que
 # sale del bundle o de un atributo.

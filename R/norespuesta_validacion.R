@@ -97,3 +97,50 @@ comparar_desertores_norespuesta <- function(bd, preguntas) {
   if (length(filas) == 0) return(vacio)
   dplyr::bind_rows(filas)
 }
+
+#' Balance de covariables entre brazos del instrumento
+#'
+#' Diferencia de medias estandarizada (DME) de cada nivel de cada covariable
+#' entre el brazo de tratamiento y el de control:
+#' `(p1 - p0) / sqrt((p1(1-p1) + p0(1-p0)) / 2)`.
+#'
+#' Sostiene el supuesto de identificabilidad del diseño: el brazo se asignó al
+#' azar, así que las covariables deben quedar balanceadas. Una DME grande
+#' señalaría que el menú temático atrae o repele selectivamente y que el
+#' instrumento no es válido para identificar `gamma_y`.
+#'
+#' @param bd `data.frame` del snapshot con `drmnar_z` y las covariables.
+#' @param covariables Vector de nombres de covariables. Las que no estén en `bd`
+#'   se ignoran.
+#' @return Tibble con `covariable`, `nivel`, `prop_z0`, `prop_z1` y `dme`.
+#' @export
+evaluar_instrumento_norespuesta <- function(bd, covariables) {
+  vacio <- tibble::tibble(
+    covariable = character(0), nivel = character(0),
+    prop_z0 = numeric(0), prop_z1 = numeric(0), dme = numeric(0)
+  )
+  if (!"drmnar_z" %in% names(bd)) {
+    stop("Corre primero preparar_variables_drmnar() sobre el snapshot.",
+         call. = FALSE)
+  }
+  z <- bd$drmnar_z
+  if (sum(z == 1) == 0 || sum(z == 0) == 0) return(vacio)
+
+  filas <- list()
+  for (cv in intersect(covariables, names(bd))) {
+    val <- as.character(bd[[cv]])
+    for (nivel in sort(unique(stats::na.omit(val)))) {
+      ind <- val == nivel
+      p1 <- mean(ind[z == 1], na.rm = TRUE)
+      p0 <- mean(ind[z == 0], na.rm = TRUE)
+      s <- sqrt((p1 * (1 - p1) + p0 * (1 - p0)) / 2)
+      filas[[length(filas) + 1]] <- tibble::tibble(
+        covariable = cv, nivel = nivel,
+        prop_z0 = p0, prop_z1 = p1,
+        dme = if (is.finite(s) && s > 0) (p1 - p0) / s else 0
+      )
+    }
+  }
+  if (length(filas) == 0) return(vacio)
+  dplyr::bind_rows(filas)
+}
