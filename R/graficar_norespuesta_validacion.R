@@ -157,6 +157,72 @@ graficar_multiplicidad_norespuesta <- function(tabla, alfa = 0.05) {
     tema_morant()
 }
 
+#' Validación del diagnóstico con los desertores del filtro
+#'
+#' Dumbbell de la proporción entre quienes eligieron el módulo político y
+#' quienes desertaron. Cuando se pasa el diagnóstico, marca por pregunta si el
+#' signo del contraste COINCIDE con el de `gamma_y`: la coincidencia es
+#' validación cruzada del modelo MNAR y la discrepancia se muestra tal cual, no
+#' se oculta.
+#'
+#' @param tabla Salida de [comparar_desertores_norespuesta()].
+#' @param diagnostico Tibble de [diagnosticar_norespuesta()] (opcional).
+#' @return Objeto [ggplot2::ggplot], o `NULL` si la tabla viene vacía.
+#' @export
+graficar_desertores_norespuesta <- function(tabla, diagnostico = NULL) {
+  if (nrow(tabla) == 0) return(NULL)
+
+  bd <- tabla
+  bd$valida <- NA
+  if (!is.null(diagnostico) && nrow(diagnostico) > 0) {
+    g <- diagnostico$gamma_y[match(bd$pregunta, diagnostico$pregunta)]
+    bd$valida <- ifelse(is.finite(g), sign(bd$diferencia) == sign(g), NA)
+  }
+  bd$marca <- dplyr::case_when(
+    is.na(bd$valida) ~ "Sin gamma comparable",
+    bd$valida ~ "Coincide con gamma",
+    .default = "Discrepa de gamma"
+  )
+  bd$etiqueta <- stringr::str_wrap(
+    paste0(bd$pregunta, ": ", bd$categoria), 28)
+
+  largo <- bd |>
+    tidyr::pivot_longer(
+      cols = c("p_voluntario", "p_desertor"),
+      names_to = "grupo", values_to = "p"
+    ) |>
+    dplyr::mutate(
+      grupo = ifelse(.data$grupo == "p_voluntario",
+                     "Eligió el módulo político", "Desertó al menú temático")
+    )
+
+  ggplot(largo, aes(y = stats::reorder(.data$etiqueta, .data$p))) +
+    geom_segment(
+      data = bd,
+      aes(x = .data$p_desertor, xend = .data$p_voluntario,
+          y = .data$etiqueta, yend = .data$etiqueta,
+          color = .data$marca),
+      linewidth = 1.1
+    ) +
+    geom_point(aes(x = .data$p, shape = .data$grupo), size = 4,
+               color = COLOR_NEUTRO) +
+    scale_color_manual(
+      values = c("Coincide con gamma" = COLOR_MORANT,
+                 "Discrepa de gamma" = "#8A5E06",
+                 "Sin gamma comparable" = COLOR_NEUTRO),
+      name = NULL
+    ) +
+    scale_shape_manual(
+      values = c("Eligió el módulo político" = 16,
+                 "Desertó al menú temático" = 1),
+      name = NULL
+    ) +
+    scale_x_continuous(labels = scales::percent) +
+    labs(x = NULL, y = NULL) +
+    tema_morant() +
+    theme(legend.position = "bottom", legend.box = "vertical")
+}
+
 # El paquete declara R (>= 2.10), así que no se puede asumir el `%||%` de base
 # (llegó en R 4.4). Se define aquí porque el módulo lo usa en cada default que
 # sale del bundle o de un atributo.
