@@ -88,6 +88,15 @@ test_that("la clase NoRespuesta orquesta diagnóstico, estimación y gráficas",
   expect_true(all(c("indicador", "valor") %in% names(desc)))
 })
 
+test_that("graficar_decision_norespuesta resume DR-MNAR vs Raking con nota de multiple testing", {
+  g <- graficar_decision_norespuesta(diagnostico_fixture())
+  expect_s3_class(g, "ggplot")
+  expect_equal(sort(g$data$decision), c("DR-MNAR", "Raking"))
+  expect_equal(g$data$n[g$data$decision == "DR-MNAR"], 1L)
+  expect_match(g$labels$subtitle, "conoce_cruz")
+  expect_match(g$labels$subtitle, "0 pregunta\\(s\\) sin gamma estimable")
+})
+
 test_that("graficar_tabla_covariables arma la lámina de covariables", {
   doc <- data.frame(
     covariable = c("sexo", "rango_edad"),

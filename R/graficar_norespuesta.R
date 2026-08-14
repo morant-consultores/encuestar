@@ -232,6 +232,50 @@ graficar_tabla_covariables <- function(doc, n_ef, umbral, ricas) {
                                       margin = ggplot2::margin(t = 14)))
 }
 
+#' Resumen de decisiones DR-MNAR vs Raking (lámina de cierre del deck)
+#'
+#' Barras del conteo de preguntas por decisión metodológica
+#' ([resumen_decision_norespuesta()]) con una nota de multiple testing: a
+#' cuántas señales por azar da lugar el número de pruebas corridas a `alfa`,
+#' para leer las detecciones DR-MNAR del corte con cautela. Se movió aquí
+#' (antes vivía inline en el script `press_norespuesta` de cada proyecto)
+#' para que el deck use puras funciones del paquete.
+#'
+#' @param diagnostico Tibble de [diagnosticar_norespuesta()].
+#' @param alfa Nivel de significancia usado en el diagnóstico (default 0.05).
+#' @return Objeto [ggplot2::ggplot].
+#' @export
+graficar_decision_norespuesta <- function(diagnostico, alfa = 0.05) {
+  decision <- resumen_decision_norespuesta(diagnostico)
+  preguntas_dr <- decision$pregunta[decision$decision == "DR-MNAR"]
+  n_no_estimable <- sum(!is.finite(diagnostico$gamma_y))
+  esperados_fp <- round(nrow(decision) * alfa, 1)
+
+  decision |>
+    dplyr::count(decision) |>
+    ggplot(aes(x = decision, y = n, fill = decision)) +
+    geom_col(width = 0.5) +
+    geom_text(aes(label = n), vjust = -0.4, size = 6, fontface = "bold") +
+    scale_fill_manual(
+      values = c("DR-MNAR" = COLOR_MORANT, "Raking" = COLOR_NEUTRO),
+      guide = "none"
+    ) +
+    labs(
+      x = NULL, y = "preguntas",
+      subtitle = stringr::str_wrap(sprintf(
+        paste0(
+          "Con %d pruebas a alfa = %s se esperan ~%s señales por azar: ",
+          "las %d detecciones DR-MNAR de este corte (%s) deben ",
+          "confirmarse con más muestra antes de leerse como sesgo real. ",
+          "%d pregunta(s) sin gamma estimable al corte."
+        ),
+        nrow(decision), alfa, esperados_fp, length(preguntas_dr),
+        paste(preguntas_dr, collapse = ", "), n_no_estimable
+      ), 90)
+    ) +
+    tema_morant()
+}
+
 # Clase R6 -----------------------------------------------------------------
 
 #' Análisis de no respuesta no ignorable (DR-MNAR)
