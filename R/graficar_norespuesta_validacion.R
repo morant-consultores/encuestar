@@ -284,6 +284,15 @@ graficar_balance_instrumento <- function(tabla, umbral = 0.1) {
 #' @export
 graficar_heterogeneidad_norespuesta <- function(diagnostico) {
   bd <- diagnostico |> dplyr::filter(is.finite(.data$gamma_y))
+  # Un gamma que no convergió sale finito pero disparatado —en el diagnóstico
+  # por estrato aparecieron +37 y +29 en escala logit, con errores estándar de
+  # 1e7— porque el solucionador se fue al infinito con pocas celdas. Graficarlo
+  # aplasta la escala y, peor, inventa un "cambio de signo" que es basura
+  # numérica y no heterogeneidad. La regla de decisión ya los excluye; la
+  # gráfica tenía que hacer lo mismo.
+  if ("convergencia" %in% names(bd)) {
+    bd <- bd |> dplyr::filter(!is.na(.data$convergencia), .data$convergencia)
+  }
   if (nrow(bd) == 0 || length(unique(bd$subconjunto)) < 2) return(NULL)
 
   bd <- bd |>

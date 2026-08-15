@@ -75,3 +75,28 @@ test_that("graficar_heterogeneidad_norespuesta marca los cambios de signo", {
 test_that("graficar_heterogeneidad_norespuesta devuelve NULL con un solo subconjunto", {
   expect_null(graficar_heterogeneidad_norespuesta(fixture_impacto()))
 })
+
+test_that("graficar_heterogeneidad_norespuesta descarta lo que no convergió", {
+  # Un gamma sin convergencia sale finito pero disparatado: en el corte
+  # municipal por estrato aparecieron +37 y +29 en escala logit, con errores
+  # estándar de 1e7. Graficarlos aplasta la escala y, peor, inventa un "cambio
+  # de signo" que es basura numérica, no heterogeneidad.
+  diag <- tibble::tibble(
+    pregunta = rep(c("aprob_pm", "chapulineo"), each = 2),
+    categoria = "Sí",
+    subconjunto = rep(c("A", "B"), 2),
+    gamma_y = c(0.9, 37.4, 0.4, 0.5),
+    inf = c(0.3, -1e6, -0.2, -0.1),
+    sup = c(1.5, 1e6, 1.0, 1.1),
+    no_ignorable = c(TRUE, FALSE, FALSE, FALSE),
+    decision = c("DR-MNAR", "Sin estimación", "Raking", "Raking"),
+    convergencia = c(TRUE, FALSE, TRUE, TRUE)
+  )
+  g <- graficar_heterogeneidad_norespuesta(diag)
+  expect_s3_class(g, "ggplot")
+  # la fila sin convergencia no entra
+  expect_equal(nrow(g$data), 3)
+  expect_false(any(g$data$gamma_y > 5))
+  # y sin ella aprob_pm ya no "cambia de signo"
+  expect_false(any(g$data$cambia_signo))
+})
