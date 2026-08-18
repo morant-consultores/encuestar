@@ -12,6 +12,7 @@ diagnosticar_norespuesta(
   respuesta_ind = NULL,
   subconjuntos = NULL,
   nivel_confianza = 0.95,
+  covariables_auto = FALSE,
   ...
 )
 }
@@ -37,6 +38,20 @@ elemento = todas las observaciones). Default: un solo grupo "Estado".}
 \item{nivel_confianza}{Nivel del intervalo para la prueba de
 ignorabilidad (default 95\%).}
 
+\item{covariables_auto}{Si es \code{TRUE}, cuando un subgrupo no identifica el
+modelo logístico se retiran covariables —la última de \code{covariables}
+primero— hasta lograr la estimación, avisando con un \code{message}. Por eso
+\code{covariables} debe venir ordenado de mayor a menor prioridad
+(individuales antes que contextuales). Default \code{FALSE}: el subgrupo que no
+identifica queda como "Sin estimación", que es el comportamiento histórico.
+
+Sirve para el diagnóstico por estrato: las covariables contextuales son
+terciles por sección, y dentro de un municipio los respondientes del brazo
+de tratamiento se reparten en tantas celdas que el logístico se queda sin
+rango. El estrato ya absorbe la variación municipal que esas contextuales
+capturaban, así que soltarlas ahí es defendible — pero cambia el supuesto
+de identificación, y por eso queda registrado en \code{covariables_usadas}.}
+
 \item{...}{Argumentos adicionales para \code{\link[=estimar_drmnar]{estimar_drmnar()}}.}
 }
 \value{
@@ -44,7 +59,9 @@ Tibble con una fila por pregunta x categoría x subconjunto:
 \code{pregunta}, \code{categoria}, \code{subconjunto}, \code{gamma_y}, \code{ee}, \code{inf}, \code{sup},
 \code{z_stat}, \code{no_ignorable}, \code{decision} ("DR-MNAR", "Raking" o
 "Sin estimación"), \code{n}, \code{convergencia}, \code{est_drmnar}, \code{est_rake},
-\code{diferencia} (cuánto se modifica la estimación al corregir por MNAR).
+\code{diferencia} (cuánto se modifica la estimación al corregir por MNAR) y
+\code{covariables_usadas} (el vector con el que se estimó ESA fila, que puede
+diferir entre subgrupos si \code{covariables_auto = TRUE}).
 }
 \description{
 Estima el parámetro crítico de no ignorabilidad \code{gamma_y} (vía el

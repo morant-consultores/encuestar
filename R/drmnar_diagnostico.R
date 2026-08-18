@@ -31,12 +31,27 @@
 #'   elemento = todas las observaciones). Default: un solo grupo "Estado".
 #' @param nivel_confianza Nivel del intervalo para la prueba de
 #'   ignorabilidad (default 95%).
+#' @param covariables_auto Si es `TRUE`, cuando un subgrupo no identifica el
+#'   modelo logístico se retiran covariables —la última de `covariables`
+#'   primero— hasta lograr la estimación, avisando con un `message`. Por eso
+#'   `covariables` debe venir ordenado de mayor a menor prioridad
+#'   (individuales antes que contextuales). Default `FALSE`: el subgrupo que no
+#'   identifica queda como "Sin estimación", que es el comportamiento histórico.
+#'
+#'   Sirve para el diagnóstico por estrato: las covariables contextuales son
+#'   terciles por sección, y dentro de un municipio los respondientes del brazo
+#'   de tratamiento se reparten en tantas celdas que el logístico se queda sin
+#'   rango. El estrato ya absorbe la variación municipal que esas contextuales
+#'   capturaban, así que soltarlas ahí es defendible — pero cambia el supuesto
+#'   de identificación, y por eso queda registrado en `covariables_usadas`.
 #' @param ... Argumentos adicionales para [estimar_drmnar()].
 #' @return Tibble con una fila por pregunta x categoría x subconjunto:
 #'   `pregunta`, `categoria`, `subconjunto`, `gamma_y`, `ee`, `inf`, `sup`,
 #'   `z_stat`, `no_ignorable`, `decision` ("DR-MNAR", "Raking" o
 #'   "Sin estimación"), `n`, `convergencia`, `est_drmnar`, `est_rake`,
-#'   `diferencia` (cuánto se modifica la estimación al corregir por MNAR).
+#'   `diferencia` (cuánto se modifica la estimación al corregir por MNAR) y
+#'   `covariables_usadas` (el vector con el que se estimó ESA fila, que puede
+#'   diferir entre subgrupos si `covariables_auto = TRUE`).
 #' @examples
 #' \dontrun{
 #' diagnosticar_norespuesta(
@@ -58,6 +73,7 @@ diagnosticar_norespuesta <- function(diseno, preguntas, covariables = NULL,
                                      respuesta_ind = NULL,
                                      subconjuntos = NULL,
                                      nivel_confianza = 0.95,
+                                     covariables_auto = FALSE,
                                      ...) {
   if (is.null(subconjuntos)) {
     subconjuntos <- list("Estado" = NULL)
@@ -83,24 +99,17 @@ diagnosticar_norespuesta <- function(diseno, preguntas, covariables = NULL,
         categorias <- list(NULL)
       }
       for (cat_i in categorias) {
-        res <- tryCatch(
-          estimar_drmnar(
-            diseno = diseno, pregunta = preg, covariables = covariables,
-            instrumento = instrumento, respuesta_ind = respuesta_ind,
-            categoria = cat_i, subconjunto = filtro,
-            nombre_subconjunto = nombre_sub,
-            nivel_confianza = nivel_confianza,
-            ...
-          ),
-          error = function(e) {
-            warning(
-              "No se pudo estimar `", preg, "` en `", nombre_sub, "`: ",
-              conditionMessage(e),
-              call. = FALSE
-            )
-            NULL
-          }
+        intento <- .estimar_con_reduccion(
+          diseno = diseno, pregunta = preg, covariables = covariables,
+          instrumento = instrumento, respuesta_ind = respuesta_ind,
+          categoria = cat_i, subconjunto = filtro,
+          nombre_subconjunto = nombre_sub,
+          nivel_confianza = nivel_confianza,
+          covariables_auto = covariables_auto,
+          ...
         )
+        res <- intento$res
+        covs_usadas <- intento$covariables
 
         if (is.null(res)) {
           filas[[length(filas) + 1]] <- tibble::tibble(
@@ -114,7 +123,8 @@ diagnosticar_norespuesta <- function(diseno, preguntas, covariables = NULL,
             decision = "Sin estimación",
             n = NA_integer_, convergencia = FALSE,
             est_drmnar = NA_real_, est_rake = NA_real_,
-            diferencia = NA_real_
+            diferencia = NA_real_,
+            covariables_usadas = covs_usadas
           )
           next
         }
@@ -145,13 +155,80 @@ diagnosticar_norespuesta <- function(diseno, preguntas, covariables = NULL,
           n = dr$n, convergencia = dr$convergencia,
           est_drmnar = dr$est,
           est_rake = rake$est,
-          diferencia = dr$est - rake$est
+          diferencia = dr$est - rake$est,
+          covariables_usadas = covs_usadas
         )
       }
     }
   }
 
   dplyr::bind_rows(filas)
+}
+
+# Estima una pregunta en un subconjunto, soltando covariables cuando el
+# subgrupo no las identifica.
+#
+# El caso que motiva esto: las covariables contextuales son terciles POR
+# SECCIÓN, y dentro de un municipio los respondientes del brazo de tratamiento
+# —que son los que identifican gamma— se reparten en tantas celdas que el
+# logístico se queda sin rango. No es que la covariable no varíe: es que no hay
+# datos suficientes para estimarla ahí.
+#
+# Se descarta la ÚLTIMA covariable primero, así que el llamador debe listarlas
+# de mayor a menor prioridad (individuales antes que contextuales). Dentro de un
+# estrato eso además es lo correcto: el estrato ya absorbe la variación
+# municipal que las contextuales capturaban.
+#
+# @return list(res = tibble de estimar_drmnar o NULL, covariables = texto).
+#' @keywords internal
+#' @noRd
+.estimar_con_reduccion <- function(diseno, pregunta, covariables, instrumento,
+                                   respuesta_ind, categoria, subconjunto,
+                                   nombre_subconjunto, nivel_confianza,
+                                   covariables_auto, ...) {
+  etiqueta <- function(cv) if (length(cv) == 0) "(ninguna)" else
+    paste(cv, collapse = " + ")
+
+  actual <- covariables
+  repeat {
+    ultimo_error <- NULL
+    res <- tryCatch(
+      estimar_drmnar(
+        diseno = diseno, pregunta = pregunta, covariables = actual,
+        instrumento = instrumento, respuesta_ind = respuesta_ind,
+        categoria = categoria, subconjunto = subconjunto,
+        nombre_subconjunto = nombre_subconjunto,
+        nivel_confianza = nivel_confianza, ...
+      ),
+      error = function(e) {
+        ultimo_error <<- conditionMessage(e)
+        NULL
+      }
+    )
+    if (!is.null(res)) {
+      if (!identical(actual, covariables)) {
+        message(
+          "`", pregunta, "` en `", nombre_subconjunto, "`: se estimó con ",
+          etiqueta(actual), " (se retiró ",
+          etiqueta(setdiff(covariables, actual)),
+          "; el subgrupo no identifica el vector completo)."
+        )
+      }
+      return(list(res = res, covariables = etiqueta(actual)))
+    }
+
+    # sin reducción automática, o ya no queda nada que soltar: se reporta el
+    # fallo con el vector con el que se intentó
+    if (!isTRUE(covariables_auto) || length(actual) == 0) {
+      warning(
+        "No se pudo estimar `", pregunta, "` en `", nombre_subconjunto, "`: ",
+        ultimo_error,
+        call. = FALSE
+      )
+      return(list(res = NULL, covariables = etiqueta(actual)))
+    }
+    actual <- utils::head(actual, -1L)
+  }
 }
 
 #' Resumen de la decisión metodológica por pregunta
